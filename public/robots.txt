@@ -1,0 +1,11 @@
+User-agent: *
+Allow: /
+Disallow: /auth
+Disallow: /onboarding
+Disallow: /home
+Disallow: /stats
+Disallow: /tree
+Disallow: /leaderboard
+Disallow: /profile
+Disallow: /validate
+Disallow: /premium
