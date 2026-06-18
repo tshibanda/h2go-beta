@@ -14,7 +14,282 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      achievements: {
+        Row: {
+          badge_emoji: string | null
+          code: string
+          description: string | null
+          id: string
+          title: string
+          xp_reward: number
+        }
+        Insert: {
+          badge_emoji?: string | null
+          code: string
+          description?: string | null
+          id?: string
+          title: string
+          xp_reward?: number
+        }
+        Update: {
+          badge_emoji?: string | null
+          code?: string
+          description?: string | null
+          id?: string
+          title?: string
+          xp_reward?: number
+        }
+        Relationships: []
+      }
+      daily_facts: {
+        Row: {
+          category: string | null
+          fact_text: string
+          id: string
+        }
+        Insert: {
+          category?: string | null
+          fact_text: string
+          id?: string
+        }
+        Update: {
+          category?: string | null
+          fact_text?: string
+          id?: string
+        }
+        Relationships: []
+      }
+      hydration_logs: {
+        Row: {
+          created_at: string
+          detected_object: Database["public"]["Enums"]["detected_object"] | null
+          id: string
+          image_hash: string | null
+          photo_url: string | null
+          user_id: string
+          validated: boolean
+          validation_score: number | null
+          volume_ml: number
+        }
+        Insert: {
+          created_at?: string
+          detected_object?:
+            | Database["public"]["Enums"]["detected_object"]
+            | null
+          id?: string
+          image_hash?: string | null
+          photo_url?: string | null
+          user_id: string
+          validated?: boolean
+          validation_score?: number | null
+          volume_ml: number
+        }
+        Update: {
+          created_at?: string
+          detected_object?:
+            | Database["public"]["Enums"]["detected_object"]
+            | null
+          id?: string
+          image_hash?: string | null
+          photo_url?: string | null
+          user_id?: string
+          validated?: boolean
+          validation_score?: number | null
+          volume_ml?: number
+        }
+        Relationships: []
+      }
+      leaderboard_seed: {
+        Row: {
+          avatar: string
+          id: string
+          league: string
+          name: string
+          points: number
+        }
+        Insert: {
+          avatar: string
+          id?: string
+          league: string
+          name: string
+          points: number
+        }
+        Update: {
+          avatar?: string
+          id?: string
+          league?: string
+          name?: string
+          points?: number
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          age: number | null
+          avatar_url: string | null
+          created_at: string
+          daily_goal_ml: number
+          email: string | null
+          id: string
+          name: string | null
+          onboarded: boolean
+          subscription_status: Database["public"]["Enums"]["subscription_status"]
+          updated_at: string
+          weight_kg: number | null
+        }
+        Insert: {
+          age?: number | null
+          avatar_url?: string | null
+          created_at?: string
+          daily_goal_ml?: number
+          email?: string | null
+          id: string
+          name?: string | null
+          onboarded?: boolean
+          subscription_status?: Database["public"]["Enums"]["subscription_status"]
+          updated_at?: string
+          weight_kg?: number | null
+        }
+        Update: {
+          age?: number | null
+          avatar_url?: string | null
+          created_at?: string
+          daily_goal_ml?: number
+          email?: string | null
+          id?: string
+          name?: string | null
+          onboarded?: boolean
+          subscription_status?: Database["public"]["Enums"]["subscription_status"]
+          updated_at?: string
+          weight_kg?: number | null
+        }
+        Relationships: []
+      }
+      reminders: {
+        Row: {
+          created_at: string
+          enabled: boolean
+          id: string
+          reminder_time: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          enabled?: boolean
+          id?: string
+          reminder_time: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          enabled?: boolean
+          id?: string
+          reminder_time?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      streaks: {
+        Row: {
+          best_streak: number
+          current_streak: number
+          last_log_date: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          best_streak?: number
+          current_streak?: number
+          last_log_date?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          best_streak?: number
+          current_streak?: number
+          last_log_date?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      subscriptions: {
+        Row: {
+          current_period_end: string | null
+          status: Database["public"]["Enums"]["subscription_status"]
+          stripe_customer_id: string | null
+          stripe_subscription_id: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          current_period_end?: string | null
+          status?: Database["public"]["Enums"]["subscription_status"]
+          stripe_customer_id?: string | null
+          stripe_subscription_id?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          current_period_end?: string | null
+          status?: Database["public"]["Enums"]["subscription_status"]
+          stripe_customer_id?: string | null
+          stripe_subscription_id?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      user_achievements: {
+        Row: {
+          achievement_id: string
+          earned_at: string
+          id: string
+          user_id: string
+        }
+        Insert: {
+          achievement_id: string
+          earned_at?: string
+          id?: string
+          user_id: string
+        }
+        Update: {
+          achievement_id?: string
+          earned_at?: string
+          id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_achievements_achievement_id_fkey"
+            columns: ["achievement_id"]
+            isOneToOne: false
+            referencedRelation: "achievements"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      xp: {
+        Row: {
+          current_xp: number
+          level: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          current_xp?: number
+          level?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          current_xp?: number
+          level?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
@@ -23,7 +298,26 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
-      [_ in never]: never
+      detected_object:
+        | "water_glass"
+        | "water_bottle"
+        | "water_flask"
+        | "water_cup"
+        | "soda"
+        | "juice"
+        | "coffee"
+        | "tea"
+        | "alcohol"
+        | "empty"
+        | "screen"
+        | "photo_replay"
+        | "unknown"
+      subscription_status:
+        | "free"
+        | "trialing"
+        | "active"
+        | "past_due"
+        | "canceled"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -150,6 +444,29 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      detected_object: [
+        "water_glass",
+        "water_bottle",
+        "water_flask",
+        "water_cup",
+        "soda",
+        "juice",
+        "coffee",
+        "tea",
+        "alcohol",
+        "empty",
+        "screen",
+        "photo_replay",
+        "unknown",
+      ],
+      subscription_status: [
+        "free",
+        "trialing",
+        "active",
+        "past_due",
+        "canceled",
+      ],
+    },
   },
 } as const
