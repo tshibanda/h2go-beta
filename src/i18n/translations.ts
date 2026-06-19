@@ -44,9 +44,9 @@ export const TRANSLATIONS = {
 
     // Paywall / Premium
     "pay.title": "H2GO Premium",
-    "pay.trialNote": "7-day free trial — cancel anytime",
-    "pay.locked.title": "Subscribe to unlock H2GO",
-    "pay.locked.body": "Your free trial has ended. Pick a plan to keep tracking your hydration.",
+    "pay.trialNote": "7-day free trial — payment method required, cancel anytime",
+    "pay.locked.title": "Start your free trial to unlock H2GO",
+    "pay.locked.body": "Enter your payment information to start your 7-day free trial. You won't be charged until the trial ends, and you can cancel anytime.",
     "pay.featuresHeader": "What's included",
     "pay.f1": "Unlimited AI-verified sips",
     "pay.f2": "AI Coach: personalized goals",
