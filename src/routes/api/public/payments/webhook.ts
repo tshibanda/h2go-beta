@@ -58,7 +58,7 @@ async function handleSubscription(subscription: StripeSubscription, env: StripeE
       stripe_customer_id: subscription.customer,
       product_id: productId,
       price_id: priceLookup(item),
-      status: subscription.status,
+      status: subscription.status as "active" | "canceled" | "free" | "past_due" | "trialing",
       current_period_start: isoFromUnix(periodStart),
       current_period_end: isoFromUnix(periodEnd),
       cancel_at_period_end: subscription.cancel_at_period_end ?? false,
