@@ -101,13 +101,13 @@ function HomePage() {
             <p className="text-xs text-muted-foreground">
               {now.toLocaleDateString(locale, { weekday: "long", day: "numeric", month: "long" })}
             </p>
-            <h1 className="sr-only">Hydration Dashboard</h1>
-            <p className="font-display text-2xl font-bold" aria-hidden="true">{locale === "fr" ? "Salut" : "Hi"} {name} 👋</p>
+            <h1 className="sr-only">{t("home.dashboard")}</h1>
+            <p className="font-display text-2xl font-bold" aria-hidden="true">{t("home.greeting")} {name} 👋</p>
           </div>
           <div className="flex items-center gap-2">
             <button
               type="button"
-              aria-label={locale === "fr" ? "Voir les notifications" : "View notifications"}
+              aria-label={t("home.viewNotifs")}
               className="w-10 h-10 rounded-full bg-primary-soft flex items-center justify-center relative"
             >
               <Bell size={18} color="#3B82F6" />
@@ -117,7 +117,7 @@ function HomePage() {
             </button>
             <Link
               to="/profile"
-              aria-label={locale === "fr" ? "Voir le profil" : "View profile"}
+              aria-label={t("home.viewProfile")}
               className="w-10 h-10 rounded-full flex items-center justify-center text-xl bg-gradient-to-br from-[#60A5FA] to-primary text-white"
             >
               🌊
