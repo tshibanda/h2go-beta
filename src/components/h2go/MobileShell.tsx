@@ -19,7 +19,7 @@ export function MobileShell({ children }: { children: React.ReactNode }) {
         <div className="flex-1 overflow-y-auto no-sb relative pb-2">{children}</div>
         <nav className="flex-shrink-0 px-2 pt-1 pb-1 bg-card border-t border-border">
           <div className="flex">
-            {items.map(({ to, Icon, label }) => {
+            {items.map(({ to, Icon, key }) => {
               const active = pathname === to;
               return (
                 <Link
@@ -37,7 +37,7 @@ export function MobileShell({ children }: { children: React.ReactNode }) {
                     className="text-[10px]"
                     style={{ color: active ? "#3B82F6" : "#94A3B8", fontWeight: active ? 600 : 400 }}
                   >
-                    {label}
+                    {t(key)}
                   </span>
                 </Link>
               );
