@@ -143,7 +143,7 @@ function ValidatePage() {
             >
               <Camera size={30} />
             </button>
-            <p className="text-xs text-white/50">Tap to capture</p>
+            <p className="text-xs text-white/50">{t("val.tapToCapture")}</p>
           </div>
         </>
       )}
