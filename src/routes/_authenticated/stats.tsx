@@ -47,7 +47,9 @@ function StatsPage() {
 
   const weekData = useMemo(() => {
     if (!logs) return [];
-    const days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+    const days = locale === "fr"
+      ? ["Dim", "Lun", "Mar", "Mer", "Jeu", "Ven", "Sam"]
+      : ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
     const start = new Date(today.getTime() - 6 * 86400000);
     const buckets: Record<string, number> = {};
     for (const l of logs) {
