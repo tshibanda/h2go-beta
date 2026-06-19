@@ -5,10 +5,6 @@ export const Route = createFileRoute("/api/public/activate-h2go-live")({
   server: {
     handlers: {
       POST: async () => {
-        {
-        if (false) {
-          return new Response("Unauthorized", { status: 401 });
-        }
         try {
           const stripe = createStripeClient("live");
           const all = await stripe.products.list({ limit: 100 });
