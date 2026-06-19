@@ -131,9 +131,9 @@ function ProfilePage() {
         {/* Reminders */}
         <div className="mx-4 rounded-2xl p-4 bg-card shadow-sm">
           <div className="flex items-center justify-between mb-2">
-            <p className="font-display text-base font-semibold">Reminders</p>
+            <p className="font-display text-base font-semibold">{t("p.reminders")}</p>
             {!editReminders && (
-              <button onClick={startEdit} className="text-xs text-primary font-semibold">Edit</button>
+              <button onClick={startEdit} className="text-xs text-primary font-semibold">{t("p.edit")}</button>
             )}
           </div>
           {!editReminders ? (
@@ -146,26 +146,44 @@ function ProfilePage() {
             </div>
           ) : (
             <div className="flex flex-col gap-2">
-              {times.map((t, i) => (
+              {times.map((time, i) => (
                 <div key={i} className="flex gap-2">
-                  <Input type="time" value={t} onChange={(e) => { const n = [...times]; n[i] = e.target.value; setTimes(n); }} />
+                  <Input type="time" value={time} onChange={(e) => { const n = [...times]; n[i] = e.target.value; setTimes(n); }} />
                   <button onClick={() => times.length > 3 && setTimes(times.filter((_, j) => j !== i))} className="px-3 text-destructive disabled:opacity-30" disabled={times.length <= 3}>×</button>
                 </div>
               ))}
-              <Button variant="outline" onClick={() => times.length < 12 && setTimes([...times, "14:00"])} disabled={times.length >= 12}>+ Add</Button>
-              <Button onClick={saveTimes}>Save</Button>
+              <Button variant="outline" onClick={() => times.length < 12 && setTimes([...times, "14:00"])} disabled={times.length >= 12}>{t("p.add")}</Button>
+              <Button onClick={saveTimes}>{t("p.save")}</Button>
             </div>
           )}
-          <p className="text-[10px] text-muted-foreground mt-2">3 to 12 reminders, at least 1 hour apart.</p>
+          <p className="text-[10px] text-muted-foreground mt-2">{t("p.reminderHint")}</p>
+        </div>
+
+        {/* Language */}
+        <div className="mx-4 rounded-2xl p-4 bg-card shadow-sm">
+          <div className="flex items-center gap-2 mb-3">
+            <Languages size={16} className="text-muted-foreground" />
+            <p className="font-display text-base font-semibold">{t("p.language")}</p>
+          </div>
+          <div className="flex gap-2">
+            <button
+              onClick={() => setLocale("en")}
+              className={`flex-1 py-2 rounded-xl text-sm font-semibold ${locale === "en" ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground"}`}
+            >🇬🇧 English</button>
+            <button
+              onClick={() => setLocale("fr")}
+              className={`flex-1 py-2 rounded-xl text-sm font-semibold ${locale === "fr" ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground"}`}
+            >🇫🇷 Français</button>
+          </div>
         </div>
 
         {/* Premium */}
         <Link to="/premium" className="mx-4 rounded-2xl p-4 flex items-center gap-3 bg-gradient-to-br from-[#1E3A8A] to-primary shadow-lg">
           <Crown size={26} color="#FDE68A" />
           <div className="flex-1">
-            <p className="font-display text-base font-bold text-white">H2GO Premium</p>
+            <p className="font-display text-base font-bold text-white">{t("p.premium")}</p>
             <p className="text-[11px] text-white/80">
-              {isPremium ? "Active" : "AI Coach, unlimited reminders, leagues"}
+              {isPremium ? t("p.premiumActive") : t("p.premiumPitch")}
             </p>
           </div>
           <ChevronRight size={18} className="text-white/60" />
