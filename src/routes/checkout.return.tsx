@@ -15,7 +15,7 @@ export const Route = createFileRoute("/checkout/return")({
 });
 
 function CheckoutReturn() {
-  const { t, locale } = useT();
+  const { t } = useT();
   const navigate = useNavigate();
   const qc = useQueryClient();
 
@@ -30,12 +30,10 @@ function CheckoutReturn() {
       <div className="w-full max-w-sm bg-card rounded-3xl p-6 shadow-2xl text-center flex flex-col items-center gap-3">
         <Splash mood="celebrating" size={90} />
         <h1 className="font-display text-2xl font-bold">
-          {locale === "fr" ? "Bienvenue à bord !" : "Welcome aboard!"}
+          {t("checkout.welcome")}
         </h1>
         <p className="text-sm text-muted-foreground">
-          {locale === "fr"
-            ? "Ton abonnement est actif. Profite de H2GO sans limite."
-            : "Your subscription is active. Enjoy H2GO without limits."}
+          {t("checkout.welcomeBody")}
         </p>
         <Button
           onClick={() => navigate({ to: "/home" })}
