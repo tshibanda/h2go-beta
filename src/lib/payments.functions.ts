@@ -25,8 +25,17 @@ function isH2goPriceId(priceId: string): priceId is H2goPriceId {
 
 async function ensureProductActive(stripe: StripeClient, productId: string) {
   const product = await stripe.products.retrieve(productId);
+  if ("deleted" in product && product.deleted) {
+    return null;
+  }
   if (!product.active) {
-    return stripe.products.update(productId, { active: true });
+    console.log("[checkout] reactivating inactive product", { productId });
+    const updated = await stripe.products.update(productId, {
+      active: true,
+      tax_code: H2GO_PRODUCT.taxCode,
+      metadata: { ...product.metadata, lovable_external_id: H2GO_PRODUCT.id },
+    });
+    return updated.active ? updated : null;
   }
   return product;
 }
@@ -72,12 +81,11 @@ async function resolveH2goProduct(stripe: StripeClient) {
 }
 
 async function resolveH2goPrice(stripe: StripeClient, priceId: string) {
-  const prices = await stripe.prices.list({ lookup_keys: [priceId], active: true, limit: 1 });
-  if (prices.data.length) {
-    const price = prices.data[0];
+  const prices = await stripe.prices.list({ lookup_keys: [priceId], active: true, limit: 100 });
+  for (const price of prices.data) {
     const productId = typeof price.product === "string" ? price.product : price.product.id;
-    await ensureProductActive(stripe, productId);
-    return price;
+    const product = await ensureProductActive(stripe, productId);
+    if (product?.active) return price;
   }
   if (!isH2goPriceId(priceId)) throw new Error("Price not found");
 
@@ -96,8 +104,12 @@ async function resolveH2goPrice(stripe: StripeClient, priceId: string) {
       metadata: { lovable_external_id: priceId },
     });
   } catch (error) {
-    const retry = await stripe.prices.list({ lookup_keys: [priceId], active: true, limit: 1 });
-    if (retry.data.length) return retry.data[0];
+    const retry = await stripe.prices.list({ lookup_keys: [priceId], active: true, limit: 100 });
+    for (const price of retry.data) {
+      const productId = typeof price.product === "string" ? price.product : price.product.id;
+      const activeProduct = await ensureProductActive(stripe, productId);
+      if (activeProduct?.active) return price;
+    }
     throw error;
   }
 }
