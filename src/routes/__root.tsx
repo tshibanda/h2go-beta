@@ -85,9 +85,13 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { name: "description", content: "H2GO is a premium hydration coach: AI-verified sips, streaks, XP, and a growing water tree." },
       { name: "author", content: "H2GO" },
       { property: "og:title", content: "H2GO — Premium Hydration Coaching" },
-      { property: "og:description", content: "Build a hydration habit with AI-verified sips and a growing water tree." },
+      { property: "og:description", content: "H2GO is a premium hydration coach: AI-verified sips, streaks, XP, and a growing water tree." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
+      { name: "twitter:title", content: "H2GO — Premium Hydration Coaching" },
+      { name: "twitter:description", content: "H2GO is a premium hydration coach: AI-verified sips, streaks, XP, and a growing water tree." },
+      { property: "og:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/e603efb0-f5c9-42ae-a883-45e41fb4f30c/id-preview-5861b125--2d165fb1-656c-4d32-836b-5c5b93a392e5.lovable.app-1781854185439.png" },
+      { name: "twitter:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/e603efb0-f5c9-42ae-a883-45e41fb4f30c/id-preview-5861b125--2d165fb1-656c-4d32-836b-5c5b93a392e5.lovable.app-1781854185439.png" },
     ],
     links: [
       {
