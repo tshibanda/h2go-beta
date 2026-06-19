@@ -2,7 +2,7 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
-import { Settings, Star, Crown, ChevronRight, LogOut } from "lucide-react";
+import { Star, Crown, ChevronRight, LogOut, Languages } from "lucide-react";
 import { getDashboard, getTotals, saveReminders } from "@/lib/h2go.functions";
 import { MobileShell } from "@/components/h2go/MobileShell";
 import { levelForXp } from "@/lib/gamification";
@@ -10,6 +10,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
+import { useT } from "@/i18n";
 
 export const Route = createFileRoute("/_authenticated/profile")({
   head: () => ({ meta: [{ title: "Profile — H2GO" }] }),
