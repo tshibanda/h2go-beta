@@ -44,9 +44,9 @@ export const TRANSLATIONS = {
 
     // Paywall / Premium
     "pay.title": "H2GO Premium",
-    "pay.trialNote": "7-day free trial — cancel anytime",
-    "pay.locked.title": "Subscribe to unlock H2GO",
-    "pay.locked.body": "Your free trial has ended. Pick a plan to keep tracking your hydration.",
+    "pay.trialNote": "7-day free trial — payment method required, cancel anytime",
+    "pay.locked.title": "Start your free trial to unlock H2GO",
+    "pay.locked.body": "Enter your payment information to start your 7-day free trial. You won't be charged until the trial ends, and you can cancel anytime.",
     "pay.featuresHeader": "What's included",
     "pay.f1": "Unlimited AI-verified sips",
     "pay.f2": "AI Coach: personalized goals",
@@ -218,9 +218,9 @@ export const TRANSLATIONS = {
     "ob.toastFail": "Échec de la configuration",
 
     "pay.title": "H2GO Premium",
-    "pay.trialNote": "7 jours d'essai gratuit — sans engagement",
-    "pay.locked.title": "Abonne-toi pour accéder à H2GO",
-    "pay.locked.body": "Ta période d'essai est terminée. Choisis un plan pour continuer à suivre ton hydratation.",
+    "pay.trialNote": "7 jours d'essai gratuit — carte bancaire requise, sans engagement",
+    "pay.locked.title": "Démarre ton essai gratuit pour débloquer H2GO",
+    "pay.locked.body": "Renseigne tes informations de paiement pour démarrer tes 7 jours d'essai gratuit. Aucun prélèvement avant la fin de l'essai, annulation possible à tout moment.",
     "pay.featuresHeader": "Ce qui est inclus",
     "pay.f1": "Gorgées vérifiées par l'IA en illimité",
     "pay.f2": "Coach IA : objectifs personnalisés",
