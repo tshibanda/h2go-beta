@@ -221,8 +221,8 @@ function HomePage() {
         <Link to="/tree" className="mx-4 rounded-2xl p-4 flex items-center gap-3 bg-gradient-to-br from-emerald-50 to-emerald-100 border border-emerald-300/30">
           <div className="text-3xl">{treeStageForLogs(0).emoji}</div>
           <div className="flex-1">
-            <p className="text-[11px] text-emerald-800">Your hydration tree</p>
-            <p className="font-display text-base font-bold text-emerald-900">Watch it grow →</p>
+            <p className="text-[11px] text-emerald-800">{t("home.treeTitle")}</p>
+            <p className="font-display text-base font-bold text-emerald-900">{t("home.treeCta")}</p>
           </div>
         </Link>
       </div>
