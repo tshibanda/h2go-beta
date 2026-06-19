@@ -106,11 +106,11 @@ function ValidatePage() {
       <SplashDefs />
       {phase === "camera" && (
         <>
-          <h1 className="sr-only">Snap your sip</h1>
+          <h1 className="sr-only">{t("val.headerSr")}</h1>
           <div className="flex items-center justify-between px-4 py-4">
             <button
               onClick={() => navigate({ to: "/home" })}
-              aria-label="Back to home"
+              aria-label={t("common.back")}
               className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center"
             >
               <X size={20} />
