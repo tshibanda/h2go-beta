@@ -131,9 +131,11 @@ export type Database = {
           daily_goal_ml: number
           email: string | null
           id: string
+          locale: string
           name: string | null
           onboarded: boolean
           subscription_status: Database["public"]["Enums"]["subscription_status"]
+          trial_ends_at: string | null
           updated_at: string
           weight_kg: number | null
         }
@@ -144,9 +146,11 @@ export type Database = {
           daily_goal_ml?: number
           email?: string | null
           id: string
+          locale?: string
           name?: string | null
           onboarded?: boolean
           subscription_status?: Database["public"]["Enums"]["subscription_status"]
+          trial_ends_at?: string | null
           updated_at?: string
           weight_kg?: number | null
         }
@@ -157,9 +161,11 @@ export type Database = {
           daily_goal_ml?: number
           email?: string | null
           id?: string
+          locale?: string
           name?: string | null
           onboarded?: boolean
           subscription_status?: Database["public"]["Enums"]["subscription_status"]
+          trial_ends_at?: string | null
           updated_at?: string
           weight_kg?: number | null
         }
