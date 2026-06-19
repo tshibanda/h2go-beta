@@ -9,15 +9,16 @@ type Ctx = {
 
 const LanguageContext = createContext<Ctx | null>(null);
 const STORAGE_KEY = "h2go.locale";
+const MANUAL_KEY = "h2go.locale.manual";
 
 function readInitial(): Locale {
   if (typeof window === "undefined") return "en";
+  const isManual = window.localStorage.getItem(MANUAL_KEY) === "true";
   const stored = window.localStorage.getItem(STORAGE_KEY);
-  if (stored === "fr" || stored === "en") return stored;
-  const langs = [
-    ...(window.navigator?.languages ?? []),
-    window.navigator?.language ?? "",
-  ].map((l) => l.toLowerCase());
+  if (isManual && (stored === "fr" || stored === "en")) return stored;
+  const langs = [...(window.navigator?.languages ?? []), window.navigator?.language ?? ""].map(
+    (l) => l.toLowerCase(),
+  );
   return langs.some((l) => l.startsWith("fr")) ? "fr" : "en";
 }
 
@@ -36,12 +37,14 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
     setLocaleState(l);
     if (typeof window !== "undefined") {
       window.localStorage.setItem(STORAGE_KEY, l);
+      window.localStorage.setItem(MANUAL_KEY, "true");
       document.documentElement.lang = l;
     }
   }
 
   function t(key: TranslationKey, vars?: Record<string, string | number>) {
-    let str: string = (TRANSLATIONS[locale] as Record<string, string>)[key] ?? TRANSLATIONS.en[key] ?? key;
+    let str: string =
+      (TRANSLATIONS[locale] as Record<string, string>)[key] ?? TRANSLATIONS.en[key] ?? key;
     if (vars) {
       for (const [k, v] of Object.entries(vars)) {
         str = str.replace(new RegExp(`\\{${k}\\}`, "g"), String(v));
