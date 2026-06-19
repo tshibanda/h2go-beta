@@ -135,6 +135,7 @@ export type Database = {
           name: string | null
           onboarded: boolean
           subscription_status: Database["public"]["Enums"]["subscription_status"]
+          tree_boost: number
           trial_ends_at: string | null
           updated_at: string
           weight_kg: number | null
@@ -150,6 +151,7 @@ export type Database = {
           name?: string | null
           onboarded?: boolean
           subscription_status?: Database["public"]["Enums"]["subscription_status"]
+          tree_boost?: number
           trial_ends_at?: string | null
           updated_at?: string
           weight_kg?: number | null
@@ -165,6 +167,7 @@ export type Database = {
           name?: string | null
           onboarded?: boolean
           subscription_status?: Database["public"]["Enums"]["subscription_status"]
+          tree_boost?: number
           trial_ends_at?: string | null
           updated_at?: string
           weight_kg?: number | null
@@ -226,8 +229,10 @@ export type Database = {
           current_period_end: string | null
           current_period_start: string | null
           environment: string
+          past_due_since: string | null
           price_id: string | null
           product_id: string | null
+          reward_granted: boolean
           status: Database["public"]["Enums"]["subscription_status"]
           stripe_customer_id: string | null
           stripe_subscription_id: string | null
@@ -240,8 +245,10 @@ export type Database = {
           current_period_end?: string | null
           current_period_start?: string | null
           environment?: string
+          past_due_since?: string | null
           price_id?: string | null
           product_id?: string | null
+          reward_granted?: boolean
           status?: Database["public"]["Enums"]["subscription_status"]
           stripe_customer_id?: string | null
           stripe_subscription_id?: string | null
@@ -254,8 +261,10 @@ export type Database = {
           current_period_end?: string | null
           current_period_start?: string | null
           environment?: string
+          past_due_since?: string | null
           price_id?: string | null
           product_id?: string | null
+          reward_granted?: boolean
           status?: Database["public"]["Enums"]["subscription_status"]
           stripe_customer_id?: string | null
           stripe_subscription_id?: string | null
