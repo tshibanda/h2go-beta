@@ -11,6 +11,9 @@ import { supabase } from "@/integrations/supabase/client";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
+import { HydrationReminderSettings } from "@/components/h2go/HydrationReminderSettings";
+import { useEffect } from "react";
+import { maybePromptFirstLaunch } from "@/lib/notifications";
 import { useT } from "@/i18n";
 import { getStripeEnvironment } from "@/lib/stripe";
 
@@ -30,6 +33,10 @@ function ProfilePage() {
   const { data: totals } = useQuery({ queryKey: ["totals"], queryFn: () => fetchTotals() });
   const [editReminders, setEditReminders] = useState(false);
   const [times, setTimes] = useState<string[]>([]);
+
+  useEffect(() => {
+    void maybePromptFirstLaunch();
+  }, []);
 
   if (!data) return <MobileShell><div className="p-6 text-muted-foreground">{t("common.loading")}</div></MobileShell>;
 
@@ -160,6 +167,8 @@ function ProfilePage() {
           )}
           <p className="text-[10px] text-muted-foreground mt-2">{t("p.reminderHint")}</p>
         </div>
+
+        <HydrationReminderSettings />
 
         {/* Language */}
         <div className="mx-4 rounded-2xl p-4 bg-card shadow-sm">
