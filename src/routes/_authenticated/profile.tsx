@@ -18,7 +18,16 @@ import { useT } from "@/i18n";
 import { getStripeEnvironment } from "@/lib/stripe";
 
 export const Route = createFileRoute("/_authenticated/profile")({
-  head: () => ({ meta: [{ title: "Profile — H2GO" }] }),
+  head: () => ({
+    meta: [
+      { title: "Your Profile — H2GO" },
+      { name: "description", content: "View your H2GO hydration stats, badges, level progress, reminders, and subscription settings." },
+      { property: "og:title", content: "Your Profile — H2GO" },
+      { property: "og:description", content: "View your H2GO hydration stats, badges, level progress, reminders, and subscription settings." },
+      { property: "og:url", content: "https://h2go-beta.lovable.app/profile" },
+    ],
+    links: [{ rel: "canonical", href: "https://h2go-beta.lovable.app/profile" }],
+  }),
   component: ProfilePage,
 });
 
