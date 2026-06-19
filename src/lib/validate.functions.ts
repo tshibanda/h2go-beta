@@ -217,7 +217,8 @@ export const validatePhoto = createServerFn({ method: "POST" })
       const prevTotal = todayTotal - volume;
       if (prevTotal < goal && todayTotal >= goal) newXp += 50;
 
-      await supabase
+      const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+      await supabaseAdmin
         .from("xp")
         .update({ current_xp: newXp })
         .eq("user_id", userId);
