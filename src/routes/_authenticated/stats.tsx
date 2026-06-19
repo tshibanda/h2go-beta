@@ -8,6 +8,7 @@ import {
 } from "recharts";
 import { getStats, getDashboard, getTotals } from "@/lib/h2go.functions";
 import { MobileShell } from "@/components/h2go/MobileShell";
+import { useT } from "@/i18n";
 
 export const Route = createFileRoute("/_authenticated/stats")({
   head: () => ({ meta: [{ title: "Stats — H2GO" }] }),
