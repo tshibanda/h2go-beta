@@ -111,11 +111,11 @@ function HomePage() {
         <div className="mx-4 rounded-3xl p-4 bg-gradient-to-br from-[#EFF6FF] to-[#DBEAFE] border border-primary/10">
           <div className="flex items-center justify-between mb-3">
             <div>
-              <p className="text-[11px] text-muted-foreground">Daily goal</p>
+              <p className="text-[11px] text-muted-foreground">{locale === "fr" ? "Objectif" : "Daily goal"}</p>
               <p className="font-display text-xl font-bold">{(goal / 1000).toFixed(1)}L</p>
             </div>
             <div className="text-right">
-              <p className="text-[11px] text-muted-foreground">Remaining</p>
+              <p className="text-[11px] text-muted-foreground">{locale === "fr" ? "Restant" : "Remaining"}</p>
               <p className="font-display text-xl font-bold text-primary">{(remaining / 1000).toFixed(1)}L</p>
             </div>
           </div>
@@ -127,8 +127,8 @@ function HomePage() {
               <div className="rounded-2xl p-3 bg-card shadow-sm">
                 <p className="text-[11px] text-muted-foreground leading-snug">
                   {remaining === 0
-                    ? "Daily goal reached! 🎉"
-                    : "Keep going — you're doing great!"}
+                    ? t("home.goalReached")
+                    : locale === "fr" ? "Continue, tu fais super !" : "Keep going — you're doing great!"}
                 </p>
               </div>
             </div>
@@ -137,7 +137,7 @@ function HomePage() {
           {/* Validate button */}
           <Link to="/validate" className="mt-3 block">
             <button className="w-full py-3 rounded-2xl bg-gradient-to-r from-primary to-secondary text-white font-semibold flex items-center justify-center gap-2 shadow-md active:scale-95 transition">
-              <Camera size={18} /> Snap a sip
+              <Camera size={18} /> {t("home.validate")}
             </button>
           </Link>
         </div>
