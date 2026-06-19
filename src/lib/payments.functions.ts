@@ -32,7 +32,7 @@ async function ensureProductActive(stripe: StripeClient, productId: string) {
 }
 
 async function resolveH2goProduct(stripe: StripeClient) {
-  let found: Awaited<ReturnType<StripeClient["products"]["retrieve"]>> | null = null;
+  let found: import("stripe").default.Product | null = null;
   try {
     const search = await stripe.products.search({
       query: `metadata['lovable_external_id']:'${H2GO_PRODUCT.id}'`,
