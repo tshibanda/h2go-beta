@@ -284,6 +284,12 @@ export const TRANSLATIONS = {
     "tree.sipsLeft": "{n} gorgées",
     "tree.growthStages": "Étapes de croissance",
     "tree.didYouKnow": "🌱 **Le savais-tu ?** Chaque gorgée validée arrose ton arbre. Plus tu bois, plus il devient rare !",
+    "tree.stage.0": "Graine",
+    "tree.stage.1": "Pousse",
+    "tree.stage.2": "Jeune arbre",
+    "tree.stage.3": "Arbre",
+    "tree.stage.4": "Arbre rare",
+    "tree.stage.5": "Légendaire",
 
     "lb.title": "Classement 🏆",
     "lb.bronze": "🥉 Bronze",
