@@ -8,6 +8,7 @@ import { MobileShell } from "@/components/h2go/MobileShell";
 import { Splash } from "@/components/h2go/Splash";
 import { WaterRing } from "@/components/h2go/WaterRing";
 import { levelForXp, treeStageForLogs } from "@/lib/gamification";
+import { useT } from "@/i18n";
 
 export const Route = createFileRoute("/_authenticated/home")({
   head: () => ({ meta: [{ title: "Home — H2GO" }] }),
@@ -16,6 +17,7 @@ export const Route = createFileRoute("/_authenticated/home")({
 
 function HomePage() {
   const fetchDash = useServerFn(getDashboard);
+  const { t, locale } = useT();
   const { data, isLoading } = useQuery({
     queryKey: ["dashboard"],
     queryFn: () => fetchDash(),
@@ -58,7 +60,7 @@ function HomePage() {
   if (isLoading || !data) {
     return (
       <MobileShell>
-        <div className="p-6 text-muted-foreground">Loading…</div>
+        <div className="p-6 text-muted-foreground">{t("common.loading")}</div>
       </MobileShell>
     );
   }
@@ -88,9 +90,9 @@ function HomePage() {
         <div className="flex items-center justify-between px-5 pt-4">
           <div>
             <p className="text-xs text-muted-foreground">
-              {now.toLocaleDateString(undefined, { weekday: "long", day: "numeric", month: "long" })}
+              {now.toLocaleDateString(locale, { weekday: "long", day: "numeric", month: "long" })}
             </p>
-            <h1 className="font-display text-2xl font-bold">Hi {name} 👋</h1>
+            <h1 className="font-display text-2xl font-bold">{locale === "fr" ? "Salut" : "Hi"} {name} 👋</h1>
           </div>
           <div className="flex items-center gap-2">
             <button className="w-10 h-10 rounded-full bg-primary-soft flex items-center justify-center relative">
@@ -109,11 +111,11 @@ function HomePage() {
         <div className="mx-4 rounded-3xl p-4 bg-gradient-to-br from-[#EFF6FF] to-[#DBEAFE] border border-primary/10">
           <div className="flex items-center justify-between mb-3">
             <div>
-              <p className="text-[11px] text-muted-foreground">Daily goal</p>
+              <p className="text-[11px] text-muted-foreground">{locale === "fr" ? "Objectif" : "Daily goal"}</p>
               <p className="font-display text-xl font-bold">{(goal / 1000).toFixed(1)}L</p>
             </div>
             <div className="text-right">
-              <p className="text-[11px] text-muted-foreground">Remaining</p>
+              <p className="text-[11px] text-muted-foreground">{locale === "fr" ? "Restant" : "Remaining"}</p>
               <p className="font-display text-xl font-bold text-primary">{(remaining / 1000).toFixed(1)}L</p>
             </div>
           </div>
@@ -125,8 +127,8 @@ function HomePage() {
               <div className="rounded-2xl p-3 bg-card shadow-sm">
                 <p className="text-[11px] text-muted-foreground leading-snug">
                   {remaining === 0
-                    ? "Daily goal reached! 🎉"
-                    : "Keep going — you're doing great!"}
+                    ? t("home.goalReached")
+                    : locale === "fr" ? "Continue, tu fais super !" : "Keep going — you're doing great!"}
                 </p>
               </div>
             </div>
@@ -135,7 +137,7 @@ function HomePage() {
           {/* Validate button */}
           <Link to="/validate" className="mt-3 block">
             <button className="w-full py-3 rounded-2xl bg-gradient-to-r from-primary to-secondary text-white font-semibold flex items-center justify-center gap-2 shadow-md active:scale-95 transition">
-              <Camera size={18} /> Snap a sip
+              <Camera size={18} /> {t("home.validate")}
             </button>
           </Link>
         </div>
@@ -148,7 +150,7 @@ function HomePage() {
             </div>
             <div>
               <p className="font-display text-2xl font-bold text-amber-900 leading-none">{streak}</p>
-              <p className="text-[10px] text-amber-900">day streak</p>
+              <p className="text-[10px] text-amber-900">{locale === "fr" ? "jours de série" : "day streak"}</p>
             </div>
           </div>
           <div className="flex-1 rounded-2xl p-3 flex items-center gap-2.5 bg-gradient-to-br from-emerald-50 to-emerald-200 border border-emerald-300/40">
@@ -157,7 +159,7 @@ function HomePage() {
             </div>
             <div>
               <p className="font-display text-2xl font-bold text-emerald-900 leading-none">{xp.toLocaleString()}</p>
-              <p className="text-[10px] text-emerald-900">total XP</p>
+              <p className="text-[10px] text-emerald-900">{locale === "fr" ? "XP total" : "total XP"}</p>
             </div>
           </div>
         </div>
@@ -167,12 +169,12 @@ function HomePage() {
           <div className="mx-4 rounded-2xl p-4 flex items-center gap-3 bg-card border shadow-sm">
             <div className="w-12 h-12 rounded-2xl bg-primary-soft flex items-center justify-center text-2xl">⏰</div>
             <div className="flex-1">
-              <p className="text-[11px] text-muted-foreground">Next reminder</p>
+              <p className="text-[11px] text-muted-foreground">{t("home.nextReminder")}</p>
               <p className="font-display text-xl font-bold">{next.str}</p>
             </div>
             <div className="px-3 py-1.5 rounded-full bg-primary-soft">
               <span className="text-xs text-primary font-semibold">
-                {nextMins! < 60 ? `in ${nextMins}m` : `in ${Math.round(nextMins! / 60)}h`}
+                {nextMins! < 60 ? (locale === "fr" ? `dans ${nextMins}min` : `in ${nextMins}m`) : (locale === "fr" ? `dans ${Math.round(nextMins! / 60)}h` : `in ${Math.round(nextMins! / 60)}h`)}
               </span>
             </div>
           </div>
@@ -183,7 +185,7 @@ function HomePage() {
           <div className="mx-4 rounded-2xl p-4 bg-gradient-to-br from-teal-50 to-teal-100 border border-teal-300/30">
             <div className="flex items-center gap-2 mb-2">
               <span className="text-base">🧠</span>
-              <p className="text-[11px] font-semibold text-teal-800 uppercase tracking-wide">Did you know?</p>
+              <p className="text-[11px] font-semibold text-teal-800 uppercase tracking-wide">{t("home.didYouKnow")}</p>
             </div>
             <p className="text-sm text-teal-900 leading-relaxed">{data.fact.fact_text}</p>
           </div>
@@ -193,7 +195,7 @@ function HomePage() {
         <Link to="/profile" className="mx-4 rounded-2xl p-4 flex items-center gap-3 bg-gradient-to-br from-violet-100 to-violet-200 border border-violet-300/30">
           <div className="w-12 h-12 rounded-2xl bg-violet-500/15 flex items-center justify-center text-2xl">🛡️</div>
           <div className="flex-1">
-            <p className="text-[11px] text-violet-800">Level {lvl.level}</p>
+            <p className="text-[11px] text-violet-800">{t("home.level", { n: lvl.level })}</p>
             <p className="font-display text-base font-bold text-violet-900">{lvl.name}</p>
           </div>
           <ChevronRight size={18} className="text-violet-700" />
