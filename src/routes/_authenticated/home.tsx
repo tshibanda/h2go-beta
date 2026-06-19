@@ -8,6 +8,7 @@ import { MobileShell } from "@/components/h2go/MobileShell";
 import { Splash } from "@/components/h2go/Splash";
 import { WaterRing } from "@/components/h2go/WaterRing";
 import { levelForXp, treeStageForLogs } from "@/lib/gamification";
+import { useT } from "@/i18n";
 
 export const Route = createFileRoute("/_authenticated/home")({
   head: () => ({ meta: [{ title: "Home — H2GO" }] }),
