@@ -90,9 +90,9 @@ function HomePage() {
         <div className="flex items-center justify-between px-5 pt-4">
           <div>
             <p className="text-xs text-muted-foreground">
-              {now.toLocaleDateString(undefined, { weekday: "long", day: "numeric", month: "long" })}
+              {now.toLocaleDateString(locale, { weekday: "long", day: "numeric", month: "long" })}
             </p>
-            <h1 className="font-display text-2xl font-bold">Hi {name} 👋</h1>
+            <h1 className="font-display text-2xl font-bold">{locale === "fr" ? "Salut" : "Hi"} {name} 👋</h1>
           </div>
           <div className="flex items-center gap-2">
             <button className="w-10 h-10 rounded-full bg-primary-soft flex items-center justify-center relative">
