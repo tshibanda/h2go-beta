@@ -81,6 +81,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" },
       { name: "theme-color", content: "#3B82F6" },
+      { name: "google-site-verification", content: "mUJW2_k87QngLotGkwf2ixtnvpj5vbrv42T3tEoDzeU" },
       { title: "H2GO — Premium Hydration Coaching" },
       { name: "description", content: "H2GO is a premium hydration coach: AI-verified sips, streaks, XP, and a growing water tree." },
       { name: "author", content: "H2GO" },

@@ -17,6 +17,7 @@ export const Route = createFileRoute("/sitemap.xml")({
         // require sign-in and are disallowed in robots.txt.
         const entries: SitemapEntry[] = [
           { path: "/", changefreq: "weekly", priority: "1.0" },
+          { path: "/calculator", changefreq: "monthly", priority: "0.8" },
         ];
 
         const urls = entries.map((e) =>
