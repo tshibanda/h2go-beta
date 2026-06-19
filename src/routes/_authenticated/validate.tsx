@@ -123,7 +123,7 @@ function ValidatePage() {
               <div className="text-center px-4">
                 <span className="text-4xl">💧</span>
                 <p className="text-xs text-white/70 mt-2 leading-snug">
-                  Show a glass, bottle, cup or flask of <b>water</b>
+                  {t("val.frameHint").split(/\*\*(.+?)\*\*/).map((part, i) => (i % 2 === 1 ? <b key={i}>{part}</b> : <span key={i}>{part}</span>))}
                 </p>
               </div>
             </div>
