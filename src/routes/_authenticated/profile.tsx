@@ -48,7 +48,7 @@ function ProfilePage() {
   async function saveTimes() {
     try {
       await save({ data: { times } });
-      toast.success("Reminders updated");
+      toast.success(t("p.remindersSaved"));
       setEditReminders(false);
       qc.invalidateQueries({ queryKey: ["dashboard"] });
     } catch (e) {
