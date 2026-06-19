@@ -23,21 +23,44 @@ function isH2goPriceId(priceId: string): priceId is H2goPriceId {
   return priceId in H2GO_PRICES;
 }
 
+async function ensureProductActive(stripe: StripeClient, productId: string) {
+  const product = await stripe.products.retrieve(productId);
+  if (!product.active) {
+    return stripe.products.update(productId, { active: true });
+  }
+  return product;
+}
+
 async function resolveH2goProduct(stripe: StripeClient) {
+  let found: Awaited<ReturnType<StripeClient["products"]["retrieve"]>> | null = null;
   try {
-    const found = await stripe.products.search({
+    const search = await stripe.products.search({
       query: `metadata['lovable_external_id']:'${H2GO_PRODUCT.id}'`,
       limit: 1,
     });
-    if (found.data.length) return found.data[0];
+    if (search.data.length) found = search.data[0];
   } catch {
-    const listed = await stripe.products.list({ active: true, limit: 100 });
-    const existing = listed.data.find(
+    const listed = await stripe.products.list({ active: false, limit: 100 });
+    found = listed.data.find(
       (product) =>
         product.metadata?.lovable_external_id === H2GO_PRODUCT.id ||
         product.name === H2GO_PRODUCT.name,
-    );
-    if (existing) return existing;
+    ) ?? null;
+    if (!found) {
+      const activeListed = await stripe.products.list({ active: true, limit: 100 });
+      found = activeListed.data.find(
+        (product) =>
+          product.metadata?.lovable_external_id === H2GO_PRODUCT.id ||
+          product.name === H2GO_PRODUCT.name,
+      ) ?? null;
+    }
+  }
+
+  if (found) {
+    if (!found.active) {
+      return stripe.products.update(found.id, { active: true });
+    }
+    return found;
   }
 
   return stripe.products.create({
@@ -50,7 +73,12 @@ async function resolveH2goProduct(stripe: StripeClient) {
 
 async function resolveH2goPrice(stripe: StripeClient, priceId: string) {
   const prices = await stripe.prices.list({ lookup_keys: [priceId], active: true, limit: 1 });
-  if (prices.data.length) return prices.data[0];
+  if (prices.data.length) {
+    const price = prices.data[0];
+    const productId = typeof price.product === "string" ? price.product : price.product.id;
+    await ensureProductActive(stripe, productId);
+    return price;
+  }
   if (!isH2goPriceId(priceId)) throw new Error("Price not found");
 
   const plan = H2GO_PRICES[priceId];
@@ -73,6 +101,7 @@ async function resolveH2goPrice(stripe: StripeClient, priceId: string) {
     throw error;
   }
 }
+
 
 export const createCheckoutSession = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
