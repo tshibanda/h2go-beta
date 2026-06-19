@@ -115,7 +115,7 @@ function StatsPage() {
           {tab === "day" && (
             <>
               <p className="font-display text-base font-semibold mb-3">
-                Today — {((dash?.todayMl ?? 0) / 1000).toFixed(1)}L / {(goal / 1000).toFixed(1)}L
+                {t("stats.today.header", { current: ((dash?.todayMl ?? 0) / 1000).toFixed(1), goal: (goal / 1000).toFixed(1) })}
               </p>
               <ResponsiveContainer width="100%" height={170}>
                 <AreaChart data={dailyData} margin={{ top: 5, right: 5, bottom: 5, left: -20 }}>
@@ -127,7 +127,7 @@ function StatsPage() {
                   </defs>
                   <XAxis dataKey="t" tick={{ fontSize: 10 }} axisLine={false} tickLine={false} />
                   <YAxis tick={{ fontSize: 10 }} axisLine={false} tickLine={false} />
-                  <Tooltip formatter={(v: number) => [`${v} ml`, "Hydration"]} />
+                  <Tooltip formatter={(v: number) => [`${v} ml`, t("stats.tooltip.hydration")]} />
                   <Area type="monotone" dataKey="v" stroke="#3B82F6" strokeWidth={2.5} fill="url(#areaFill)" dot={{ fill: "#3B82F6", r: 4 }} />
                 </AreaChart>
               </ResponsiveContainer>
@@ -136,13 +136,13 @@ function StatsPage() {
           {tab === "week" && (
             <>
               <p className="font-display text-base font-semibold mb-3">
-                This week — {completion}% goals
+                {t("stats.week.header", { pct: completion })}
               </p>
               <ResponsiveContainer width="100%" height={170}>
                 <BarChart data={weekData} margin={{ top: 5, right: 5, bottom: 5, left: -25 }} barSize={26}>
                   <XAxis dataKey="d" tick={{ fontSize: 10 }} axisLine={false} tickLine={false} />
                   <YAxis tick={{ fontSize: 10 }} axisLine={false} tickLine={false} />
-                  <Tooltip formatter={(v: number) => [`${v}L`, "Hydration"]} />
+                  <Tooltip formatter={(v: number) => [`${v}L`, t("stats.tooltip.hydration")]} />
                   <ReferenceLine y={goal / 1000} stroke="#DBEAFE" strokeDasharray="4 2" strokeWidth={2} />
                   <Bar dataKey="v" radius={[8, 8, 4, 4]}>
                     {weekData.map((e, i) => (
@@ -155,7 +155,7 @@ function StatsPage() {
           )}
           {tab === "month" && (
             <>
-              <p className="font-display text-base font-semibold mb-3">Last 28 days</p>
+              <p className="font-display text-base font-semibold mb-3">{t("stats.month.header")}</p>
               <div className="grid grid-cols-7 gap-1">
                 {monthCells.map((c, i) => (
                   <div
@@ -172,9 +172,9 @@ function StatsPage() {
 
         <div className="flex gap-3 px-4">
           {[
-            { label: "Streak", value: streak.toString(), icon: "🔥", color: "text-amber-600" },
-            { label: "Validations", value: (totals?.totalValidations ?? 0).toString(), icon: "✅", color: "text-emerald-600" },
-            { label: "Avg/day", value: `${avg}L`, icon: "💧", color: "text-primary" },
+            { label: t("stats.kpi.streak"), value: streak.toString(), icon: "🔥", color: "text-amber-600" },
+            { label: t("stats.kpi.validations"), value: (totals?.totalValidations ?? 0).toString(), icon: "✅", color: "text-emerald-600" },
+            { label: t("stats.kpi.avg"), value: `${avg}L`, icon: "💧", color: "text-primary" },
           ].map((s, i) => (
             <div key={i} className="flex-1 rounded-2xl p-3 text-center bg-card shadow-sm">
               <p className={`font-display text-lg font-bold ${s.color}`}>
@@ -188,8 +188,8 @@ function StatsPage() {
         <div className="mx-4 rounded-2xl p-4 flex items-center gap-3 bg-gradient-to-br from-amber-100 to-amber-200 border border-amber-300/30">
           <span className="text-2xl">🏆</span>
           <div>
-            <p className="text-[11px] text-amber-900">Total consumed</p>
-            <p className="font-display text-lg font-bold text-amber-900">{totalL}L lifetime</p>
+            <p className="text-[11px] text-amber-900">{t("stats.totalConsumed")}</p>
+            <p className="font-display text-lg font-bold text-amber-900">{t("stats.lifetime", { n: totalL })}</p>
           </div>
         </div>
       </div>
