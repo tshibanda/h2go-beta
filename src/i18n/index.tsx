@@ -9,11 +9,13 @@ type Ctx = {
 
 const LanguageContext = createContext<Ctx | null>(null);
 const STORAGE_KEY = "h2go.locale";
+const MANUAL_KEY = "h2go.locale.manual";
 
 function readInitial(): Locale {
   if (typeof window === "undefined") return "en";
+  const isManual = window.localStorage.getItem(MANUAL_KEY) === "true";
   const stored = window.localStorage.getItem(STORAGE_KEY);
-  if (stored === "fr" || stored === "en") return stored;
+  if (isManual && (stored === "fr" || stored === "en")) return stored;
   const langs = [
     ...(window.navigator?.languages ?? []),
     window.navigator?.language ?? "",
@@ -36,6 +38,7 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
     setLocaleState(l);
     if (typeof window !== "undefined") {
       window.localStorage.setItem(STORAGE_KEY, l);
+      window.localStorage.setItem(MANUAL_KEY, "true");
       document.documentElement.lang = l;
     }
   }
