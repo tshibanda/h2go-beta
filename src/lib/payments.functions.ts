@@ -79,3 +79,33 @@ export const createCheckoutSession = createServerFn({ method: "POST" })
       return { error: getStripeErrorMessage(error) };
     }
   });
+
+type PortalResult = { url: string } | { error: string };
+
+export const createPortalSession = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((data: { returnUrl: string; environment: StripeEnv }) => data)
+  .handler(async ({ data, context }): Promise<PortalResult> => {
+    try {
+      const { supabase, userId } = context;
+      const { data: sub } = await supabase
+        .from("subscriptions")
+        .select("stripe_customer_id")
+        .eq("user_id", userId)
+        .eq("environment", data.environment)
+        .order("created_at", { ascending: false })
+        .limit(1)
+        .maybeSingle();
+      const customerId = (sub as { stripe_customer_id?: string } | null)?.stripe_customer_id;
+      if (!customerId) return { error: "No subscription found" };
+
+      const stripe = createStripeClient(data.environment);
+      const portal = await stripe.billingPortal.sessions.create({
+        customer: customerId,
+        return_url: data.returnUrl,
+      });
+      return { url: portal.url };
+    } catch (error) {
+      return { error: getStripeErrorMessage(error) };
+    }
+  });

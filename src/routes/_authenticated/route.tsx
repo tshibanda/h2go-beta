@@ -19,11 +19,28 @@ export const Route = createFileRoute("/_authenticated")({
       throw redirect({ to: "/onboarding" });
     }
 
-    // Subscription gate: require active sub OR active trial
+    // Subscription gate: require active sub OR active trial.
+    // past_due gets a 3-day grace period (soft-lock) before access is revoked.
     const status = profile?.subscription_status ?? "free";
     const trialEnd = (profile as { trial_ends_at?: string | null } | null)?.trial_ends_at;
     const trialActive = status === "trialing" && trialEnd && new Date(trialEnd).getTime() > Date.now();
-    const hasAccess = status === "active" || trialActive;
+
+    let pastDueGrace = false;
+    if (status === "past_due") {
+      const { data: sub } = await supabase
+        .from("subscriptions")
+        .select("past_due_since")
+        .eq("user_id", data.user.id)
+        .maybeSingle();
+      const since = (sub as { past_due_since?: string | null } | null)?.past_due_since;
+      if (since) {
+        pastDueGrace = Date.now() - new Date(since).getTime() < 3 * 86400000;
+      } else {
+        pastDueGrace = true;
+      }
+    }
+
+    const hasAccess = status === "active" || trialActive || pastDueGrace;
 
     if (!hasAccess && path !== "/premium") {
       throw redirect({ to: "/premium" });

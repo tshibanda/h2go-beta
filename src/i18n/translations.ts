@@ -89,6 +89,8 @@ export const TRANSLATIONS = {
     "p.premium": "H2GO Premium",
     "p.premiumActive": "Active",
     "p.premiumPitch": "AI Coach, unlimited reminders, leagues",
+    "p.manageSub": "Manage subscription",
+    "p.manageSubHint": "Change plan, update payment, or cancel",
     "p.language": "Language",
     "p.settings": "Settings",
 
@@ -185,6 +187,8 @@ export const TRANSLATIONS = {
     "p.premium": "H2GO Premium",
     "p.premiumActive": "Actif",
     "p.premiumPitch": "Coach IA, rappels illimités, ligues",
+    "p.manageSub": "Gérer l'abonnement",
+    "p.manageSubHint": "Changer de plan, paiement ou résilier",
     "p.language": "Langue",
     "p.settings": "Paramètres",
 
