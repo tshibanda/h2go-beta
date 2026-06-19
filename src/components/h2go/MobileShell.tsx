@@ -1,12 +1,13 @@
 import { Link, useRouterState } from "@tanstack/react-router";
 import { Home, BarChart2, Leaf, Trophy, User } from "lucide-react";
+import { useT } from "@/i18n";
 
 const items = [
-  { to: "/home", Icon: Home, label: "Home" },
-  { to: "/stats", Icon: BarChart2, label: "Stats" },
-  { to: "/tree", Icon: Leaf, label: "Tree" },
-  { to: "/leaderboard", Icon: Trophy, label: "League" },
-  { to: "/profile", Icon: User, label: "Profile" },
+  { to: "/home", Icon: Home, key: "nav.home" as const },
+  { to: "/stats", Icon: BarChart2, key: "nav.stats" as const },
+  { to: "/tree", Icon: Leaf, key: "nav.tree" as const },
+  { to: "/leaderboard", Icon: Trophy, key: "nav.league" as const },
+  { to: "/profile", Icon: User, key: "nav.profile" as const },
 ] as const;
 
 export function MobileShell({ children }: { children: React.ReactNode }) {
