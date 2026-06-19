@@ -60,7 +60,7 @@ function HomePage() {
   if (isLoading || !data) {
     return (
       <MobileShell>
-        <div className="p-6 text-muted-foreground">Loading…</div>
+        <div className="p-6 text-muted-foreground">{t("common.loading")}</div>
       </MobileShell>
     );
   }
