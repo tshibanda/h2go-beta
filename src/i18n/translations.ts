@@ -177,6 +177,15 @@ export const TRANSLATIONS = {
     "notif.permGranted": "Notifications enabled",
     "notif.permDenied": "Permission denied for notifications",
     "notif.savedWeb": "Preferences saved",
+
+    // Landing
+    "landing.title": "Hydrate.\nValidate.\nGrow.",
+    "landing.body": "H2GO is your premium hydration coach. Real-photo verification, streaks, XP, and a living water tree that grows with every sip.",
+    "landing.feature.ai": "AI verified",
+    "landing.feature.streaks": "Streaks",
+    "landing.feature.tree": "Hydration tree",
+    "landing.cta": "Get started — free",
+    "landing.trial": "7-day Premium trial. Cancel any time.",
   },
   fr: {
 
@@ -343,6 +352,14 @@ export const TRANSLATIONS = {
     "notif.permGranted": "Notifications activées",
     "notif.permDenied": "Permission refusée pour les notifications",
     "notif.savedWeb": "Préférences enregistrées",
+
+    "landing.title": "Hydrate-toi.\nValide.\nFais grandir.",
+    "landing.body": "H2GO est ton coach d'hydratation premium. Vérification par vraie photo, séries, XP et arbre d'eau vivant qui grandit à chaque gorgée.",
+    "landing.feature.ai": "Vérifié par IA",
+    "landing.feature.streaks": "Séries",
+    "landing.feature.tree": "Arbre d'hydratation",
+    "landing.cta": "Commencer — gratuit",
+    "landing.trial": "7 jours d'essai Premium. Annulation à tout moment.",
   },
 } as const;
 
