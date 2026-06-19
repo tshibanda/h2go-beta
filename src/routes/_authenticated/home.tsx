@@ -185,7 +185,7 @@ function HomePage() {
           <div className="mx-4 rounded-2xl p-4 bg-gradient-to-br from-teal-50 to-teal-100 border border-teal-300/30">
             <div className="flex items-center gap-2 mb-2">
               <span className="text-base">🧠</span>
-              <p className="text-[11px] font-semibold text-teal-800 uppercase tracking-wide">Did you know?</p>
+              <p className="text-[11px] font-semibold text-teal-800 uppercase tracking-wide">{t("home.didYouKnow")}</p>
             </div>
             <p className="text-sm text-teal-900 leading-relaxed">{data.fact.fact_text}</p>
           </div>
@@ -195,7 +195,7 @@ function HomePage() {
         <Link to="/profile" className="mx-4 rounded-2xl p-4 flex items-center gap-3 bg-gradient-to-br from-violet-100 to-violet-200 border border-violet-300/30">
           <div className="w-12 h-12 rounded-2xl bg-violet-500/15 flex items-center justify-center text-2xl">🛡️</div>
           <div className="flex-1">
-            <p className="text-[11px] text-violet-800">Level {lvl.level}</p>
+            <p className="text-[11px] text-violet-800">{t("home.level", { n: lvl.level })}</p>
             <p className="font-display text-base font-bold text-violet-900">{lvl.name}</p>
           </div>
           <ChevronRight size={18} className="text-violet-700" />
