@@ -63,6 +63,7 @@ async function resolveH2goPrice(stripe: StripeClient, priceId: string) {
       unit_amount: plan.amount,
       recurring: { interval: plan.interval },
       lookup_key: priceId,
+      transfer_lookup_key: true,
       nickname: plan.nickname,
       metadata: { lovable_external_id: priceId },
     });
