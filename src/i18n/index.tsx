@@ -16,10 +16,9 @@ function readInitial(): Locale {
   const isManual = window.localStorage.getItem(MANUAL_KEY) === "true";
   const stored = window.localStorage.getItem(STORAGE_KEY);
   if (isManual && (stored === "fr" || stored === "en")) return stored;
-  const langs = [
-    ...(window.navigator?.languages ?? []),
-    window.navigator?.language ?? "",
-  ].map((l) => l.toLowerCase());
+  const langs = [...(window.navigator?.languages ?? []), window.navigator?.language ?? ""].map(
+    (l) => l.toLowerCase(),
+  );
   return langs.some((l) => l.startsWith("fr")) ? "fr" : "en";
 }
 
@@ -44,7 +43,8 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
   }
 
   function t(key: TranslationKey, vars?: Record<string, string | number>) {
-    let str: string = (TRANSLATIONS[locale] as Record<string, string>)[key] ?? TRANSLATIONS.en[key] ?? key;
+    let str: string =
+      (TRANSLATIONS[locale] as Record<string, string>)[key] ?? TRANSLATIONS.en[key] ?? key;
     if (vars) {
       for (const [k, v] of Object.entries(vars)) {
         str = str.replace(new RegExp(`\\{${k}\\}`, "g"), String(v));
