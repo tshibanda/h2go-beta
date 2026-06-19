@@ -87,26 +87,26 @@ function StatsPage() {
   const totalL = ((totals?.totalMl ?? 0) / 1000).toFixed(1);
 
   const tabs = [
-    { id: "day", label: "Today" },
-    { id: "week", label: "Week" },
-    { id: "month", label: "Month" },
+    { id: "day", label: t("stats.tab.day") },
+    { id: "week", label: t("stats.tab.week") },
+    { id: "month", label: t("stats.tab.month") },
   ] as const;
 
   return (
     <MobileShell>
       <div className="flex flex-col gap-4 pb-6">
         <div className="px-5 pt-4">
-          <h1 className="font-display text-2xl font-bold">Statistics 📊</h1>
+          <h1 className="font-display text-2xl font-bold">{t("stats.title")}</h1>
         </div>
 
         <div className="mx-4 flex p-1 gap-0.5 rounded-2xl bg-muted">
-          {tabs.map((t) => (
+          {tabs.map((tb) => (
             <button
-              key={t.id}
-              onClick={() => setTab(t.id)}
-              className={`flex-1 py-2 rounded-xl text-xs transition-all ${tab === t.id ? "bg-card text-primary font-semibold shadow-sm" : "text-muted-foreground"}`}
+              key={tb.id}
+              onClick={() => setTab(tb.id)}
+              className={`flex-1 py-2 rounded-xl text-xs transition-all ${tab === tb.id ? "bg-card text-primary font-semibold shadow-sm" : "text-muted-foreground"}`}
             >
-              {t.label}
+              {tb.label}
             </button>
           ))}
         </div>
