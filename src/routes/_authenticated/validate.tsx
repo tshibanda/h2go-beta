@@ -96,7 +96,7 @@ function ValidatePage() {
       setPhase(res.approved ? "approved" : "rejected");
       qc.invalidateQueries({ queryKey: ["dashboard"] });
     } catch (e) {
-      toast.error(e instanceof Error ? e.message : "Validation failed");
+      toast.error(e instanceof Error ? e.message : t("val.failed"));
       setPhase("camera");
     }
   }
