@@ -129,11 +129,11 @@ function HomePage() {
         <div className="mx-4 rounded-3xl p-4 bg-gradient-to-br from-[#EFF6FF] to-[#DBEAFE] border border-primary/10">
           <div className="flex items-center justify-between mb-3">
             <div>
-              <p className="text-[11px] text-muted-foreground">{locale === "fr" ? "Objectif" : "Daily goal"}</p>
+              <p className="text-[11px] text-muted-foreground">{t("home.dailyGoal")}</p>
               <p className="font-display text-xl font-bold">{(goal / 1000).toFixed(1)}L</p>
             </div>
             <div className="text-right">
-              <p className="text-[11px] text-muted-foreground">{locale === "fr" ? "Restant" : "Remaining"}</p>
+              <p className="text-[11px] text-muted-foreground">{t("home.remainingShort")}</p>
               <p className="font-display text-xl font-bold text-primary">{(remaining / 1000).toFixed(1)}L</p>
             </div>
           </div>
@@ -144,9 +144,7 @@ function HomePage() {
               <Splash mood={remaining === 0 ? "celebrating" : "encouraging"} size={56} />
               <div className="rounded-2xl p-3 bg-card shadow-sm">
                 <p className="text-[11px] text-muted-foreground leading-snug">
-                  {remaining === 0
-                    ? t("home.goalReached")
-                    : locale === "fr" ? "Continue, tu fais super !" : "Keep going — you're doing great!"}
+                  {remaining === 0 ? t("home.goalReached") : t("home.encouragement")}
                 </p>
               </div>
             </div>
