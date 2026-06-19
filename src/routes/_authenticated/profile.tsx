@@ -19,6 +19,7 @@ export const Route = createFileRoute("/_authenticated/profile")({
 
 function ProfilePage() {
   const navigate = useNavigate();
+  const { t, locale, setLocale } = useT();
   const fetchDash = useServerFn(getDashboard);
   const fetchTotals = useServerFn(getTotals);
   const save = useServerFn(saveReminders);
@@ -28,7 +29,7 @@ function ProfilePage() {
   const [editReminders, setEditReminders] = useState(false);
   const [times, setTimes] = useState<string[]>([]);
 
-  if (!data) return <MobileShell><div className="p-6 text-muted-foreground">Loading…</div></MobileShell>;
+  if (!data) return <MobileShell><div className="p-6 text-muted-foreground">{t("common.loading")}</div></MobileShell>;
 
   const xp = data.xp?.current_xp ?? 0;
   const lvl = levelForXp(xp);
