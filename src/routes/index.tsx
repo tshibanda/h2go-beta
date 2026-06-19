@@ -7,9 +7,16 @@ export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
       { title: "H2GO — Premium Hydration Coaching" },
-      { name: "description", content: "Build a hydration habit with AI-verified drinks, streaks, and a growing water tree." },
+      {
+        name: "description",
+        content:
+          "Build a hydration habit with AI-verified drinks, streaks, and a growing water tree.",
+      },
       { property: "og:title", content: "H2GO — Premium Hydration Coaching" },
-      { property: "og:description", content: "AI-verified water reminders, streaks, and gamified hydration." },
+      {
+        property: "og:description",
+        content: "AI-verified water reminders, streaks, and gamified hydration.",
+      },
     ],
   }),
   component: Landing,
@@ -24,13 +31,15 @@ function Landing() {
       <div className="max-w-md mx-auto px-6 pt-12 pb-16 flex flex-col items-center text-center gap-6">
         <Splash mood="celebrating" size={130} />
         <h1 className="font-display text-5xl font-bold leading-tight">
-          {t("landing.title").split("\n").map((line) => (
-            <span key={line} className="block">{line}</span>
-          ))}
+          {t("landing.title")
+            .split("\n")
+            .map((line) => (
+              <span key={line} className="block">
+                {line}
+              </span>
+            ))}
         </h1>
-        <p className="text-white/85 text-lg">
-          {t("landing.body")}
-        </p>
+        <p className="text-white/85 text-lg">{t("landing.body")}</p>
         <div className="grid grid-cols-3 gap-3 w-full text-sm">
           <Feature emoji="📸" label={t("landing.feature.ai")} />
           <Feature emoji="🔥" label={t("landing.feature.streaks")} />
@@ -41,9 +50,7 @@ function Landing() {
             {t("landing.cta")}
           </Button>
         </Link>
-        <p className="text-white/70 text-xs">
-          {t("landing.trial")}
-        </p>
+        <p className="text-white/70 text-xs">{t("landing.trial")}</p>
       </div>
     </div>
   );
