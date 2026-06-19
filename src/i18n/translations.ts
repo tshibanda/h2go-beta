@@ -218,9 +218,9 @@ export const TRANSLATIONS = {
     "ob.toastFail": "Échec de la configuration",
 
     "pay.title": "H2GO Premium",
-    "pay.trialNote": "7 jours d'essai gratuit — sans engagement",
-    "pay.locked.title": "Abonne-toi pour accéder à H2GO",
-    "pay.locked.body": "Ta période d'essai est terminée. Choisis un plan pour continuer à suivre ton hydratation.",
+    "pay.trialNote": "7 jours d'essai gratuit — carte bancaire requise, sans engagement",
+    "pay.locked.title": "Démarre ton essai gratuit pour débloquer H2GO",
+    "pay.locked.body": "Renseigne tes informations de paiement pour démarrer tes 7 jours d'essai gratuit. Aucun prélèvement avant la fin de l'essai, annulation possible à tout moment.",
     "pay.featuresHeader": "Ce qui est inclus",
     "pay.f1": "Gorgées vérifiées par l'IA en illimité",
     "pay.f2": "Coach IA : objectifs personnalisés",
