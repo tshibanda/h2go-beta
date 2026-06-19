@@ -159,8 +159,8 @@ function ValidatePage() {
       {phase === "approved" && result && (
         <div className="flex-1 flex flex-col items-center justify-center gap-3 p-6 bg-gradient-to-b from-[#EFF6FF] to-[#DBEAFE] text-foreground">
           <Splash mood="celebrating" size={130} />
-          <h2 className="font-display text-4xl font-bold">Nice sip!</h2>
-          <p className="text-muted-foreground">+{result.volume_ml} ml logged 💧</p>
+          <h2 className="font-display text-4xl font-bold">{t("val.approved")}</h2>
+          <p className="text-muted-foreground">{t("val.approvedBody", { ml: result.volume_ml })}</p>
           <div className="flex items-center gap-2 px-5 py-2 rounded-full bg-emerald-100">
             <Zap size={16} className="text-emerald-700" />
             <span className="text-sm font-semibold text-emerald-800">+10 XP</span>
@@ -169,7 +169,7 @@ function ValidatePage() {
             onClick={() => navigate({ to: "/home" })}
             className="mt-8 w-full max-w-xs py-4 rounded-2xl bg-gradient-to-r from-primary to-secondary text-white font-semibold"
           >
-            Continue
+            {t("val.continue")}
           </button>
         </div>
       )}
