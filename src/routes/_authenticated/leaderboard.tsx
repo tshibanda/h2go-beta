@@ -5,6 +5,7 @@ import { useState } from "react";
 import { Crown } from "lucide-react";
 import { getLeaderboard } from "@/lib/h2go.functions";
 import { MobileShell } from "@/components/h2go/MobileShell";
+import { useT } from "@/i18n";
 
 export const Route = createFileRoute("/_authenticated/leaderboard")({
   head: () => ({ meta: [{ title: "Leaderboard — H2GO" }] }),
@@ -14,6 +15,7 @@ export const Route = createFileRoute("/_authenticated/leaderboard")({
 type League = "bronze" | "silver" | "gold" | "diamond";
 
 function LeaderboardPage() {
+  const { t } = useT();
   const [league, setLeague] = useState<League>("diamond");
   const fetchBoard = useServerFn(getLeaderboard);
   const { data: players = [] } = useQuery({
@@ -22,10 +24,10 @@ function LeaderboardPage() {
   });
 
   const leagues: { id: League; label: string; bg: string }[] = [
-    { id: "bronze", label: "🥉 Bronze", bg: "#B45309" },
-    { id: "silver", label: "🥈 Silver", bg: "#64748B" },
-    { id: "gold", label: "🥇 Gold", bg: "#D97706" },
-    { id: "diamond", label: "💎 Diamond", bg: "#3B82F6" },
+    { id: "bronze", label: t("lb.bronze"), bg: "#B45309" },
+    { id: "silver", label: t("lb.silver"), bg: "#64748B" },
+    { id: "gold", label: t("lb.gold"), bg: "#D97706" },
+    { id: "diamond", label: t("lb.diamond"), bg: "#3B82F6" },
   ];
 
   const podium = players.slice(0, 3);
@@ -35,7 +37,7 @@ function LeaderboardPage() {
     <MobileShell>
       <div className="flex flex-col gap-4 pb-6">
         <div className="px-5 pt-4">
-          <h1 className="font-display text-2xl font-bold">Leaderboard 🏆</h1>
+          <h1 className="font-display text-2xl font-bold">{t("lb.title")}</h1>
         </div>
 
         <div className="flex gap-2 px-4">

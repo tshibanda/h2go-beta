@@ -8,6 +8,7 @@ import {
 } from "recharts";
 import { getStats, getDashboard, getTotals } from "@/lib/h2go.functions";
 import { MobileShell } from "@/components/h2go/MobileShell";
+import { useT } from "@/i18n";
 
 export const Route = createFileRoute("/_authenticated/stats")({
   head: () => ({ meta: [{ title: "Stats — H2GO" }] }),
@@ -15,6 +16,7 @@ export const Route = createFileRoute("/_authenticated/stats")({
 });
 
 function StatsPage() {
+  const { t, locale } = useT();
   const fetchStats = useServerFn(getStats);
   const fetchDash = useServerFn(getDashboard);
   const fetchTotals = useServerFn(getTotals);
@@ -45,7 +47,9 @@ function StatsPage() {
 
   const weekData = useMemo(() => {
     if (!logs) return [];
-    const days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+    const days = locale === "fr"
+      ? ["Dim", "Lun", "Mar", "Mer", "Jeu", "Ven", "Sam"]
+      : ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
     const start = new Date(today.getTime() - 6 * 86400000);
     const buckets: Record<string, number> = {};
     for (const l of logs) {
@@ -59,7 +63,7 @@ function StatsPage() {
       const d = new Date(start.getTime() + i * 86400000);
       return { d: days[d.getDay()], v: +((buckets[d.toDateString()] ?? 0) / 1000).toFixed(2) };
     });
-  }, [logs, today]);
+  }, [logs, today, locale]);
 
   const monthCells = useMemo(() => {
     if (!logs) return [];
@@ -83,26 +87,26 @@ function StatsPage() {
   const totalL = ((totals?.totalMl ?? 0) / 1000).toFixed(1);
 
   const tabs = [
-    { id: "day", label: "Today" },
-    { id: "week", label: "Week" },
-    { id: "month", label: "Month" },
+    { id: "day", label: t("stats.tab.day") },
+    { id: "week", label: t("stats.tab.week") },
+    { id: "month", label: t("stats.tab.month") },
   ] as const;
 
   return (
     <MobileShell>
       <div className="flex flex-col gap-4 pb-6">
         <div className="px-5 pt-4">
-          <h1 className="font-display text-2xl font-bold">Statistics 📊</h1>
+          <h1 className="font-display text-2xl font-bold">{t("stats.title")}</h1>
         </div>
 
         <div className="mx-4 flex p-1 gap-0.5 rounded-2xl bg-muted">
-          {tabs.map((t) => (
+          {tabs.map((tb) => (
             <button
-              key={t.id}
-              onClick={() => setTab(t.id)}
-              className={`flex-1 py-2 rounded-xl text-xs transition-all ${tab === t.id ? "bg-card text-primary font-semibold shadow-sm" : "text-muted-foreground"}`}
+              key={tb.id}
+              onClick={() => setTab(tb.id)}
+              className={`flex-1 py-2 rounded-xl text-xs transition-all ${tab === tb.id ? "bg-card text-primary font-semibold shadow-sm" : "text-muted-foreground"}`}
             >
-              {t.label}
+              {tb.label}
             </button>
           ))}
         </div>
@@ -111,7 +115,7 @@ function StatsPage() {
           {tab === "day" && (
             <>
               <p className="font-display text-base font-semibold mb-3">
-                Today — {((dash?.todayMl ?? 0) / 1000).toFixed(1)}L / {(goal / 1000).toFixed(1)}L
+                {t("stats.today.header", { current: ((dash?.todayMl ?? 0) / 1000).toFixed(1), goal: (goal / 1000).toFixed(1) })}
               </p>
               <ResponsiveContainer width="100%" height={170}>
                 <AreaChart data={dailyData} margin={{ top: 5, right: 5, bottom: 5, left: -20 }}>
@@ -123,7 +127,7 @@ function StatsPage() {
                   </defs>
                   <XAxis dataKey="t" tick={{ fontSize: 10 }} axisLine={false} tickLine={false} />
                   <YAxis tick={{ fontSize: 10 }} axisLine={false} tickLine={false} />
-                  <Tooltip formatter={(v: number) => [`${v} ml`, "Hydration"]} />
+                  <Tooltip formatter={(v: number) => [`${v} ml`, t("stats.tooltip.hydration")]} />
                   <Area type="monotone" dataKey="v" stroke="#3B82F6" strokeWidth={2.5} fill="url(#areaFill)" dot={{ fill: "#3B82F6", r: 4 }} />
                 </AreaChart>
               </ResponsiveContainer>
@@ -132,13 +136,13 @@ function StatsPage() {
           {tab === "week" && (
             <>
               <p className="font-display text-base font-semibold mb-3">
-                This week — {completion}% goals
+                {t("stats.week.header", { pct: completion })}
               </p>
               <ResponsiveContainer width="100%" height={170}>
                 <BarChart data={weekData} margin={{ top: 5, right: 5, bottom: 5, left: -25 }} barSize={26}>
                   <XAxis dataKey="d" tick={{ fontSize: 10 }} axisLine={false} tickLine={false} />
                   <YAxis tick={{ fontSize: 10 }} axisLine={false} tickLine={false} />
-                  <Tooltip formatter={(v: number) => [`${v}L`, "Hydration"]} />
+                  <Tooltip formatter={(v: number) => [`${v}L`, t("stats.tooltip.hydration")]} />
                   <ReferenceLine y={goal / 1000} stroke="#DBEAFE" strokeDasharray="4 2" strokeWidth={2} />
                   <Bar dataKey="v" radius={[8, 8, 4, 4]}>
                     {weekData.map((e, i) => (
@@ -151,7 +155,7 @@ function StatsPage() {
           )}
           {tab === "month" && (
             <>
-              <p className="font-display text-base font-semibold mb-3">Last 28 days</p>
+              <p className="font-display text-base font-semibold mb-3">{t("stats.month.header")}</p>
               <div className="grid grid-cols-7 gap-1">
                 {monthCells.map((c, i) => (
                   <div
@@ -168,9 +172,9 @@ function StatsPage() {
 
         <div className="flex gap-3 px-4">
           {[
-            { label: "Streak", value: streak.toString(), icon: "🔥", color: "text-amber-600" },
-            { label: "Validations", value: (totals?.totalValidations ?? 0).toString(), icon: "✅", color: "text-emerald-600" },
-            { label: "Avg/day", value: `${avg}L`, icon: "💧", color: "text-primary" },
+            { label: t("stats.kpi.streak"), value: streak.toString(), icon: "🔥", color: "text-amber-600" },
+            { label: t("stats.kpi.validations"), value: (totals?.totalValidations ?? 0).toString(), icon: "✅", color: "text-emerald-600" },
+            { label: t("stats.kpi.avg"), value: `${avg}L`, icon: "💧", color: "text-primary" },
           ].map((s, i) => (
             <div key={i} className="flex-1 rounded-2xl p-3 text-center bg-card shadow-sm">
               <p className={`font-display text-lg font-bold ${s.color}`}>
@@ -184,8 +188,8 @@ function StatsPage() {
         <div className="mx-4 rounded-2xl p-4 flex items-center gap-3 bg-gradient-to-br from-amber-100 to-amber-200 border border-amber-300/30">
           <span className="text-2xl">🏆</span>
           <div>
-            <p className="text-[11px] text-amber-900">Total consumed</p>
-            <p className="font-display text-lg font-bold text-amber-900">{totalL}L lifetime</p>
+            <p className="text-[11px] text-amber-900">{t("stats.totalConsumed")}</p>
+            <p className="font-display text-lg font-bold text-amber-900">{t("stats.lifetime", { n: totalL })}</p>
           </div>
         </div>
       </div>
