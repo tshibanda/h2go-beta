@@ -1,13 +1,16 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useQuery } from "@tanstack/react-query";
-import { Crown, Check, LogOut } from "lucide-react";
+import { useState } from "react";
+import { Crown, Check, LogOut, X } from "lucide-react";
 import { MobileShell } from "@/components/h2go/MobileShell";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { useT } from "@/i18n";
 import { getDashboard } from "@/lib/h2go.functions";
 import { supabase } from "@/integrations/supabase/client";
+import { StripeEmbeddedCheckoutInline } from "@/components/StripeEmbeddedCheckout";
+import { isPaymentsConfigured } from "@/lib/stripe";
 
 export const Route = createFileRoute("/_authenticated/premium")({
   head: () => ({ meta: [{ title: "Premium — H2GO" }] }),
@@ -20,6 +23,7 @@ function PremiumPage() {
   const navigate = useNavigate();
   const fetchDash = useServerFn(getDashboard);
   const { data } = useQuery({ queryKey: ["dashboard"], queryFn: () => fetchDash() });
+  const [activePrice, setActivePrice] = useState<string | null>(null);
 
   const trialEnd = (data?.profile as { trial_ends_at?: string | null } | null)?.trial_ends_at;
   const daysLeft = trialEnd
@@ -31,6 +35,14 @@ function PremiumPage() {
   async function signOut() {
     await supabase.auth.signOut();
     navigate({ to: "/auth" });
+  }
+
+  function start(priceId: string) {
+    if (!isPaymentsConfigured()) {
+      toast.error("Payments are not configured for this preview yet. Please try again in a moment.");
+      return;
+    }
+    setActivePrice(priceId);
   }
 
   const features = [t("pay.f1"), t("pay.f2"), t("pay.f3"), t("pay.f4"), t("pay.f5"), t("pay.f6")];
@@ -64,28 +76,41 @@ function PremiumPage() {
         <p className="mx-4 text-sm text-muted-foreground text-center">{t("pay.locked.body")}</p>
       )}
 
-      <div className="mx-4 rounded-2xl p-4 bg-card shadow">
-        <p className="font-display text-sm font-semibold mb-2">{t("pay.featuresHeader")}</p>
-        <ul className="flex flex-col gap-3">
-          {features.map((f) => (
-            <li key={f} className="flex items-center gap-2">
-              <Check className="text-emerald-600" size={18} />
-              <span className="text-sm">{f}</span>
-            </li>
-          ))}
-        </ul>
-      </div>
+      {activePrice ? (
+        <div className="mx-4">
+          <button
+            onClick={() => setActivePrice(null)}
+            className="mb-2 flex items-center gap-1 text-xs text-muted-foreground"
+          >
+            <X size={14} /> {t("ob.back")}
+          </button>
+          <StripeEmbeddedCheckoutInline priceId={activePrice} />
+        </div>
+      ) : (
+        <>
+          <div className="mx-4 rounded-2xl p-4 bg-card shadow">
+            <p className="font-display text-sm font-semibold mb-2">{t("pay.featuresHeader")}</p>
+            <ul className="flex flex-col gap-3">
+              {features.map((f) => (
+                <li key={f} className="flex items-center gap-2">
+                  <Check className="text-emerald-600" size={18} />
+                  <span className="text-sm">{f}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
 
-      <div className="mx-4 grid grid-cols-2 gap-3">
-        <PlanCard title={t("pay.monthly")} price="€4.99" subtitle={t("pay.perMonth")} cta={t("pay.start")} />
-        <PlanCard title={t("pay.yearly")} price="€39.99" subtitle={t("pay.perYear")} cta={t("pay.start")} highlight />
-      </div>
+          <div className="mx-4 grid grid-cols-2 gap-3">
+            <PlanCard title={t("pay.monthly")} price="€4.99" subtitle={t("pay.perMonth")} cta={t("pay.start")} onStart={() => start("h2go_monthly")} />
+            <PlanCard title={t("pay.yearly")} price="€39.99" subtitle={t("pay.perYear")} cta={t("pay.start")} highlight onStart={() => start("h2go_yearly")} />
+          </div>
 
-      <p className="mx-4 text-[11px] text-muted-foreground text-center">{t("pay.legal")}</p>
+          <p className="mx-4 text-[11px] text-muted-foreground text-center">{t("pay.legal")}</p>
+        </>
+      )}
     </div>
   );
 
-  // When locked, render WITHOUT bottom nav so the user can't escape.
   if (!hasAccess) {
     return (
       <div className="min-h-screen w-full bg-gradient-to-br from-[#1E3A8A] via-[#3B82F6] to-[#0D9488] flex items-center justify-center sm:p-4">
@@ -99,16 +124,13 @@ function PremiumPage() {
   return <MobileShell>{content}</MobileShell>;
 }
 
-function PlanCard({ title, price, subtitle, cta, highlight }: { title: string; price: string; subtitle: string; cta: string; highlight?: boolean }) {
-  function start() {
-    toast.info("Stripe checkout will be enabled once payments setup completes.");
-  }
+function PlanCard({ title, price, subtitle, cta, highlight, onStart }: { title: string; price: string; subtitle: string; cta: string; highlight?: boolean; onStart: () => void }) {
   return (
     <div className={`rounded-2xl p-4 flex flex-col gap-2 ${highlight ? "bg-gradient-to-br from-primary to-secondary text-white" : "bg-card border border-border"}`}>
       <p className="font-display text-base font-semibold">{title}</p>
       <p className="font-display text-2xl font-bold">{price}</p>
       <p className={`text-[11px] ${highlight ? "text-white/80" : "text-muted-foreground"}`}>{subtitle}</p>
-      <Button onClick={start} className={`mt-2 rounded-xl ${highlight ? "bg-white text-primary hover:bg-white/90" : ""}`}>{cta}</Button>
+      <Button onClick={onStart} className={`mt-2 rounded-xl ${highlight ? "bg-white text-primary hover:bg-white/90" : ""}`}>{cta}</Button>
     </div>
   );
 }
