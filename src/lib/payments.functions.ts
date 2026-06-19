@@ -1,10 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
-import {
-  type StripeEnv,
-  createStripeClient,
-  getStripeErrorMessage,
-} from "@/lib/stripe.server";
+import { type StripeEnv, createStripeClient, getStripeErrorMessage } from "@/lib/stripe.server";
 
 type CheckoutResult = { clientSecret: string } | { error: string };
 
@@ -37,7 +33,9 @@ async function resolveH2goProduct(stripe: StripeClient) {
   } catch {
     const listed = await stripe.products.list({ active: true, limit: 100 });
     const existing = listed.data.find(
-      (product) => product.metadata?.lovable_external_id === H2GO_PRODUCT.id || product.name === H2GO_PRODUCT.name,
+      (product) =>
+        product.metadata?.lovable_external_id === H2GO_PRODUCT.id ||
+        product.name === H2GO_PRODUCT.name,
     );
     if (existing) return existing;
   }
@@ -77,19 +75,13 @@ async function resolveH2goPrice(stripe: StripeClient, priceId: string) {
 
 export const createCheckoutSession = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator(
-    (data: {
-      priceId: string;
-      returnUrl: string;
-      environment: StripeEnv;
-    }) => {
-      if (!/^[a-zA-Z0-9_-]+$/.test(data.priceId)) throw new Error("Invalid priceId");
-      if (data.environment !== "sandbox" && data.environment !== "live") {
-        throw new Error("Invalid payment environment");
-      }
-      return data;
-    },
-  )
+  .inputValidator((data: { priceId: string; returnUrl: string; environment: StripeEnv }) => {
+    if (!/^[a-zA-Z0-9_-]+$/.test(data.priceId)) throw new Error("Invalid priceId");
+    if (data.environment !== "sandbox" && data.environment !== "live") {
+      throw new Error("Invalid payment environment");
+    }
+    return data;
+  })
   .handler(async ({ data, context }): Promise<CheckoutResult> => {
     try {
       const { supabase, userId } = context;
