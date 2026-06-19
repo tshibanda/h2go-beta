@@ -63,7 +63,7 @@ function StatsPage() {
       const d = new Date(start.getTime() + i * 86400000);
       return { d: days[d.getDay()], v: +((buckets[d.toDateString()] ?? 0) / 1000).toFixed(2) };
     });
-  }, [logs, today]);
+  }, [logs, today, locale]);
 
   const monthCells = useMemo(() => {
     if (!logs) return [];
