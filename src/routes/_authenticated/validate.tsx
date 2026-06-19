@@ -25,6 +25,7 @@ async function sha256Base64(b64: string): Promise<string> {
 }
 
 function ValidatePage() {
+  const { t } = useT();
   const navigate = useNavigate();
   const qc = useQueryClient();
   const submit = useServerFn(validatePhoto);
