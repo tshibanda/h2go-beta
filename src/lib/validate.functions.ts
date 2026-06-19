@@ -33,15 +33,41 @@ export const validatePhoto = createServerFn({ method: "POST" })
   .inputValidator((input: unknown) =>
     z
       .object({
-        imageBase64: z.string().min(100), // data URL or raw base64
-        imageHash: z.string().min(8),
+        // ~1MB base64 cap to prevent API cost abuse / memory exhaustion
+        imageBase64: z
+          .string()
+          .min(100)
+          .max(1_500_000)
+          .regex(/^(data:image\/(jpeg|jpg|png|webp);base64,)?[A-Za-z0-9+/=\s]+$/, {
+            message: "Invalid base64 image payload",
+          }),
+        imageHash: z.string().min(8).max(128),
       })
       .parse(input),
   )
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
 
-    // 1. anti-replay: check hash uniqueness for this user
+    // Server-side subscription enforcement (authoritative source: subscriptions table,
+    // which is service-role-write-only via RLS). Falls back to active trial on profile.
+    const { data: sub } = await supabase
+      .from("subscriptions")
+      .select("status, current_period_end")
+      .eq("user_id", userId)
+      .order("created_at", { ascending: false })
+      .limit(1)
+      .maybeSingle();
+    const subStatus = sub?.status ?? null;
+    const subEnd = (sub as { current_period_end?: string | null } | null)?.current_period_end;
+    const subActive =
+      (subStatus === "active" || subStatus === "trialing") &&
+      (!subEnd || new Date(subEnd).getTime() > Date.now());
+
+    if (!subActive) {
+      throw new Error("Forbidden: active subscription required");
+    }
+
+    // anti-replay: check hash uniqueness for this user
     const { data: existing } = await supabase
       .from("hydration_logs")
       .select("id")
@@ -58,6 +84,7 @@ export const validatePhoto = createServerFn({ method: "POST" })
         log: null,
       };
     }
+
 
     const key = process.env.LOVABLE_API_KEY;
     if (!key) throw new Error("Missing LOVABLE_API_KEY");
