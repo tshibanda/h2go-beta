@@ -150,7 +150,7 @@ function HomePage() {
             </div>
             <div>
               <p className="font-display text-2xl font-bold text-amber-900 leading-none">{streak}</p>
-              <p className="text-[10px] text-amber-900">day streak</p>
+              <p className="text-[10px] text-amber-900">{locale === "fr" ? "jours de série" : "day streak"}</p>
             </div>
           </div>
           <div className="flex-1 rounded-2xl p-3 flex items-center gap-2.5 bg-gradient-to-br from-emerald-50 to-emerald-200 border border-emerald-300/40">
@@ -159,7 +159,7 @@ function HomePage() {
             </div>
             <div>
               <p className="font-display text-2xl font-bold text-emerald-900 leading-none">{xp.toLocaleString()}</p>
-              <p className="text-[10px] text-emerald-900">total XP</p>
+              <p className="text-[10px] text-emerald-900">{locale === "fr" ? "XP total" : "total XP"}</p>
             </div>
           </div>
         </div>
