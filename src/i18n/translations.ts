@@ -91,6 +91,10 @@ export const TRANSLATIONS = {
     "p.premiumPitch": "AI Coach, unlimited reminders, leagues",
     "p.manageSub": "Manage subscription",
     "p.manageSubHint": "Change plan, update payment, or cancel",
+    "billing.pastDue.title": "Payment failed",
+    "billing.pastDue.body": "Stripe is retrying automatically. Update your payment method within {days} day(s) to keep access.",
+    "billing.pastDue.toast": "We couldn't process your payment",
+    "billing.pastDue.toastBody": "Stripe will retry. You have {days} day(s) to update your card.",
     "p.language": "Language",
     "p.settings": "Settings",
 
@@ -189,6 +193,10 @@ export const TRANSLATIONS = {
     "p.premiumPitch": "Coach IA, rappels illimités, ligues",
     "p.manageSub": "Gérer l'abonnement",
     "p.manageSubHint": "Changer de plan, paiement ou résilier",
+    "billing.pastDue.title": "Échec du paiement",
+    "billing.pastDue.body": "Stripe réessaie automatiquement. Mets à jour ton moyen de paiement sous {days} jour(s) pour conserver l'accès.",
+    "billing.pastDue.toast": "Impossible de traiter ton paiement",
+    "billing.pastDue.toastBody": "Stripe va réessayer. Tu as {days} jour(s) pour mettre à jour ta carte.",
     "p.language": "Langue",
     "p.settings": "Paramètres",
 
