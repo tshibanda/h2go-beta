@@ -4,6 +4,8 @@ import { useQuery } from "@tanstack/react-query";
 import { getTotals } from "@/lib/h2go.functions";
 import { MobileShell } from "@/components/h2go/MobileShell";
 import { TREE_STAGES, treeStageForLogs } from "@/lib/gamification";
+import { useT } from "@/i18n";
+import type { TranslationKey } from "@/i18n/translations";
 
 export const Route = createFileRoute("/_authenticated/tree")({
   head: () => ({ meta: [{ title: "Your tree — H2GO" }] }),
