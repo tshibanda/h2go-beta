@@ -133,6 +133,12 @@ export const TRANSLATIONS = {
     "tree.sipsLeft": "{n} sips",
     "tree.growthStages": "Growth stages",
     "tree.didYouKnow": "🌱 **Did you know?** Every validated sip waters your tree. The more you drink, the rarer it gets!",
+    "tree.stage.0": "Seed",
+    "tree.stage.1": "Sprout",
+    "tree.stage.2": "Young Tree",
+    "tree.stage.3": "Tree",
+    "tree.stage.4": "Rare Tree",
+    "tree.stage.5": "Legendary",
 
     // Leaderboard
     "lb.title": "Leaderboard 🏆",
