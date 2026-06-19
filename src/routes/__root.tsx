@@ -90,8 +90,8 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { name: "twitter:card", content: "summary_large_image" },
       { name: "twitter:title", content: "H2GO — Premium Hydration Coaching" },
       { name: "twitter:description", content: "H2GO is a premium hydration coach: AI-verified sips, streaks, XP, and a growing water tree." },
-      { property: "og:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/e603efb0-f5c9-42ae-a883-45e41fb4f30c/id-preview-5861b125--2d165fb1-656c-4d32-836b-5c5b93a392e5.lovable.app-1781854185439.png" },
-      { name: "twitter:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/e603efb0-f5c9-42ae-a883-45e41fb4f30c/id-preview-5861b125--2d165fb1-656c-4d32-836b-5c5b93a392e5.lovable.app-1781854185439.png" },
+      { property: "og:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/PbLPqLp40jSL0dv5hV7ZjZYsGZu1/social-images/social-1781876519311-Logo_H2GO.webp" },
+      { name: "twitter:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/PbLPqLp40jSL0dv5hV7ZjZYsGZu1/social-images/social-1781876519311-Logo_H2GO.webp" },
     ],
     links: [
       {
