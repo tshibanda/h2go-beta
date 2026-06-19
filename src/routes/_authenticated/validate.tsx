@@ -55,7 +55,7 @@ function ValidatePage() {
           await videoRef.current.play().catch(() => {});
         }
       } catch (e) {
-        setErrMsg("Camera access denied. Please allow camera to validate hydration.");
+        setErrMsg(t("val.cameraDenied"));
       }
     })();
     return () => {
