@@ -97,10 +97,10 @@ function ProfilePage() {
 
         <div className="grid grid-cols-2 gap-3 px-4">
           {[
-            { label: "Current streak", value: streak.toString(), icon: "🔥", color: "text-amber-600" },
-            { label: "Best streak", value: best.toString(), icon: "🏆", color: "text-primary" },
-            { label: "Total liters", value: `${totalL}L`, icon: "💧", color: "text-secondary" },
-            { label: "Validations", value: validations.toString(), icon: "📸", color: "text-emerald-600" },
+            { label: t("p.currentStreak"), value: streak.toString(), icon: "🔥", color: "text-amber-600" },
+            { label: t("p.bestStreak"), value: best.toString(), icon: "🏆", color: "text-primary" },
+            { label: t("p.totalLiters"), value: `${totalL}L`, icon: "💧", color: "text-secondary" },
+            { label: t("p.validations"), value: validations.toString(), icon: "📸", color: "text-emerald-600" },
           ].map((s, i) => (
             <div key={i} className="rounded-2xl p-3 bg-card shadow-sm">
               <p className={`font-display text-xl font-bold ${s.color}`}>
@@ -112,7 +112,7 @@ function ProfilePage() {
         </div>
 
         <div className="px-4">
-          <p className="font-display text-base font-semibold mb-2.5">Badges</p>
+          <p className="font-display text-base font-semibold mb-2.5">{t("p.badges")}</p>
           <div className="grid grid-cols-4 gap-2.5">
             {data.achievements.map((a) => {
               const unlocked = earned.has(a.id);
