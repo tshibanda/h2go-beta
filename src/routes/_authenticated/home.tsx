@@ -169,12 +169,12 @@ function HomePage() {
           <div className="mx-4 rounded-2xl p-4 flex items-center gap-3 bg-card border shadow-sm">
             <div className="w-12 h-12 rounded-2xl bg-primary-soft flex items-center justify-center text-2xl">⏰</div>
             <div className="flex-1">
-              <p className="text-[11px] text-muted-foreground">Next reminder</p>
+              <p className="text-[11px] text-muted-foreground">{t("home.nextReminder")}</p>
               <p className="font-display text-xl font-bold">{next.str}</p>
             </div>
             <div className="px-3 py-1.5 rounded-full bg-primary-soft">
               <span className="text-xs text-primary font-semibold">
-                {nextMins! < 60 ? `in ${nextMins}m` : `in ${Math.round(nextMins! / 60)}h`}
+                {nextMins! < 60 ? (locale === "fr" ? `dans ${nextMins}min` : `in ${nextMins}m`) : (locale === "fr" ? `dans ${Math.round(nextMins! / 60)}h` : `in ${Math.round(nextMins! / 60)}h`)}
               </span>
             </div>
           </div>
