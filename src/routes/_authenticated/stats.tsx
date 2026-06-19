@@ -16,7 +16,7 @@ export const Route = createFileRoute("/_authenticated/stats")({
 });
 
 function StatsPage() {
-  const { t } = useT();
+  const { t, locale } = useT();
   const fetchStats = useServerFn(getStats);
   const fetchDash = useServerFn(getDashboard);
   const fetchTotals = useServerFn(getTotals);
