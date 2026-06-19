@@ -110,7 +110,7 @@ function ValidatePage() {
             <button onClick={() => navigate({ to: "/home" })} className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center">
               <X size={20} />
             </button>
-            <span className="font-display text-base font-semibold">📸 Snap your sip</span>
+            <span className="font-display text-base font-semibold">{t("val.header")}</span>
             <div className="w-10 h-10 rounded-full bg-destructive/20 flex items-center justify-center text-sm font-bold">
               {seconds}
             </div>
