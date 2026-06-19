@@ -108,8 +108,55 @@ export const TRANSLATIONS = {
     // Common
     "common.loading": "Loading…",
     "common.back": "← Back",
+
+    // Stats
+    "stats.title": "Statistics 📊",
+    "stats.tab.day": "Today",
+    "stats.tab.week": "Week",
+    "stats.tab.month": "Month",
+    "stats.today.header": "Today — {current}L / {goal}L",
+    "stats.week.header": "This week — {pct}% goals",
+    "stats.month.header": "Last 28 days",
+    "stats.tooltip.hydration": "Hydration",
+    "stats.kpi.streak": "Streak",
+    "stats.kpi.validations": "Validations",
+    "stats.kpi.avg": "Avg/day",
+    "stats.totalConsumed": "Total consumed",
+    "stats.lifetime": "{n}L lifetime",
+
+    // Tree
+    "tree.title": "Your tree 🌳",
+    "tree.subtitle": "Water it by drinking water",
+    "tree.sips": "{n} validated sips",
+    "tree.stage": "Stage {current}/{total}",
+    "tree.toNext": "To {name}",
+    "tree.sipsLeft": "{n} sips",
+    "tree.growthStages": "Growth stages",
+    "tree.didYouKnow": "🌱 **Did you know?** Every validated sip waters your tree. The more you drink, the rarer it gets!",
+
+    // Leaderboard
+    "lb.title": "Leaderboard 🏆",
+    "lb.bronze": "🥉 Bronze",
+    "lb.silver": "🥈 Silver",
+    "lb.gold": "🥇 Gold",
+    "lb.diamond": "💎 Diamond",
+
+    // Validate
+    "val.header": "📸 Snap your sip",
+    "val.frameHint": "Show a glass, bottle, cup or flask of **water**",
+    "val.cameraDenied": "Camera access denied. Please allow camera to validate hydration.",
+    "val.tapToCapture": "Tap to capture",
+    "val.analyzing": "AI is checking your sip…",
+    "val.approved": "Nice sip!",
+    "val.approvedBody": "+{ml} ml logged 💧",
+    "val.continue": "Continue",
+    "val.rejected": "Hmm, not water",
+    "val.later": "Later",
+    "val.retry": "Try again",
+    "val.failed": "Validation failed",
   },
   fr: {
+
     "auth.signIn": "Connexion",
     "auth.signUp": "Inscription",
     "auth.tagline": "Coaching hydratation premium",
