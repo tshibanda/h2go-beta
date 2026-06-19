@@ -22,10 +22,14 @@ function readInitial(): Locale {
 }
 
 export function LanguageProvider({ children }: { children: ReactNode }) {
-  const [locale, setLocaleState] = useState<Locale>("en");
+  const [locale, setLocaleState] = useState<Locale>(readInitial);
 
   useEffect(() => {
-    setLocaleState(readInitial());
+    const detected = readInitial();
+    setLocaleState(detected);
+    if (typeof document !== "undefined") {
+      document.documentElement.lang = detected;
+    }
   }, []);
 
   function setLocale(l: Locale) {
