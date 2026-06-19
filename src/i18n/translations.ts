@@ -255,7 +255,50 @@ export const TRANSLATIONS = {
 
     "common.loading": "Chargement…",
     "common.back": "← Retour",
+
+    "stats.title": "Statistiques 📊",
+    "stats.tab.day": "Aujourd'hui",
+    "stats.tab.week": "Semaine",
+    "stats.tab.month": "Mois",
+    "stats.today.header": "Aujourd'hui — {current}L / {goal}L",
+    "stats.week.header": "Cette semaine — {pct}% d'objectifs",
+    "stats.month.header": "28 derniers jours",
+    "stats.tooltip.hydration": "Hydratation",
+    "stats.kpi.streak": "Série",
+    "stats.kpi.validations": "Validations",
+    "stats.kpi.avg": "Moy/jour",
+    "stats.totalConsumed": "Total consommé",
+    "stats.lifetime": "{n}L au total",
+
+    "tree.title": "Ton arbre 🌳",
+    "tree.subtitle": "Arrose-le en buvant de l'eau",
+    "tree.sips": "{n} gorgées validées",
+    "tree.stage": "Niveau {current}/{total}",
+    "tree.toNext": "Vers {name}",
+    "tree.sipsLeft": "{n} gorgées",
+    "tree.growthStages": "Étapes de croissance",
+    "tree.didYouKnow": "🌱 **Le savais-tu ?** Chaque gorgée validée arrose ton arbre. Plus tu bois, plus il devient rare !",
+
+    "lb.title": "Classement 🏆",
+    "lb.bronze": "🥉 Bronze",
+    "lb.silver": "🥈 Argent",
+    "lb.gold": "🥇 Or",
+    "lb.diamond": "💎 Diamant",
+
+    "val.header": "📸 Capture ta gorgée",
+    "val.frameHint": "Montre un verre, une bouteille, une tasse ou une gourde d'**eau**",
+    "val.cameraDenied": "Accès caméra refusé. Autorise la caméra pour valider ton hydratation.",
+    "val.tapToCapture": "Touche pour capturer",
+    "val.analyzing": "L'IA vérifie ta gorgée…",
+    "val.approved": "Bien joué !",
+    "val.approvedBody": "+{ml} ml enregistrés 💧",
+    "val.continue": "Continuer",
+    "val.rejected": "Hmm, pas de l'eau",
+    "val.later": "Plus tard",
+    "val.retry": "Réessayer",
+    "val.failed": "Échec de la validation",
   },
 } as const;
+
 
 export type TranslationKey = keyof typeof TRANSLATIONS["en"];
