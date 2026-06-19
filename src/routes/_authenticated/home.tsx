@@ -17,6 +17,7 @@ export const Route = createFileRoute("/_authenticated/home")({
 
 function HomePage() {
   const fetchDash = useServerFn(getDashboard);
+  const { t, locale } = useT();
   const { data, isLoading } = useQuery({
     queryKey: ["dashboard"],
     queryFn: () => fetchDash(),
