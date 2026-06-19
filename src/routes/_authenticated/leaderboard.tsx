@@ -5,6 +5,7 @@ import { useState } from "react";
 import { Crown } from "lucide-react";
 import { getLeaderboard } from "@/lib/h2go.functions";
 import { MobileShell } from "@/components/h2go/MobileShell";
+import { useT } from "@/i18n";
 
 export const Route = createFileRoute("/_authenticated/leaderboard")({
   head: () => ({ meta: [{ title: "Leaderboard — H2GO" }] }),
