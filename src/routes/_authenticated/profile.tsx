@@ -190,6 +190,30 @@ function ProfilePage() {
           </div>
           <ChevronRight size={18} className="text-white/60" />
         </Link>
+
+        {isPremium && (
+          <button
+            onClick={async () => {
+              try {
+                const r = await createPortalSession({
+                  data: { returnUrl: window.location.href, environment: getStripeEnvironment() },
+                });
+                if ("error" in r) throw new Error(r.error);
+                window.open(r.url, "_blank");
+              } catch (e) {
+                toast.error(e instanceof Error ? e.message : "Failed to open portal");
+              }
+            }}
+            className="mx-4 rounded-2xl p-4 flex items-center gap-3 bg-card shadow-sm"
+          >
+            <Settings size={20} className="text-muted-foreground" />
+            <div className="flex-1 text-left">
+              <p className="font-display text-sm font-semibold">{t("p.manageSub")}</p>
+              <p className="text-[11px] text-muted-foreground">{t("p.manageSubHint")}</p>
+            </div>
+            <ChevronRight size={18} className="text-muted-foreground" />
+          </button>
+        )}
       </div>
     </MobileShell>
   );
