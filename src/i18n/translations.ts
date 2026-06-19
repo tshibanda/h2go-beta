@@ -160,6 +160,23 @@ export const TRANSLATIONS = {
     "val.later": "Later",
     "val.retry": "Try again",
     "val.failed": "Validation failed",
+
+    // Notifications
+    "notif.title": "Hydration reminders",
+    "notif.webHint": "Native reminders only run inside the mobile app. Settings will sync once installed.",
+    "notif.interval": "Frequency",
+    "notif.everyHours": "Every {n}h",
+    "notif.start": "Start",
+    "notif.end": "End",
+    "notif.askPerm": "Enable",
+    "notif.saveSchedule": "Save & schedule",
+    "notif.disable": "Disable reminders",
+    "notif.disabled": "Reminders disabled",
+    "notif.scheduled": "{n} reminders scheduled 💧",
+    "notif.scheduleFailed": "Could not schedule reminders",
+    "notif.permGranted": "Notifications enabled",
+    "notif.permDenied": "Permission denied for notifications",
+    "notif.savedWeb": "Preferences saved",
   },
   fr: {
 
@@ -309,6 +326,23 @@ export const TRANSLATIONS = {
     "val.later": "Plus tard",
     "val.retry": "Réessayer",
     "val.failed": "Échec de la validation",
+
+    // Notifications
+    "notif.title": "Rappels d'hydratation",
+    "notif.webHint": "Les rappels natifs ne fonctionnent que dans l'app mobile. Tes réglages seront synchronisés.",
+    "notif.interval": "Fréquence",
+    "notif.everyHours": "Toutes les {n}h",
+    "notif.start": "Début",
+    "notif.end": "Fin",
+    "notif.askPerm": "Activer",
+    "notif.saveSchedule": "Enregistrer & programmer",
+    "notif.disable": "Désactiver les rappels",
+    "notif.disabled": "Rappels désactivés",
+    "notif.scheduled": "{n} rappels programmés 💧",
+    "notif.scheduleFailed": "Impossible de programmer les rappels",
+    "notif.permGranted": "Notifications activées",
+    "notif.permDenied": "Permission refusée pour les notifications",
+    "notif.savedWeb": "Préférences enregistrées",
   },
 } as const;
 
