@@ -86,7 +86,7 @@ function AuthPage() {
         </div>
         <div className="flex flex-col items-center gap-2 mb-6">
           <Splash mood="happy" size={70} />
-          <h1 className="font-display text-3xl font-bold">H2GO</h1>
+          <h1 className="font-display text-3xl font-bold">{mode === "signup" ? t("auth.signUp") : "Sign in to H2GO"}</h1>
           <p className="text-sm text-muted-foreground text-center">{t("auth.tagline")}</p>
         </div>
 

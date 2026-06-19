@@ -8,7 +8,16 @@ import { MobileShell } from "@/components/h2go/MobileShell";
 import { useT } from "@/i18n";
 
 export const Route = createFileRoute("/_authenticated/leaderboard")({
-  head: () => ({ meta: [{ title: "Leaderboard — H2GO" }] }),
+  head: () => ({
+    meta: [
+      { title: "Hydration Leaderboard — H2GO" },
+      { name: "description", content: "See how your hydration habits compare to others in the H2GO community across Bronze, Silver, Gold and Diamond leagues." },
+      { property: "og:title", content: "Hydration Leaderboard — H2GO" },
+      { property: "og:description", content: "See how your hydration habits compare to others in the H2GO community across Bronze, Silver, Gold and Diamond leagues." },
+      { property: "og:url", content: "https://h2go-beta.lovable.app/leaderboard" },
+    ],
+    links: [{ rel: "canonical", href: "https://h2go-beta.lovable.app/leaderboard" }],
+  }),
   component: LeaderboardPage,
 });
 

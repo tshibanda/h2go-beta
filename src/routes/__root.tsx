@@ -99,6 +99,31 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
         href: appCss,
       },
     ],
+    scripts: [
+      {
+        type: "application/ld+json",
+        children: JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "WebSite",
+          name: "H2GO",
+          url: "https://h2go-beta.lovable.app",
+          description:
+            "H2GO is a premium hydration coach: AI-verified sips, streaks, XP, and a growing water tree.",
+        }),
+      },
+      {
+        type: "application/ld+json",
+        children: JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "Organization",
+          name: "H2GO",
+          url: "https://h2go-beta.lovable.app",
+          logo: "https://storage.googleapis.com/gpt-engineer-file-uploads/PbLPqLp40jSL0dv5hV7ZjZYsGZu1/social-images/social-1781876519311-Logo_H2GO.webp",
+          description:
+            "Premium hydration coaching service that verifies real sips, builds streaks, and grows a personal water tree.",
+        }),
+      },
+    ],
   }),
   shellComponent: RootShell,
   component: RootComponent,

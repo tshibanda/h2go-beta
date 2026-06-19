@@ -11,7 +11,16 @@ import { levelForXp, treeStageForLogs } from "@/lib/gamification";
 import { useT } from "@/i18n";
 
 export const Route = createFileRoute("/_authenticated/home")({
-  head: () => ({ meta: [{ title: "Home — H2GO" }] }),
+  head: () => ({
+    meta: [
+      { title: "Hydration Dashboard — H2GO" },
+      { name: "description", content: "Track your daily water intake, grow your hydration tree, and keep your streak alive with H2GO." },
+      { property: "og:title", content: "Hydration Dashboard — H2GO" },
+      { property: "og:description", content: "Track your daily water intake, grow your hydration tree, and keep your streak alive with H2GO." },
+      { property: "og:url", content: "https://h2go-beta.lovable.app/home" },
+    ],
+    links: [{ rel: "canonical", href: "https://h2go-beta.lovable.app/home" }],
+  }),
   component: HomePage,
 });
 
@@ -92,16 +101,25 @@ function HomePage() {
             <p className="text-xs text-muted-foreground">
               {now.toLocaleDateString(locale, { weekday: "long", day: "numeric", month: "long" })}
             </p>
-            <h1 className="font-display text-2xl font-bold">{locale === "fr" ? "Salut" : "Hi"} {name} 👋</h1>
+            <h1 className="sr-only">Hydration Dashboard</h1>
+            <p className="font-display text-2xl font-bold" aria-hidden="true">{locale === "fr" ? "Salut" : "Hi"} {name} 👋</p>
           </div>
           <div className="flex items-center gap-2">
-            <button className="w-10 h-10 rounded-full bg-primary-soft flex items-center justify-center relative">
+            <button
+              type="button"
+              aria-label={locale === "fr" ? "Voir les notifications" : "View notifications"}
+              className="w-10 h-10 rounded-full bg-primary-soft flex items-center justify-center relative"
+            >
               <Bell size={18} color="#3B82F6" />
               {streak > 0 && (
                 <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-destructive border-2 border-background" />
               )}
             </button>
-            <Link to="/profile" className="w-10 h-10 rounded-full flex items-center justify-center text-xl bg-gradient-to-br from-[#60A5FA] to-primary text-white">
+            <Link
+              to="/profile"
+              aria-label={locale === "fr" ? "Voir le profil" : "View profile"}
+              className="w-10 h-10 rounded-full flex items-center justify-center text-xl bg-gradient-to-br from-[#60A5FA] to-primary text-white"
+            >
               🌊
             </Link>
           </div>

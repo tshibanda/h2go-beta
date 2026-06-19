@@ -1,0 +1,9 @@
+# H2GO
+
+> H2GO is a premium hydration coaching app: AI-verified sips, daily streaks, XP, and a growing water tree that rewards consistent hydration.
+
+H2GO helps people build a daily water-drinking habit. Users snap a quick photo of their glass or bottle; an AI vision model verifies they're actually about to drink water, then logs the sip, awards XP, and grows their personal hydration tree. Premium features include personalized reminders, deeper statistics, leaderboards, and exclusive achievements.
+
+## Pages
+
+- [Home](/): Landing page introducing H2GO and the hydration coaching experience.

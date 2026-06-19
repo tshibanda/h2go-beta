@@ -9,3 +9,5 @@ Disallow: /leaderboard
 Disallow: /profile
 Disallow: /validate
 Disallow: /premium
+
+Sitemap: https://h2go-beta.lovable.app/sitemap.xml
