@@ -14,8 +14,11 @@ function readInitial(): Locale {
   if (typeof window === "undefined") return "en";
   const stored = window.localStorage.getItem(STORAGE_KEY);
   if (stored === "fr" || stored === "en") return stored;
-  const nav = window.navigator?.language?.toLowerCase() ?? "";
-  return nav.startsWith("fr") ? "fr" : "en";
+  const langs = [
+    ...(window.navigator?.languages ?? []),
+    window.navigator?.language ?? "",
+  ].map((l) => l.toLowerCase());
+  return langs.some((l) => l.startsWith("fr")) ? "fr" : "en";
 }
 
 export function LanguageProvider({ children }: { children: ReactNode }) {
