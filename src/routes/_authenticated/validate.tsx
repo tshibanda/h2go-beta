@@ -6,6 +6,7 @@ import { validatePhoto } from "@/lib/validate.functions";
 import { Splash, SplashDefs } from "@/components/h2go/Splash";
 import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
+import { useT } from "@/i18n";
 
 export const Route = createFileRoute("/_authenticated/validate")({
   ssr: false,
