@@ -23,7 +23,6 @@ import { Route as AuthenticatedProfileRouteImport } from './routes/_authenticate
 import { Route as AuthenticatedPremiumRouteImport } from './routes/_authenticated/premium'
 import { Route as AuthenticatedLeaderboardRouteImport } from './routes/_authenticated/leaderboard'
 import { Route as AuthenticatedHomeRouteImport } from './routes/_authenticated/home'
-import { Route as ApiPublicActivateH2goLiveRouteImport } from './routes/api/public/activate-h2go-live'
 import { Route as ApiPublicPaymentsWebhookRouteImport } from './routes/api/public/payments/webhook'
 
 const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
@@ -96,12 +95,6 @@ const AuthenticatedHomeRoute = AuthenticatedHomeRouteImport.update({
   path: '/home',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
-const ApiPublicActivateH2goLiveRoute =
-  ApiPublicActivateH2goLiveRouteImport.update({
-    id: '/api/public/activate-h2go-live',
-    path: '/api/public/activate-h2go-live',
-    getParentRoute: () => rootRouteImport,
-  } as any)
 const ApiPublicPaymentsWebhookRoute =
   ApiPublicPaymentsWebhookRouteImport.update({
     id: '/api/public/payments/webhook',
@@ -123,7 +116,6 @@ export interface FileRoutesByFullPath {
   '/tree': typeof AuthenticatedTreeRoute
   '/validate': typeof AuthenticatedValidateRoute
   '/checkout/return': typeof CheckoutReturnRoute
-  '/api/public/activate-h2go-live': typeof ApiPublicActivateH2goLiveRoute
   '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
 }
 export interface FileRoutesByTo {
@@ -140,7 +132,6 @@ export interface FileRoutesByTo {
   '/tree': typeof AuthenticatedTreeRoute
   '/validate': typeof AuthenticatedValidateRoute
   '/checkout/return': typeof CheckoutReturnRoute
-  '/api/public/activate-h2go-live': typeof ApiPublicActivateH2goLiveRoute
   '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
 }
 export interface FileRoutesById {
@@ -159,7 +150,6 @@ export interface FileRoutesById {
   '/_authenticated/tree': typeof AuthenticatedTreeRoute
   '/_authenticated/validate': typeof AuthenticatedValidateRoute
   '/checkout/return': typeof CheckoutReturnRoute
-  '/api/public/activate-h2go-live': typeof ApiPublicActivateH2goLiveRoute
   '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
 }
 export interface FileRouteTypes {
@@ -178,7 +168,6 @@ export interface FileRouteTypes {
     | '/tree'
     | '/validate'
     | '/checkout/return'
-    | '/api/public/activate-h2go-live'
     | '/api/public/payments/webhook'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -195,7 +184,6 @@ export interface FileRouteTypes {
     | '/tree'
     | '/validate'
     | '/checkout/return'
-    | '/api/public/activate-h2go-live'
     | '/api/public/payments/webhook'
   id:
     | '__root__'
@@ -213,7 +201,6 @@ export interface FileRouteTypes {
     | '/_authenticated/tree'
     | '/_authenticated/validate'
     | '/checkout/return'
-    | '/api/public/activate-h2go-live'
     | '/api/public/payments/webhook'
   fileRoutesById: FileRoutesById
 }
@@ -225,7 +212,6 @@ export interface RootRouteChildren {
   OnboardingRoute: typeof OnboardingRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   CheckoutReturnRoute: typeof CheckoutReturnRoute
-  ApiPublicActivateH2goLiveRoute: typeof ApiPublicActivateH2goLiveRoute
   ApiPublicPaymentsWebhookRoute: typeof ApiPublicPaymentsWebhookRoute
 }
 
@@ -329,13 +315,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedHomeRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
-    '/api/public/activate-h2go-live': {
-      id: '/api/public/activate-h2go-live'
-      path: '/api/public/activate-h2go-live'
-      fullPath: '/api/public/activate-h2go-live'
-      preLoaderRoute: typeof ApiPublicActivateH2goLiveRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/api/public/payments/webhook': {
       id: '/api/public/payments/webhook'
       path: '/api/public/payments/webhook'
@@ -377,7 +356,6 @@ const rootRouteChildren: RootRouteChildren = {
   OnboardingRoute: OnboardingRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   CheckoutReturnRoute: CheckoutReturnRoute,
-  ApiPublicActivateH2goLiveRoute: ApiPublicActivateH2goLiveRoute,
   ApiPublicPaymentsWebhookRoute: ApiPublicPaymentsWebhookRoute,
 }
 export const routeTree = rootRouteImport
