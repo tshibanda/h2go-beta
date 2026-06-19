@@ -52,13 +52,13 @@ async function grantWelcomeReward(
   // XP bonus
   const { data: xp } = await admin
     .from("xp")
-    .select("total_xp")
+    .select("current_xp")
     .eq("user_id", userId)
     .maybeSingle();
-  const currentXp = (xp as { total_xp?: number } | null)?.total_xp ?? 0;
+  const currentXp = (xp as { current_xp?: number } | null)?.current_xp ?? 0;
   await admin
     .from("xp")
-    .update({ total_xp: currentXp + 500 })
+    .update({ current_xp: currentXp + 500 })
     .eq("user_id", userId);
 
   // Tree boost
