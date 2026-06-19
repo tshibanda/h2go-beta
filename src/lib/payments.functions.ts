@@ -96,13 +96,16 @@ export const createCheckoutSession = createServerFn({ method: "POST" })
       // Resolve or create Stripe customer with userId metadata
       let customerId: string | undefined;
       if (!/^[a-zA-Z0-9_-]+$/.test(userId)) throw new Error("Invalid userId");
-      const found = await stripe.customers.search({
-        query: `metadata['userId']:'${userId}'`,
-        limit: 1,
-      });
-      if (found.data.length) {
-        customerId = found.data[0].id;
-      } else if (email) {
+      try {
+        const found = await stripe.customers.search({
+          query: `metadata['userId']:'${userId}'`,
+          limit: 1,
+        });
+        if (found.data.length) customerId = found.data[0].id;
+      } catch (e) {
+        console.warn("[checkout] customers.search failed, falling back to list", e);
+      }
+      if (!customerId && email) {
         const byEmail = await stripe.customers.list({ email, limit: 1 });
         if (byEmail.data.length) {
           customerId = byEmail.data[0].id;
@@ -121,6 +124,12 @@ export const createCheckoutSession = createServerFn({ method: "POST" })
 
       // Resolve price by lookup_key; self-heal live/test if the catalog was not synced yet.
       const stripePrice = await resolveH2goPrice(stripe, data.priceId);
+      console.log("[checkout] creating session", {
+        env: data.environment,
+        priceId: data.priceId,
+        stripePriceId: stripePrice.id,
+        customerId,
+      });
 
       const session = await stripe.checkout.sessions.create({
         line_items: [{ price: stripePrice.id, quantity: 1 }],
@@ -137,6 +146,12 @@ export const createCheckoutSession = createServerFn({ method: "POST" })
 
       return { clientSecret: session.client_secret ?? "" };
     } catch (error) {
+      console.error("[checkout] failed", {
+        env: data.environment,
+        priceId: data.priceId,
+        error: getStripeErrorMessage(error),
+        raw: error,
+      });
       return { error: getStripeErrorMessage(error) };
     }
   });
