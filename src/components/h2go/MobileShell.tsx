@@ -16,7 +16,7 @@ export function MobileShell({ children }: { children: React.ReactNode }) {
   const { t } = useT();
   return (
     <div className="min-h-screen w-full bg-gradient-to-br from-[#1E3A8A] via-[#3B82F6] to-[#0D9488] flex items-center justify-center sm:p-4">
-      <div className="relative flex flex-col w-full sm:w-[390px] sm:h-[844px] min-h-screen sm:min-h-0 sm:rounded-[44px] bg-background overflow-hidden shadow-2xl">
+      <div className="relative flex flex-col w-full sm:w-[390px] h-dvh sm:h-[844px] sm:rounded-[44px] bg-background overflow-hidden shadow-2xl">
         <PastDueBanner />
         <main className="flex-1 overflow-y-auto no-sb relative pb-2">{children}</main>
         <nav className="flex-shrink-0 px-2 pt-1 pb-1 bg-card border-t border-border">
