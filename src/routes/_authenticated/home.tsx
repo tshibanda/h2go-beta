@@ -190,7 +190,7 @@ function HomePage() {
             </div>
             <div className="px-3 py-1.5 rounded-full bg-primary-soft">
               <span className="text-xs text-primary font-semibold">
-                {nextMins! < 60 ? (locale === "fr" ? `dans ${nextMins}min` : `in ${nextMins}m`) : (locale === "fr" ? `dans ${Math.round(nextMins! / 60)}h` : `in ${Math.round(nextMins! / 60)}h`)}
+                {nextMins! < 60 ? t("home.inMins", { n: nextMins! }) : t("home.inHours", { n: Math.round(nextMins! / 60) })}
               </span>
             </div>
           </div>
