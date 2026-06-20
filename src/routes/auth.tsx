@@ -12,7 +12,10 @@ import { useT } from "@/i18n";
 
 export const Route = createFileRoute("/auth")({
   head: () => ({
-    meta: [{ title: "Sign in — H2GO" }, { name: "description", content: "Sign in to track your hydration with H2GO." }],
+    meta: [
+      { title: "Sign in — H2GO" },
+      { name: "description", content: "Sign in to track your hydration with H2GO." },
+    ],
   }),
   component: AuthPage,
 });
@@ -62,7 +65,9 @@ function AuthPage() {
 
   async function handleOAuth(provider: "google" | "apple") {
     setBusy(true);
-    const redirectUri = Capacitor.isNativePlatform() ? "com.h2go.app://auth-callback" : window.location.origin;
+    const redirectUri = Capacitor.isNativePlatform()
+      ? "com.h2go.app://auth-callback"
+      : window.location.origin;
 
     const result = await lovable.auth.signInWithOAuth(provider, {
       redirect_uri: redirectUri,
@@ -81,24 +86,12 @@ function AuthPage() {
       <SplashDefs />
       <div className="w-full max-w-sm bg-card rounded-3xl p-6 shadow-2xl">
         <div className="flex justify-end mb-1 gap-1 text-[11px]">
-          <button
-            onClick={() => setLocale("en")}
-            className={`px-2 py-0.5 rounded ${locale === "en" ? "bg-primary text-primary-foreground" : "text-muted-foreground"}`}
-          >
-            EN
-          </button>
-          <button
-            onClick={() => setLocale("fr")}
-            className={`px-2 py-0.5 rounded ${locale === "fr" ? "bg-primary text-primary-foreground" : "text-muted-foreground"}`}
-          >
-            FR
-          </button>
+          <button onClick={() => setLocale("en")} className={`px-2 py-0.5 rounded ${locale === "en" ? "bg-primary text-primary-foreground" : "text-muted-foreground"}`}>EN</button>
+          <button onClick={() => setLocale("fr")} className={`px-2 py-0.5 rounded ${locale === "fr" ? "bg-primary text-primary-foreground" : "text-muted-foreground"}`}>FR</button>
         </div>
         <div className="flex flex-col items-center gap-2 mb-6">
           <Splash mood="happy" size={70} />
-          <h1 className="font-display text-3xl font-bold">
-            {mode === "signup" ? t("auth.signUp") : "Sign in to H2GO"}
-          </h1>
+          <h1 className="font-display text-3xl font-bold">{mode === "signup" ? t("auth.signUp") : "Sign in to H2GO"}</h1>
           <p className="text-sm text-muted-foreground text-center">{t("auth.tagline")}</p>
         </div>
 
@@ -115,64 +108,32 @@ function AuthPage() {
           </div>
           <div>
             <Label htmlFor="password">{t("auth.password")}</Label>
-            <Input
-              id="password"
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-              minLength={6}
-            />
+            <Input id="password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} required minLength={6} />
           </div>
-          <Button
-            type="submit"
-            disabled={busy}
-            className="w-full rounded-2xl h-12 bg-gradient-to-r from-primary to-secondary text-white font-semibold"
-          >
+          <Button type="submit" disabled={busy} className="w-full rounded-2xl h-12 bg-gradient-to-r from-primary to-secondary text-white font-semibold">
             {busy ? "..." : mode === "signin" ? t("auth.signIn") : t("auth.signUp")}
           </Button>
         </form>
 
         <div className="relative my-4">
-          <div className="absolute inset-0 flex items-center">
-            <span className="w-full border-t" />
-          </div>
-          <span className="relative bg-card px-2 text-xs text-muted-foreground left-1/2 -translate-x-1/2">
-            {t("auth.or")}
-          </span>
+          <div className="absolute inset-0 flex items-center"><span className="w-full border-t" /></div>
+          <span className="relative bg-card px-2 text-xs text-muted-foreground left-1/2 -translate-x-1/2">{t("auth.or")}</span>
         </div>
 
-        <Button
-          type="button"
-          onClick={() => handleOAuth("google")}
-          disabled={busy}
-          variant="outline"
-          className="w-full rounded-2xl h-12"
-        >
+        <Button type="button" onClick={() => handleOAuth("google")} disabled={busy} variant="outline" className="w-full rounded-2xl h-12">
           <span className="mr-2">🌐</span> {t("auth.continueGoogle")}
         </Button>
-        <Button
-          type="button"
-          onClick={() => handleOAuth("apple")}
-          disabled={busy}
-          variant="outline"
-          className="w-full rounded-2xl h-12 mt-2 bg-black text-white hover:bg-black/90 hover:text-white border-black"
-        >
+        <Button type="button" onClick={() => handleOAuth("apple")} disabled={busy} variant="outline" className="w-full rounded-2xl h-12 mt-2 bg-black text-white hover:bg-black/90 hover:text-white border-black">
           <span className="mr-2"></span> {t("auth.continueApple")}
         </Button>
 
         <p className="text-center text-sm text-muted-foreground mt-4">
-          <button
-            onClick={() => setMode(mode === "signin" ? "signup" : "signin")}
-            className="text-primary font-semibold"
-          >
+          <button onClick={() => setMode(mode === "signin" ? "signup" : "signin")} className="text-primary font-semibold">
             {mode === "signin" ? t("auth.noAccount") : t("auth.haveAccount")}
           </button>
         </p>
         <p className="text-center text-xs text-muted-foreground mt-4">
-          <Link to="/" className="hover:underline">
-            {t("common.back")}
-          </Link>
+          <Link to="/" className="hover:underline">{t("common.back")}</Link>
         </p>
       </div>
     </div>

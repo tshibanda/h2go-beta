@@ -161,48 +161,8 @@ function RootComponent() {
   const { queryClient } = Route.useRouteContext();
   const router = useRouter();
 
-  // Listener pour le retour OAuth natif (Google/Apple) via deep link custom scheme.
-  // Capacitor ouvre Safari pour l'auth, puis Safari redirige vers com.h2go.app://auth-callback,
-  // ce qui déclenche cet événement et redonne la main à l'app.
   useEffect(() => {
-    if (!Capacitor.isNativePlatform()) return;
-
-    const CALLBACK_SCHEME = "com.h2go.app://auth-callback";
-
-    const listenerPromise = CapacitorApp.addListener("appUrlOpen", async ({ url }) => {
-      if (!url.startsWith(CALLBACK_SCHEME)) return;
-
-      // Garder ce log pendant les tests, à retirer une fois confirmé que ça fonctionne.
-      console.log("[OAuth] Callback URL reçue:", url);
-
-      try {
-        const raw = url.replace(CALLBACK_SCHEME, "");
-        const query = raw.startsWith("#") || raw.startsWith("?") ? raw.slice(1) : raw;
-        const params = new URLSearchParams(query);
-
-        const access_token = params.get("access_token");
-        const refresh_token = params.get("refresh_token");
-
-        if (!access_token || !refresh_token) {
-          console.error("[OAuth] Tokens manquants dans l'URL de callback:", url);
-          return;
-        }
-
-        const { error } = await supabase.auth.setSession({ access_token, refresh_token });
-        if (error) {
-          console.error("[OAuth] Erreur setSession:", error.message);
-          return;
-        }
-
-        window.location.href = "/home";
-      } catch (e) {
-        console.error("[OAuth] Erreur de parsing du callback:", e);
-      }
-    });
-
-    return () => {
-      listenerPromise.then((listener) => listener.remove());
-    };
+    initNativeOAuthListener();
   }, []);
 
   useEffect(() => {
