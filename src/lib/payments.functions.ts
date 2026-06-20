@@ -12,8 +12,10 @@ const H2GO_PRODUCT = {
 } as const;
 
 const H2GO_PRICES = {
-  h2go_monthly: { amount: 499, interval: "month", nickname: "H2GO Premium monthly" },
-  h2go_yearly: { amount: 3999, interval: "year", nickname: "H2GO Premium yearly" },
+  h2go_monthly: { amount: 499, interval: "month", currency: "eur", nickname: "H2GO Premium monthly" },
+  h2go_yearly: { amount: 3999, interval: "year", currency: "eur", nickname: "H2GO Premium yearly" },
+  h2go_monthly_usd: { amount: 499, interval: "month", currency: "usd", nickname: "H2GO Premium monthly (USD)" },
+  h2go_yearly_usd: { amount: 3999, interval: "year", currency: "usd", nickname: "H2GO Premium yearly (USD)" },
 } as const;
 
 type StripeClient = ReturnType<typeof createStripeClient>;
