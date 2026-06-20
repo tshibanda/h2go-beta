@@ -308,6 +308,12 @@ function ProfilePage() {
             <ChevronRight size={18} className="text-white/60" />
           </Link>
         )}
+
+        <div className="px-4 pt-2 pb-4 text-center">
+          <Link to="/terms" className="text-xs text-muted-foreground hover:text-primary underline">
+            {t("p.terms")}
+          </Link>
+        </div>
       </div>
     </MobileShell>
   );
