@@ -314,7 +314,7 @@ function ProfilePage() {
         </div>
 
         {/* Premium — also opens Stripe portal when subscribed */}
-        {/*
+
         {isPremium ? (
           <button
             type="button"
@@ -344,7 +344,10 @@ function ProfilePage() {
             <ChevronRight size={18} className="text-white/60" />
           </button>
         ) : (
-          <Link to="/premium" className="mx-4 rounded-2xl p-4 flex items-center gap-3 bg-gradient-to-br from-[#1E3A8A] to-primary shadow-lg">
+          <Link
+            to="/premium"
+            className="mx-4 rounded-2xl p-4 flex items-center gap-3 bg-gradient-to-br from-[#1E3A8A] to-primary shadow-lg"
+          >
             <Crown size={26} color="#FDE68A" />
             <div className="flex-1">
               <p className="font-display text-base font-bold text-white">{t("p.premium")}</p>
@@ -352,8 +355,7 @@ function ProfilePage() {
             </div>
             <ChevronRight size={18} className="text-white/60" />
           </Link>
-        )} 
-        */}
+        )}
 
         <div className="px-4 pt-2 pb-4 text-center">
           <Link to="/terms" className="text-xs text-muted-foreground hover:text-primary underline">
