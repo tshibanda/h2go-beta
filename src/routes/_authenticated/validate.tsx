@@ -36,31 +36,44 @@ function ValidatePage() {
   const [result, setResult] = useState<Awaited<ReturnType<typeof validatePhoto>> | null>(null);
   const [errMsg, setErrMsg] = useState<string | null>(null);
 
-  // start camera
+  // start / restart camera whenever we're in the camera phase
   useEffect(() => {
+    if (phase !== "camera") return;
     let cancelled = false;
-    (async () => {
+
+    async function ensureStream() {
       try {
-        const stream = await navigator.mediaDevices.getUserMedia({
-          video: { facingMode: { ideal: "environment" } },
-          audio: false,
-        });
-        if (cancelled) {
-          stream.getTracks().forEach((t) => t.stop());
-          return;
+        if (!streamRef.current || streamRef.current.getTracks().every((t) => t.readyState === "ended")) {
+          const stream = await navigator.mediaDevices.getUserMedia({
+            video: { facingMode: { ideal: "environment" } },
+            audio: false,
+          });
+          if (cancelled) {
+            stream.getTracks().forEach((t) => t.stop());
+            return;
+          }
+          streamRef.current = stream;
         }
-        streamRef.current = stream;
-        if (videoRef.current) {
-          videoRef.current.srcObject = stream;
+        if (videoRef.current && streamRef.current) {
+          videoRef.current.srcObject = streamRef.current;
           await videoRef.current.play().catch(() => {});
         }
       } catch (e) {
         setErrMsg(t("val.cameraDenied"));
       }
-    })();
+    }
+
+    void ensureStream();
     return () => {
       cancelled = true;
+    };
+  }, [phase, t]);
+
+  // stop tracks fully on unmount
+  useEffect(() => {
+    return () => {
       streamRef.current?.getTracks().forEach((t) => t.stop());
+      streamRef.current = null;
     };
   }, []);
 

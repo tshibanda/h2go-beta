@@ -1,6 +1,6 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Bell, Camera, Sparkles } from "lucide-react";
 import { completeOnboarding } from "@/lib/h2go.functions";
 import { Splash, SplashDefs } from "@/components/h2go/Splash";
@@ -9,6 +9,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { useT } from "@/i18n";
+import { supabase } from "@/integrations/supabase/client";
+import { uploadAvatar, resolveAvatarUrl } from "@/lib/avatar";
 
 export const Route = createFileRoute("/onboarding")({
   ssr: false,
@@ -28,6 +30,48 @@ function Onboarding() {
   const [goal, setGoal] = useState("2500");
   const [times, setTimes] = useState<string[]>(["08:00", "12:00", "16:00", "20:00"]);
   const [busy, setBusy] = useState(false);
+
+  // Avatar: defaults to Google/Apple photo from auth metadata; user can override or remove.
+  const [avatarStored, setAvatarStored] = useState<string | null>(null);
+  const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
+  const [uploading, setUploading] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    supabase.auth.getUser().then(async ({ data }) => {
+      const meta = data.user?.user_metadata as { avatar_url?: string; picture?: string } | undefined;
+      const fromOAuth = meta?.avatar_url ?? meta?.picture ?? null;
+      if (fromOAuth) {
+        setAvatarStored(fromOAuth);
+        setAvatarPreview(fromOAuth);
+      }
+    });
+  }, []);
+
+  async function onPickFile(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setUploading(true);
+    try {
+      const { data: u } = await supabase.auth.getUser();
+      if (!u.user) throw new Error("Not signed in");
+      const ext = (file.name.split(".").pop() || "jpg").toLowerCase().replace(/[^a-z0-9]/g, "") || "jpg";
+      const path = await uploadAvatar(u.user.id, file, ext === "png" || ext === "webp" ? ext : "jpg");
+      setAvatarStored(path);
+      const signed = await resolveAvatarUrl(path);
+      setAvatarPreview(signed);
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Upload failed");
+    } finally {
+      setUploading(false);
+      if (fileInputRef.current) fileInputRef.current.value = "";
+    }
+  }
+
+  function removePhoto() {
+    setAvatarStored(null);
+    setAvatarPreview(null);
+  }
 
   const recommended = Math.round(Number(weight) * 35);
   const total = 3;
@@ -50,10 +94,16 @@ function Onboarding() {
     setBusy(true);
     try {
       await submit({
-        data: { name, age: Number(age), weight_kg: Number(weight), daily_goal_ml: Number(goal), times },
+        data: {
+          name,
+          age: Number(age),
+          weight_kg: Number(weight),
+          daily_goal_ml: Number(goal),
+          times,
+          avatar_url: avatarStored,
+        },
       });
       toast.success(t("ob.toastReady"));
-      // After onboarding, the gate will check trial; trialing users go to /home, others to /premium.
       navigate({ to: "/home" });
     } catch (e) {
       toast.error(e instanceof Error ? e.message : t("ob.toastFail"));
@@ -92,6 +142,47 @@ function Onboarding() {
 
             {step === 1 && (
               <div className="flex flex-col gap-3">
+                {/* Optional avatar */}
+                <div className="flex items-center gap-3">
+                  <div className="w-16 h-16 rounded-full overflow-hidden bg-primary-soft border-2 border-primary/30 flex items-center justify-center text-2xl">
+                    {avatarPreview ? (
+                      <img src={avatarPreview} alt="" className="w-full h-full object-cover" />
+                    ) : (
+                      <span aria-hidden>🌊</span>
+                    )}
+                  </div>
+                  <div className="flex-1">
+                    <Label className="text-xs">{t("ob.photo")}</Label>
+                    <div className="flex gap-2 mt-1">
+                      <button
+                        type="button"
+                        onClick={() => fileInputRef.current?.click()}
+                        disabled={uploading}
+                        className="text-xs px-2.5 py-1 rounded-lg bg-primary text-primary-foreground font-semibold disabled:opacity-60"
+                      >
+                        {uploading ? t("ob.photoUploading") : t("ob.photoChange")}
+                      </button>
+                      {avatarPreview && (
+                        <button
+                          type="button"
+                          onClick={removePhoto}
+                          className="text-xs px-2.5 py-1 rounded-lg bg-muted text-muted-foreground font-semibold"
+                        >
+                          {t("ob.photoRemove")}
+                        </button>
+                      )}
+                    </div>
+                    <input
+                      ref={fileInputRef}
+                      type="file"
+                      accept="image/*"
+                      className="hidden"
+                      onChange={onPickFile}
+                    />
+                  </div>
+                </div>
+                <p className="text-[10px] text-muted-foreground -mt-1">{t("ob.photoHint")}</p>
+
                 <div>
                   <Label>{t("ob.callYou")}</Label>
                   <Input value={name} onChange={(e) => setName(e.target.value)} placeholder={t("ob.yourName")} />

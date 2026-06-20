@@ -150,26 +150,41 @@ export const completeOnboarding = createServerFn({ method: "POST" })
         weight_kg: z.number().min(20).max(300),
         daily_goal_ml: z.number().int().min(500).max(6000),
         times: z.array(z.string().regex(/^\d{2}:\d{2}$/)).min(3).max(12),
+        avatar_url: z.string().max(500).nullable().optional(),
       })
       .parse(input),
   )
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
-    await supabase
-      .from("profiles")
-      .update({
-        name: data.name,
-        age: data.age,
-        weight_kg: data.weight_kg,
-        daily_goal_ml: data.daily_goal_ml,
-        onboarded: true,
-      })
-      .eq("id", userId);
+    const update = {
+      name: data.name,
+      age: data.age,
+      weight_kg: data.weight_kg,
+      daily_goal_ml: data.daily_goal_ml,
+      onboarded: true,
+      ...(data.avatar_url !== undefined ? { avatar_url: data.avatar_url } : {}),
+    };
+    await supabase.from("profiles").update(update).eq("id", userId);
 
     const sorted = [...data.times].sort();
     await supabase.from("reminders").delete().eq("user_id", userId);
     await supabase
       .from("reminders")
       .insert(sorted.map((t) => ({ user_id: userId, reminder_time: `${t}:00`, enabled: true })));
+    return { ok: true };
+  });
+
+export const updateAvatar = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: unknown) =>
+    z.object({ avatar_url: z.string().max(500).nullable() }).parse(input),
+  )
+  .handler(async ({ data, context }) => {
+    const { supabase, userId } = context;
+    const { error } = await supabase
+      .from("profiles")
+      .update({ avatar_url: data.avatar_url })
+      .eq("id", userId);
+    if (error) throw error;
     return { ok: true };
   });
