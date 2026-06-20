@@ -180,12 +180,15 @@ export const createCheckoutSession = createServerFn({ method: "POST" })
         ui_mode: "embedded_page",
         return_url: data.returnUrl,
         customer: customerId,
+        // Disable Stripe's automatic currency conversion offer — we expose
+        // dedicated EUR and USD prices and select the right one based on locale.
+        adaptive_pricing: { enabled: false },
         metadata: { userId },
         subscription_data: {
           trial_period_days: 7,
           metadata: { userId },
         },
-      });
+      } as Parameters<typeof stripe.checkout.sessions.create>[0]);
 
       return { clientSecret: session.client_secret ?? "" };
     } catch (error) {
