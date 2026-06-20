@@ -97,7 +97,7 @@ async function resolveH2goPrice(stripe: StripeClient, priceId: string) {
   try {
     return await stripe.prices.create({
       product: product.id,
-      currency: "eur",
+      currency: plan.currency,
       unit_amount: plan.amount,
       recurring: { interval: plan.interval },
       lookup_key: priceId,
