@@ -22,9 +22,15 @@ export const Route = createFileRoute("/_authenticated/profile")({
   head: () => ({
     meta: [
       { title: "Your Profile — H2GO" },
-      { name: "description", content: "View your H2GO hydration stats, badges, level progress, reminders, and subscription settings." },
+      {
+        name: "description",
+        content: "View your H2GO hydration stats, badges, level progress, reminders, and subscription settings.",
+      },
       { property: "og:title", content: "Your Profile — H2GO" },
-      { property: "og:description", content: "View your H2GO hydration stats, badges, level progress, reminders, and subscription settings." },
+      {
+        property: "og:description",
+        content: "View your H2GO hydration stats, badges, level progress, reminders, and subscription settings.",
+      },
       { property: "og:url", content: "https://h2go-beta.lovable.app/profile" },
     ],
     links: [{ rel: "canonical", href: "https://h2go-beta.lovable.app/profile" }],
@@ -56,7 +62,12 @@ function ProfilePage() {
     resolveAvatarUrl(data?.profile?.avatar_url).then(setAvatarUrl);
   }, [data?.profile?.avatar_url]);
 
-  if (!data) return <MobileShell><div className="p-6 text-muted-foreground">{t("common.loading")}</div></MobileShell>;
+  if (!data)
+    return (
+      <MobileShell>
+        <div className="p-6 text-muted-foreground">{t("common.loading")}</div>
+      </MobileShell>
+    );
 
   const xp = data.xp?.current_xp ?? 0;
   const lvl = levelForXp(xp);
@@ -158,20 +169,19 @@ function ProfilePage() {
                   <Trash2 size={11} />
                 </button>
               )}
-              <input
-                ref={fileInputRef}
-                type="file"
-                accept="image/*"
-                className="hidden"
-                onChange={onPickAvatar}
-              />
+              <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={onPickAvatar} />
             </div>
             <div className="flex-1">
               <p className="font-display text-2xl font-bold">{name}</p>
               <p className="text-xs text-white/80">{LEVEL_NAMES[locale][lvl.name] ?? lvl.name}</p>
               <div className="flex items-center gap-1.5 mt-2">
                 {[1, 2, 3, 4, 5].map((i) => (
-                  <Star key={i} size={13} color={i <= Math.min(5, lvl.level) ? "#FDE68A" : "rgba(255,255,255,0.3)"} fill={i <= Math.min(5, lvl.level) ? "#FDE68A" : "none"} />
+                  <Star
+                    key={i}
+                    size={13}
+                    color={i <= Math.min(5, lvl.level) ? "#FDE68A" : "rgba(255,255,255,0.3)"}
+                    fill={i <= Math.min(5, lvl.level) ? "#FDE68A" : "none"}
+                  />
                 ))}
                 <span className="text-[11px] text-white/75 ml-1">Lvl {lvl.level}</span>
               </div>
@@ -183,7 +193,10 @@ function ProfilePage() {
               <span>{lvl.next.toLocaleString()} XP next</span>
             </div>
             <div className="w-full rounded-full h-2.5 bg-white/20">
-              <div className="h-2.5 rounded-full bg-white/85" style={{ width: `${Math.min(100, (xp / lvl.next) * 100)}%` }} />
+              <div
+                className="h-2.5 rounded-full bg-white/85"
+                style={{ width: `${Math.min(100, (xp / lvl.next) * 100)}%` }}
+              />
             </div>
           </div>
         </div>
@@ -211,10 +224,14 @@ function ProfilePage() {
               const unlocked = earned.has(a.id);
               return (
                 <div key={a.id} className="flex flex-col items-center gap-1">
-                  <div className={`w-14 h-14 rounded-2xl flex items-center justify-center text-2xl border-2 ${unlocked ? "bg-primary-soft border-primary-soft" : "bg-muted border-transparent opacity-40"}`}>
+                  <div
+                    className={`w-14 h-14 rounded-2xl flex items-center justify-center text-2xl border-2 ${unlocked ? "bg-primary-soft border-primary-soft" : "bg-muted border-transparent opacity-40"}`}
+                  >
                     {a.badge_emoji}
                   </div>
-                  <span className={`text-[9px] text-center ${unlocked ? "text-primary" : "text-muted-foreground"}`}>{a.title}</span>
+                  <span className={`text-[9px] text-center ${unlocked ? "text-primary" : "text-muted-foreground"}`}>
+                    {a.title}
+                  </span>
                 </div>
               );
             })}
@@ -226,7 +243,9 @@ function ProfilePage() {
           <div className="flex items-center justify-between mb-2">
             <p className="font-display text-base font-semibold">{t("p.reminders")}</p>
             {!editReminders && (
-              <button onClick={startEdit} className="text-xs text-primary font-semibold">{t("p.edit")}</button>
+              <button onClick={startEdit} className="text-xs text-primary font-semibold">
+                {t("p.edit")}
+              </button>
             )}
           </div>
           {!editReminders ? (
@@ -241,18 +260,36 @@ function ProfilePage() {
             <div className="flex flex-col gap-2">
               {times.map((time, i) => (
                 <div key={i} className="flex gap-2">
-                  <Input type="time" value={time} onChange={(e) => { const n = [...times]; n[i] = e.target.value; setTimes(n); }} />
-                  <button onClick={() => times.length > 3 && setTimes(times.filter((_, j) => j !== i))} className="px-3 text-destructive disabled:opacity-30" disabled={times.length <= 3}>×</button>
+                  <Input
+                    type="time"
+                    value={time}
+                    onChange={(e) => {
+                      const n = [...times];
+                      n[i] = e.target.value;
+                      setTimes(n);
+                    }}
+                  />
+                  <button
+                    onClick={() => times.length > 3 && setTimes(times.filter((_, j) => j !== i))}
+                    className="px-3 text-destructive disabled:opacity-30"
+                    disabled={times.length <= 3}
+                  >
+                    ×
+                  </button>
                 </div>
               ))}
-              <Button variant="outline" onClick={() => times.length < 12 && setTimes([...times, "14:00"])} disabled={times.length >= 12}>{t("p.add")}</Button>
+              <Button
+                variant="outline"
+                onClick={() => times.length < 12 && setTimes([...times, "14:00"])}
+                disabled={times.length >= 12}
+              >
+                {t("p.add")}
+              </Button>
               <Button onClick={saveTimes}>{t("p.save")}</Button>
             </div>
           )}
           <p className="text-[10px] text-muted-foreground mt-2">{t("p.reminderHint")}</p>
         </div>
-
-        
 
         {/* Language */}
         <div className="mx-4 rounded-2xl p-4 bg-card shadow-sm">
@@ -264,15 +301,20 @@ function ProfilePage() {
             <button
               onClick={() => setLocale("en")}
               className={`flex-1 py-2 rounded-xl text-sm font-semibold ${locale === "en" ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground"}`}
-            >🇬🇧 English</button>
+            >
+              🇬🇧 English
+            </button>
             <button
               onClick={() => setLocale("fr")}
               className={`flex-1 py-2 rounded-xl text-sm font-semibold ${locale === "fr" ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground"}`}
-            >🇫🇷 Français</button>
+            >
+              🇫🇷 Français
+            </button>
           </div>
         </div>
 
         {/* Premium — also opens Stripe portal when subscribed */}
+        {/*
         {isPremium ? (
           <button
             type="button"
@@ -310,7 +352,8 @@ function ProfilePage() {
             </div>
             <ChevronRight size={18} className="text-white/60" />
           </Link>
-        )}
+        )} 
+        */}
 
         <div className="px-4 pt-2 pb-4 text-center">
           <Link to="/terms" className="text-xs text-muted-foreground hover:text-primary underline">
