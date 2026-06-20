@@ -319,16 +319,22 @@ function ProfilePage() {
           <button
             type="button"
             onClick={async () => {
+              // Pré-ouvre un onglet de façon synchrone pour préserver le user-gesture
+              // (sinon window.open après await est bloqué sur mobile / PWA standalone).
+              const popup = window.open("about:blank", "_blank");
               try {
                 const r = await createPortalSession({
                   data: { returnUrl: window.location.href, environment: getStripeEnvironment() },
                 });
                 if ("error" in r) throw new Error(r.error);
-                const win = window.open(r.url, "_blank");
-                if (!win || win.closed || typeof win.closed === "undefined") {
+                if (popup && !popup.closed) {
+                  popup.location.href = r.url;
+                } else {
+                  // PWA standalone / popup bloqué : navigation dans la webapp
                   window.location.assign(r.url);
                 }
               } catch (e) {
+                if (popup && !popup.closed) popup.close();
                 toast.error(e instanceof Error ? e.message : "Failed to open portal");
               }
             }}
