@@ -114,16 +114,52 @@ function HomePage() {
             <p className="font-display text-2xl font-bold" aria-hidden="true">{t("home.greeting")} {name} 👋</p>
           </div>
           <div className="flex items-center gap-2">
-            <button
-              type="button"
-              aria-label={t("home.viewNotifs")}
-              className="w-10 h-10 rounded-full bg-primary-soft flex items-center justify-center relative"
-            >
-              <Bell size={18} color="#3B82F6" />
-              {streak > 0 && (
-                <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-destructive border-2 border-background" />
-              )}
-            </button>
+            <Sheet>
+              <SheetTrigger asChild>
+                <button
+                  type="button"
+                  aria-label={t("home.viewNotifs")}
+                  className="w-10 h-10 rounded-full bg-primary-soft flex items-center justify-center relative"
+                >
+                  <Bell size={18} color="#3B82F6" />
+                  {(next || data.fact) && (
+                    <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-destructive border-2 border-background" />
+                  )}
+                </button>
+              </SheetTrigger>
+              <SheetContent side="right" className="w-[88%] sm:w-[400px] overflow-y-auto">
+                <SheetHeader>
+                  <SheetTitle>{t("home.notifTitle")}</SheetTitle>
+                  <SheetDescription>{t("home.viewNotifs")}</SheetDescription>
+                </SheetHeader>
+                <div className="flex flex-col gap-4 mt-4">
+                  {reminders.length > 0 && (
+                    <div>
+                      <p className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground mb-2">{t("home.notifUpcoming")}</p>
+                      <ul className="flex flex-col gap-2">
+                        {reminders.map((r) => (
+                          <li key={r.id} className="flex items-center gap-3 rounded-2xl p-3 bg-primary-soft">
+                            <span className="text-xl">⏰</span>
+                            <span className="font-display font-semibold">{(r.reminder_time as string).slice(0, 5)}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+                  {data.fact && (
+                    <div>
+                      <p className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground mb-2">{t("home.notifFact")}</p>
+                      <div className="rounded-2xl p-3 bg-teal-50 border border-teal-200/40 text-sm text-teal-900">
+                        {locale === "fr" ? (FACT_FR[data.fact.fact_text] ?? data.fact.fact_text) : data.fact.fact_text}
+                      </div>
+                    </div>
+                  )}
+                  {!reminders.length && !data.fact && (
+                    <p className="text-sm text-muted-foreground">{t("home.notifEmpty")}</p>
+                  )}
+                </div>
+              </SheetContent>
+            </Sheet>
             <Link
               to="/profile"
               aria-label={t("home.viewProfile")}
@@ -212,7 +248,9 @@ function HomePage() {
               <span className="text-base">🧠</span>
               <p className="text-[11px] font-semibold text-teal-800 uppercase tracking-wide">{t("home.didYouKnow")}</p>
             </div>
-            <p className="text-sm text-teal-900 leading-relaxed">{data.fact.fact_text}</p>
+            <p className="text-sm text-teal-900 leading-relaxed">
+              {locale === "fr" ? (FACT_FR[data.fact.fact_text] ?? data.fact.fact_text) : data.fact.fact_text}
+            </p>
           </div>
         )}
 
