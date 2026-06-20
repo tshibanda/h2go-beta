@@ -1,23 +1,11 @@
-import { createFileRoute } from "@tanstack/react-router";
-import { useServerFn } from "@tanstack/react-start";
-import { useQuery } from "@tanstack/react-query";
-import { useState } from "react";
-import { Crown } from "lucide-react";
-import { getLeaderboard } from "@/lib/h2go.functions";
-import { MobileShell } from "@/components/h2go/MobileShell";
-import { useT } from "@/i18n";
+import { createFileRoute, redirect } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/_authenticated/leaderboard")({
-  head: () => ({
-    meta: [
-      { title: "Hydration Leaderboard — H2GO" },
-      { name: "description", content: "See how your hydration habits compare to others in the H2GO community across Bronze, Silver, Gold and Diamond leagues." },
-      { property: "og:title", content: "Hydration Leaderboard — H2GO" },
-      { property: "og:description", content: "See how your hydration habits compare to others in the H2GO community across Bronze, Silver, Gold and Diamond leagues." },
-      { property: "og:url", content: "https://h2go-beta.lovable.app/leaderboard" },
-    ],
-    links: [{ rel: "canonical", href: "https://h2go-beta.lovable.app/leaderboard" }],
-  }),
+  beforeLoad: () => {
+    throw redirect({ to: "/home" });
+  },
+  component: () => null,
+});
   component: LeaderboardPage,
 });
 
