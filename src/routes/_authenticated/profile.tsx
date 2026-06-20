@@ -38,15 +38,23 @@ function ProfilePage() {
   const fetchDash = useServerFn(getDashboard);
   const fetchTotals = useServerFn(getTotals);
   const save = useServerFn(saveReminders);
+  const saveAvatar = useServerFn(updateAvatar);
   const qc = useQueryClient();
   const { data } = useQuery({ queryKey: ["dashboard"], queryFn: () => fetchDash() });
   const { data: totals } = useQuery({ queryKey: ["totals"], queryFn: () => fetchTotals() });
   const [editReminders, setEditReminders] = useState(false);
   const [times, setTimes] = useState<string[]>([]);
+  const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
+  const [uploadingAvatar, setUploadingAvatar] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     void maybePromptFirstLaunch();
   }, []);
+
+  useEffect(() => {
+    resolveAvatarUrl(data?.profile?.avatar_url).then(setAvatarUrl);
+  }, [data?.profile?.avatar_url]);
 
   if (!data) return <MobileShell><div className="p-6 text-muted-foreground">{t("common.loading")}</div></MobileShell>;
 
