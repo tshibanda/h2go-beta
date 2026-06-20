@@ -1,0 +1,11 @@
+{
+  "applinks": {
+    "apps": [],
+    "details": [
+      {
+        "appID": "64WRGLMF42.com.h2go.app",
+        "paths": ["*"]
+      }
+    ]
+  }
+}
