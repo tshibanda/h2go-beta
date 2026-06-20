@@ -382,7 +382,7 @@ export const TRANSLATIONS = {
     "terms.deleteTitle": "Supprimer tes données",
     "terms.deleteBody":
       "Tu peux retirer ta photo de profil depuis la page Profil. Pour supprimer ton compte et toutes les données associées, contacte le support.",
-    "terms.contact": "Questions ? Contacte-nous à support@h2go-beta.lovable.app.",
+    "terms.contact": "Questions ? Contacte-nous à support@h2go-app.com.",
 
     "nav.home": "Accueil",
     "nav.stats": "Stats",
