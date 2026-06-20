@@ -18,7 +18,7 @@ export const Route = createFileRoute("/_authenticated/premium")({
 });
 
 function PremiumPage() {
-  const { t } = useT();
+  const { t, locale } = useT();
   const { hasAccess } = Route.useRouteContext();
   const navigate = useNavigate();
   const fetchDash = useServerFn(getDashboard);
@@ -101,8 +101,8 @@ function PremiumPage() {
           </div>
 
           <div className="mx-4 grid grid-cols-2 gap-3">
-            <PlanCard title={t("pay.monthly")} price="€4.99" subtitle={t("pay.perMonth")} cta={t("pay.start")} onStart={() => start("h2go_monthly")} />
-            <PlanCard title={t("pay.yearly")} price="€39.99" subtitle={t("pay.perYear")} cta={t("pay.start")} highlight onStart={() => start("h2go_yearly")} />
+            <PlanCard title={t("pay.monthly")} price={locale === "en" ? "$4.99" : "€4.99"} subtitle={t("pay.perMonth")} cta={t("pay.start")} onStart={() => start("h2go_monthly")} />
+            <PlanCard title={t("pay.yearly")} price={locale === "en" ? "$39.99" : "€39.99"} subtitle={t("pay.perYear")} cta={t("pay.start")} highlight onStart={() => start("h2go_yearly")} />
           </div>
 
           <p className="mx-4 text-[11px] text-muted-foreground text-center">{t("pay.legal")}</p>

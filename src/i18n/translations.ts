@@ -96,7 +96,12 @@ export const TRANSLATIONS = {
     "p.totalLiters": "Total liters",
     "p.validations": "Validations",
     "p.badges": "Badges",
-    "p.reminders": "Reminders",
+    "p.reminders": "Hydration reminders",
+    "home.notifTitle": "Notifications",
+    "home.notifUpcoming": "Upcoming reminders",
+    "home.notifFact": "Today's fact",
+    "home.notifEmpty": "No notifications yet — you're all caught up.",
+    "home.notifClose": "Close",
     "p.edit": "Edit",
     "p.save": "Save",
     "p.add": "+ Add",
@@ -293,7 +298,12 @@ export const TRANSLATIONS = {
     "p.totalLiters": "Litres totaux",
     "p.validations": "Validations",
     "p.badges": "Badges",
-    "p.reminders": "Rappels",
+    "p.reminders": "Rappels d'hydratation",
+    "home.notifTitle": "Notifications",
+    "home.notifUpcoming": "Rappels à venir",
+    "home.notifFact": "Le fait du jour",
+    "home.notifEmpty": "Aucune notification pour l'instant — tu es à jour.",
+    "home.notifClose": "Fermer",
     "p.edit": "Modifier",
     "p.save": "Enregistrer",
     "p.add": "+ Ajouter",
@@ -395,5 +405,49 @@ export const TRANSLATIONS = {
   },
 } as const;
 
+// Translations for hardcoded level names from gamification.ts
+export const LEVEL_NAMES: Record<"en" | "fr", Record<string, string>> = {
+  en: {
+    "Hydrated Beginner": "Hydrated Beginner",
+    "Water Apprentice": "Water Apprentice",
+    "Hydration Guardian": "Hydration Guardian",
+    "Water Explorer": "Water Explorer",
+    "Ocean Master": "Ocean Master",
+    "King of Hydration": "King of Hydration",
+  },
+  fr: {
+    "Hydrated Beginner": "Débutant hydraté",
+    "Water Apprentice": "Apprenti de l'eau",
+    "Hydration Guardian": "Gardien de l'hydratation",
+    "Water Explorer": "Explorateur de l'eau",
+    "Ocean Master": "Maître des océans",
+    "King of Hydration": "Roi de l'hydratation",
+  },
+};
+
+// FR translations for daily_facts.fact_text seeded in English in the DB.
+export const FACT_FR: Record<string, string> = {
+  "Your brain is about 75% water — staying hydrated sharpens focus.": "Ton cerveau est composé à environ 75 % d'eau — bien s'hydrater aiguise la concentration.",
+  "Drinking water before a meal can reduce hunger and aid digestion.": "Boire de l'eau avant un repas peut réduire la faim et faciliter la digestion.",
+  "Mild dehydration of just 1-2% can impair mood and concentration.": "Une déshydratation légère de seulement 1 à 2 % peut altérer l'humeur et la concentration.",
+  "Adults are roughly 60% water by weight.": "Les adultes sont composés d'environ 60 % d'eau en poids.",
+  "Water regulates body temperature through sweating and breathing.": "L'eau régule la température du corps via la sueur et la respiration.",
+  "Hydration helps your kidneys flush waste efficiently.": "L'hydratation aide tes reins à éliminer efficacement les déchets.",
+  "Cold water can slightly boost metabolism for up to an hour.": "L'eau froide peut légèrement booster le métabolisme pendant une heure.",
+  "Athletes can lose 6-10% of body weight in sweat without water breaks.": "Les sportifs peuvent perdre 6 à 10 % de leur poids en sueur sans pauses d'eau.",
+  "Skin elasticity improves with consistent hydration.": "L'élasticité de la peau s'améliore avec une hydratation régulière.",
+  "Headaches are one of the first signs of dehydration.": "Les maux de tête sont l'un des premiers signes de déshydratation.",
+  "Your blood is about 90% water.": "Ton sang est composé d'environ 90 % d'eau.",
+  "Hydration supports joint lubrication and reduces stiffness.": "L'hydratation lubrifie les articulations et réduit les raideurs.",
+  "Drinking enough water can improve workout performance by 25%.": "Bien s'hydrater peut améliorer la performance sportive jusqu'à 25 %.",
+  "Cells need water to produce energy from nutrients.": "Les cellules ont besoin d'eau pour produire de l'énergie à partir des nutriments.",
+  "Lungs are 83% water — they need it to breathe efficiently.": "Les poumons sont composés à 83 % d'eau — ils en ont besoin pour bien respirer.",
+  "A 1% drop in hydration lowers cognitive performance.": "Une baisse d'hydratation de seulement 1 % réduit les performances cognitives.",
+  "Water has zero calories — the ultimate diet drink.": "L'eau a zéro calorie — la boisson minceur ultime.",
+  "You lose about 2.5L of water par jour, même au repos.": "Tu perds environ 2,5 L d'eau par jour, même au repos.",
+  "You lose about 2.5L of water per day, even at rest.": "Tu perds environ 2,5 L d'eau par jour, même au repos.",
+  "Hot weather can double your daily water needs.": "La chaleur peut doubler tes besoins quotidiens en eau.",
+  "Sipping slowly hydrates better than chugging large amounts.": "Boire par petites gorgées hydrate mieux que de tout avaler d'un coup.",
+};
 
 export type TranslationKey = keyof typeof TRANSLATIONS["en"];
