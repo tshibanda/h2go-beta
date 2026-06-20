@@ -23,7 +23,8 @@ export const TRANSLATIONS = {
     "intro.s2.title": "2. Snap a real photo",
     "intro.s2.body": "Within 60 seconds, take a live photo of your glass, bottle, flask or cup of water.",
     "intro.s3.title": "3. AI confirms your sip",
-    "intro.s3.body": "Our vision AI verifies the photo, validates the sip, and rewards you with XP and a growing streak.",
+    "intro.s3.body":
+      "Our vision AI verifies the photo, validates the sip, and rewards you with XP and a growing streak.",
     "intro.continue": "Let's set you up",
 
     // Onboarding form
@@ -52,7 +53,8 @@ export const TRANSLATIONS = {
     "pay.title": "H2GO Premium",
     "pay.trialNote": "7-day free trial — payment method required, cancel anytime",
     "pay.locked.title": "Start your free trial to unlock H2GO",
-    "pay.locked.body": "Enter your payment information to start your 7-day free trial. You won't be charged until the trial ends, and you can cancel anytime.",
+    "pay.locked.body":
+      "Enter your payment information to start your 7-day free trial. You won't be charged until the trial ends, and you can cancel anytime.",
     "pay.featuresHeader": "What's included",
     "pay.f1": "Unlimited AI-verified sips",
     "pay.f2": "AI Coach: personalized goals",
@@ -119,7 +121,8 @@ export const TRANSLATIONS = {
     "p.manageSub": "Manage subscription",
     "p.manageSubHint": "Change plan, update payment, or cancel",
     "billing.pastDue.title": "Payment failed",
-    "billing.pastDue.body": "Stripe is retrying automatically. Update your payment method within {days} day(s) to keep access.",
+    "billing.pastDue.body":
+      "Stripe is retrying automatically. Update your payment method within {days} day(s) to keep access.",
     "billing.pastDue.toast": "We couldn't process your payment",
     "billing.pastDue.toastBody": "Stripe will retry. You have {days} day(s) to update your card.",
     "p.language": "Language",
@@ -127,18 +130,24 @@ export const TRANSLATIONS = {
     "p.terms": "Terms & Privacy",
     "val.rejectGeneric": "We couldn't validate this photo. Make sure your container with water is clearly visible.",
     "terms.title": "Terms & Privacy",
-    "terms.intro": "By using H2GO you accept the terms below. We process the minimum data needed to power your hydration tracking.",
+    "terms.intro":
+      "By using H2GO you accept the terms below. We process the minimum data needed to power your hydration tracking.",
     "terms.usageTitle": "Acceptable use",
-    "terms.usageBody": "Take genuine photos of containers holding drinking water. Fake photos, screens, or unrelated images will be rejected by our AI and may lead to account suspension.",
+    "terms.usageBody":
+      "Take genuine photos of containers holding drinking water. Fake photos, screens, or unrelated images will be rejected by our AI and may lead to account suspension.",
     "terms.dataTitle": "Data we store",
-    "terms.dataBody": "Account info (email, name), profile photo, hydration logs, validated photos, level/XP, reminders and subscription status. Photos are stored privately and used only for validation and history.",
+    "terms.dataBody":
+      "Account info (email, name), profile photo, hydration logs, validated photos, level/XP, reminders and subscription status. Photos are stored privately and used only for validation and history.",
     "terms.aiTitle": "AI validation",
-    "terms.aiBody": "Each validation sends your photo to an AI vision model to check it shows water. The image is also stored in your private library.",
+    "terms.aiBody":
+      "Each validation sends your photo to an AI vision model to check it shows water. The image is also stored in your private library.",
     "terms.subTitle": "Subscription",
-    "terms.subBody": "Premium is billed via Stripe with a 7-day free trial. You can cancel anytime from your profile; access continues until the end of the paid period.",
+    "terms.subBody":
+      "Premium is billed via Stripe with a 7-day free trial. You can cancel anytime from your profile; access continues until the end of the paid period.",
     "terms.deleteTitle": "Delete your data",
-    "terms.deleteBody": "You can remove your profile photo from the profile page. To delete your account and all related data, contact support.",
-    "terms.contact": "Questions? Contact us at support@h2go-beta.lovable.app.",
+    "terms.deleteBody":
+      "You can remove your profile photo from the profile page. To delete your account and all related data, contact support.",
+    "terms.contact": "Questions? Contact us at support@h2go-app.com",
 
     // Nav
     "nav.home": "Home",
@@ -174,7 +183,8 @@ export const TRANSLATIONS = {
     "tree.toNext": "To {name}",
     "tree.sipsLeft": "{n} sips",
     "tree.growthStages": "Growth stages",
-    "tree.didYouKnow": "🌱 **Did you know?** Every validated sip waters your tree. The more you drink, the rarer it gets!",
+    "tree.didYouKnow":
+      "🌱 **Did you know?** Every validated sip waters your tree. The more you drink, the rarer it gets!",
     "tree.stage.0": "Seed",
     "tree.stage.1": "Sprout",
     "tree.stage.2": "Young Tree",
@@ -222,7 +232,8 @@ export const TRANSLATIONS = {
 
     // Landing
     "landing.title": "Hydrate.\nValidate.\nGrow.",
-    "landing.body": "H2GO is your premium hydration coach. Real-photo verification, streaks, XP, and a living water tree that grows with every sip.",
+    "landing.body":
+      "H2GO is your premium hydration coach. Real-photo verification, streaks, XP, and a living water tree that grows with every sip.",
     "landing.feature.ai": "AI verified",
     "landing.feature.streaks": "Streaks",
     "landing.feature.tree": "Hydration tree",
@@ -230,7 +241,6 @@ export const TRANSLATIONS = {
     "landing.trial": "7-day Premium trial. Cancel any time.",
   },
   fr: {
-
     "auth.signIn": "Connexion",
     "auth.signUp": "Inscription",
     "auth.tagline": "Coaching hydratation premium",
@@ -246,11 +256,13 @@ export const TRANSLATIONS = {
 
     "intro.title": "Comment fonctionne H2GO",
     "intro.s1.title": "1. Rappel de boire",
-    "intro.s1.body": "Nous t'envoyons une alerte hydratation à chaque horaire programmé pour ne jamais oublier de boire.",
+    "intro.s1.body":
+      "Nous t'envoyons une alerte hydratation à chaque horaire programmé pour ne jamais oublier de boire.",
     "intro.s2.title": "2. Prends une vraie photo",
     "intro.s2.body": "Dans les 60 secondes, prends en direct une photo de ton verre, bouteille, gourde ou tasse d'eau.",
     "intro.s3.title": "3. L'IA confirme ta gorgée",
-    "intro.s3.body": "Notre IA vision vérifie la photo, valide la prise et te récompense en XP avec une série qui grandit.",
+    "intro.s3.body":
+      "Notre IA vision vérifie la photo, valide la prise et te récompense en XP avec une série qui grandit.",
     "intro.continue": "Configurons ton profil",
 
     "ob.step": "Étape {current} sur {total}",
@@ -277,7 +289,8 @@ export const TRANSLATIONS = {
     "pay.title": "H2GO Premium",
     "pay.trialNote": "7 jours d'essai gratuit — carte bancaire requise, sans engagement",
     "pay.locked.title": "Démarre ton essai gratuit pour débloquer H2GO",
-    "pay.locked.body": "Renseigne tes informations de paiement pour démarrer tes 7 jours d'essai gratuit. Aucun prélèvement avant la fin de l'essai, annulation possible à tout moment.",
+    "pay.locked.body":
+      "Renseigne tes informations de paiement pour démarrer tes 7 jours d'essai gratuit. Aucun prélèvement avant la fin de l'essai, annulation possible à tout moment.",
     "pay.featuresHeader": "Ce qui est inclus",
     "pay.f1": "Gorgées vérifiées par l'IA en illimité",
     "pay.f2": "Coach IA : objectifs personnalisés",
@@ -342,25 +355,33 @@ export const TRANSLATIONS = {
     "p.manageSub": "Gérer l'abonnement",
     "p.manageSubHint": "Changer de plan, paiement ou résilier",
     "billing.pastDue.title": "Échec du paiement",
-    "billing.pastDue.body": "Stripe réessaie automatiquement. Mets à jour ton moyen de paiement sous {days} jour(s) pour conserver l'accès.",
+    "billing.pastDue.body":
+      "Stripe réessaie automatiquement. Mets à jour ton moyen de paiement sous {days} jour(s) pour conserver l'accès.",
     "billing.pastDue.toast": "Impossible de traiter ton paiement",
     "billing.pastDue.toastBody": "Stripe va réessayer. Tu as {days} jour(s) pour mettre à jour ta carte.",
     "p.language": "Langue",
     "p.settings": "Paramètres",
     "p.terms": "Conditions & Confidentialité",
-    "val.rejectGeneric": "Nous n'avons pas pu valider cette photo. Assure-toi que ton contenant avec de l'eau soit bien visible.",
+    "val.rejectGeneric":
+      "Nous n'avons pas pu valider cette photo. Assure-toi que ton contenant avec de l'eau soit bien visible.",
     "terms.title": "Conditions & Confidentialité",
-    "terms.intro": "En utilisant H2GO tu acceptes les conditions ci-dessous. Nous traitons le minimum de données nécessaires pour suivre ton hydratation.",
+    "terms.intro":
+      "En utilisant H2GO tu acceptes les conditions ci-dessous. Nous traitons le minimum de données nécessaires pour suivre ton hydratation.",
     "terms.usageTitle": "Usage acceptable",
-    "terms.usageBody": "Prends de vraies photos de contenants remplis d'eau potable. Les fausses photos, écrans ou images sans rapport seront rejetées par notre IA et pourront entraîner la suspension du compte.",
+    "terms.usageBody":
+      "Prends de vraies photos de contenants remplis d'eau potable. Les fausses photos, écrans ou images sans rapport seront rejetées par notre IA et pourront entraîner la suspension du compte.",
     "terms.dataTitle": "Données conservées",
-    "terms.dataBody": "Infos de compte (email, prénom), photo de profil, journaux d'hydratation, photos validées, niveau/XP, rappels et statut d'abonnement. Tes photos sont stockées en privé et servent uniquement à la validation et à ton historique.",
+    "terms.dataBody":
+      "Infos de compte (email, prénom), photo de profil, journaux d'hydratation, photos validées, niveau/XP, rappels et statut d'abonnement. Tes photos sont stockées en privé et servent uniquement à la validation et à ton historique.",
     "terms.aiTitle": "Validation par IA",
-    "terms.aiBody": "Chaque validation envoie ta photo à un modèle IA de vision pour vérifier qu'elle représente bien de l'eau. L'image est aussi conservée dans ta bibliothèque privée.",
+    "terms.aiBody":
+      "Chaque validation envoie ta photo à un modèle IA de vision pour vérifier qu'elle représente bien de l'eau. L'image est aussi conservée dans ta bibliothèque privée.",
     "terms.subTitle": "Abonnement",
-    "terms.subBody": "Premium est facturé via Stripe avec 7 jours d'essai gratuit. Tu peux résilier à tout moment depuis ton profil ; l'accès reste actif jusqu'à la fin de la période payée.",
+    "terms.subBody":
+      "Premium est facturé via Stripe avec 7 jours d'essai gratuit. Tu peux résilier à tout moment depuis ton profil ; l'accès reste actif jusqu'à la fin de la période payée.",
     "terms.deleteTitle": "Supprimer tes données",
-    "terms.deleteBody": "Tu peux retirer ta photo de profil depuis la page Profil. Pour supprimer ton compte et toutes les données associées, contacte le support.",
+    "terms.deleteBody":
+      "Tu peux retirer ta photo de profil depuis la page Profil. Pour supprimer ton compte et toutes les données associées, contacte le support.",
     "terms.contact": "Questions ? Contacte-nous à support@h2go-beta.lovable.app.",
 
     "nav.home": "Accueil",
@@ -393,7 +414,8 @@ export const TRANSLATIONS = {
     "tree.toNext": "Vers {name}",
     "tree.sipsLeft": "{n} gorgées",
     "tree.growthStages": "Étapes de croissance",
-    "tree.didYouKnow": "🌱 **Le savais-tu ?** Chaque gorgée validée arrose ton arbre. Plus tu bois, plus il devient rare !",
+    "tree.didYouKnow":
+      "🌱 **Le savais-tu ?** Chaque gorgée validée arrose ton arbre. Plus tu bois, plus il devient rare !",
     "tree.stage.0": "Graine",
     "tree.stage.1": "Pousse",
     "tree.stage.2": "Jeune arbre",
@@ -438,7 +460,8 @@ export const TRANSLATIONS = {
     "notif.savedWeb": "Préférences enregistrées",
 
     "landing.title": "Hydrate-toi.\nValide.\nFais grandir.",
-    "landing.body": "H2GO est ton coach d'hydratation premium. Vérification par vraie photo, séries, XP et arbre d'eau vivant qui grandit à chaque gorgée.",
+    "landing.body":
+      "H2GO est ton coach d'hydratation premium. Vérification par vraie photo, séries, XP et arbre d'eau vivant qui grandit à chaque gorgée.",
     "landing.feature.ai": "Vérifié par IA",
     "landing.feature.streaks": "Séries",
     "landing.feature.tree": "Arbre d'hydratation",
@@ -469,27 +492,42 @@ export const LEVEL_NAMES: Record<"en" | "fr", Record<string, string>> = {
 
 // FR translations for daily_facts.fact_text seeded in English in the DB.
 export const FACT_FR: Record<string, string> = {
-  "Your brain is about 75% water — staying hydrated sharpens focus.": "Ton cerveau est composé à environ 75 % d'eau — bien s'hydrater aiguise la concentration.",
-  "Drinking water before a meal can reduce hunger and aid digestion.": "Boire de l'eau avant un repas peut réduire la faim et faciliter la digestion.",
-  "Mild dehydration of just 1-2% can impair mood and concentration.": "Une déshydratation légère de seulement 1 à 2 % peut altérer l'humeur et la concentration.",
+  "Your brain is about 75% water — staying hydrated sharpens focus.":
+    "Ton cerveau est composé à environ 75 % d'eau — bien s'hydrater aiguise la concentration.",
+  "Drinking water before a meal can reduce hunger and aid digestion.":
+    "Boire de l'eau avant un repas peut réduire la faim et faciliter la digestion.",
+  "Mild dehydration of just 1-2% can impair mood and concentration.":
+    "Une déshydratation légère de seulement 1 à 2 % peut altérer l'humeur et la concentration.",
   "Adults are roughly 60% water by weight.": "Les adultes sont composés d'environ 60 % d'eau en poids.",
-  "Water regulates body temperature through sweating and breathing.": "L'eau régule la température du corps via la sueur et la respiration.",
-  "Hydration helps your kidneys flush waste efficiently.": "L'hydratation aide tes reins à éliminer efficacement les déchets.",
-  "Cold water can slightly boost metabolism for up to an hour.": "L'eau froide peut légèrement booster le métabolisme pendant une heure.",
-  "Athletes can lose 6-10% of body weight in sweat without water breaks.": "Les sportifs peuvent perdre 6 à 10 % de leur poids en sueur sans pauses d'eau.",
-  "Skin elasticity improves with consistent hydration.": "L'élasticité de la peau s'améliore avec une hydratation régulière.",
-  "Headaches are one of the first signs of dehydration.": "Les maux de tête sont l'un des premiers signes de déshydratation.",
+  "Water regulates body temperature through sweating and breathing.":
+    "L'eau régule la température du corps via la sueur et la respiration.",
+  "Hydration helps your kidneys flush waste efficiently.":
+    "L'hydratation aide tes reins à éliminer efficacement les déchets.",
+  "Cold water can slightly boost metabolism for up to an hour.":
+    "L'eau froide peut légèrement booster le métabolisme pendant une heure.",
+  "Athletes can lose 6-10% of body weight in sweat without water breaks.":
+    "Les sportifs peuvent perdre 6 à 10 % de leur poids en sueur sans pauses d'eau.",
+  "Skin elasticity improves with consistent hydration.":
+    "L'élasticité de la peau s'améliore avec une hydratation régulière.",
+  "Headaches are one of the first signs of dehydration.":
+    "Les maux de tête sont l'un des premiers signes de déshydratation.",
   "Your blood is about 90% water.": "Ton sang est composé d'environ 90 % d'eau.",
-  "Hydration supports joint lubrication and reduces stiffness.": "L'hydratation lubrifie les articulations et réduit les raideurs.",
-  "Drinking enough water can improve workout performance by 25%.": "Bien s'hydrater peut améliorer la performance sportive jusqu'à 25 %.",
-  "Cells need water to produce energy from nutrients.": "Les cellules ont besoin d'eau pour produire de l'énergie à partir des nutriments.",
-  "Lungs are 83% water — they need it to breathe efficiently.": "Les poumons sont composés à 83 % d'eau — ils en ont besoin pour bien respirer.",
-  "A 1% drop in hydration lowers cognitive performance.": "Une baisse d'hydratation de seulement 1 % réduit les performances cognitives.",
+  "Hydration supports joint lubrication and reduces stiffness.":
+    "L'hydratation lubrifie les articulations et réduit les raideurs.",
+  "Drinking enough water can improve workout performance by 25%.":
+    "Bien s'hydrater peut améliorer la performance sportive jusqu'à 25 %.",
+  "Cells need water to produce energy from nutrients.":
+    "Les cellules ont besoin d'eau pour produire de l'énergie à partir des nutriments.",
+  "Lungs are 83% water — they need it to breathe efficiently.":
+    "Les poumons sont composés à 83 % d'eau — ils en ont besoin pour bien respirer.",
+  "A 1% drop in hydration lowers cognitive performance.":
+    "Une baisse d'hydratation de seulement 1 % réduit les performances cognitives.",
   "Water has zero calories — the ultimate diet drink.": "L'eau a zéro calorie — la boisson minceur ultime.",
   "You lose about 2.5L of water par jour, même au repos.": "Tu perds environ 2,5 L d'eau par jour, même au repos.",
   "You lose about 2.5L of water per day, even at rest.": "Tu perds environ 2,5 L d'eau par jour, même au repos.",
   "Hot weather can double your daily water needs.": "La chaleur peut doubler tes besoins quotidiens en eau.",
-  "Sipping slowly hydrates better than chugging large amounts.": "Boire par petites gorgées hydrate mieux que de tout avaler d'un coup.",
+  "Sipping slowly hydrates better than chugging large amounts.":
+    "Boire par petites gorgées hydrate mieux que de tout avaler d'un coup.",
 };
 
-export type TranslationKey = keyof typeof TRANSLATIONS["en"];
+export type TranslationKey = keyof (typeof TRANSLATIONS)["en"];
