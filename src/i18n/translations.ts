@@ -459,7 +459,7 @@ export const TRANSLATIONS = {
     "notif.permDenied": "Permission refusée pour les notifications",
     "notif.savedWeb": "Préférences enregistrées",
 
-    "landing.title": "Hydrate-toi.\nValide.\nFais grandir.",
+    "landing.title": "Hydrate-toi.\nValide.\nRecommence.",
     "landing.body":
       "H2GO est ton coach d'hydratation premium. Vérification par vraie photo, séries, XP et arbre d'eau vivant qui grandit à chaque gorgée.",
     "landing.feature.ai": "Vérifié par IA",
