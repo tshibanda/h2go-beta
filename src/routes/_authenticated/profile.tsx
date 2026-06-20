@@ -87,6 +87,38 @@ function ProfilePage() {
     navigate({ to: "/" });
   }
 
+  async function onPickAvatar(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setUploadingAvatar(true);
+    try {
+      const { data: u } = await supabase.auth.getUser();
+      if (!u.user) throw new Error("Not signed in");
+      const extRaw = (file.name.split(".").pop() || "jpg").toLowerCase().replace(/[^a-z0-9]/g, "");
+      const ext = extRaw === "png" || extRaw === "webp" ? extRaw : "jpg";
+      const path = await uploadAvatar(u.user.id, file, ext);
+      await saveAvatar({ data: { avatar_url: path } });
+      qc.invalidateQueries({ queryKey: ["dashboard"] });
+      toast.success("Photo updated");
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Upload failed");
+    } finally {
+      setUploadingAvatar(false);
+      if (fileInputRef.current) fileInputRef.current.value = "";
+    }
+  }
+
+  async function onRemoveAvatar() {
+    try {
+      const { data: u } = await supabase.auth.getUser();
+      if (u.user) await removeAvatar(u.user.id);
+      await saveAvatar({ data: { avatar_url: null } });
+      qc.invalidateQueries({ queryKey: ["dashboard"] });
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Failed");
+    }
+  }
+
   return (
     <MobileShell>
       <div className="flex flex-col gap-4 pb-6">
@@ -99,7 +131,41 @@ function ProfilePage() {
 
         <div className="mx-4 rounded-3xl p-5 bg-gradient-to-br from-[#1E3A8A] via-primary to-secondary text-white">
           <div className="flex items-center gap-4">
-            <div className="w-20 h-20 rounded-full flex items-center justify-center text-4xl bg-white/20 border-[3px] border-white/45">🌊</div>
+            <div className="relative">
+              <div className="w-20 h-20 rounded-full overflow-hidden flex items-center justify-center text-4xl bg-white/20 border-[3px] border-white/45">
+                {avatarUrl ? (
+                  <img src={avatarUrl} alt="" className="w-full h-full object-cover" />
+                ) : (
+                  <span aria-hidden>🌊</span>
+                )}
+              </div>
+              <button
+                type="button"
+                onClick={() => fileInputRef.current?.click()}
+                disabled={uploadingAvatar}
+                className="absolute -bottom-1 -right-1 w-7 h-7 rounded-full bg-white text-primary flex items-center justify-center shadow-md disabled:opacity-60"
+                aria-label="Change photo"
+              >
+                <Camera size={14} />
+              </button>
+              {avatarUrl && (
+                <button
+                  type="button"
+                  onClick={onRemoveAvatar}
+                  className="absolute -top-1 -right-1 w-6 h-6 rounded-full bg-destructive text-white flex items-center justify-center shadow"
+                  aria-label="Remove photo"
+                >
+                  <Trash2 size={11} />
+                </button>
+              )}
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/*"
+                className="hidden"
+                onChange={onPickAvatar}
+              />
+            </div>
             <div className="flex-1">
               <p className="font-display text-2xl font-bold">{name}</p>
               <p className="text-xs text-white/80">{LEVEL_NAMES[locale][lvl.name] ?? lvl.name}</p>
