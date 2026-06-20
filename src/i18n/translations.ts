@@ -231,7 +231,7 @@ export const TRANSLATIONS = {
     "notif.savedWeb": "Preferences saved",
 
     // Landing
-    "landing.title": "Hydrate.\nValidate.\nGrow.",
+    "landing.title": "Hydrate.\nValidate.\nRepeat.",
     "landing.body":
       "H2GO is your premium hydration coach. Real-photo verification, streaks, XP, and a living water tree that grows with every sip.",
     "landing.feature.ai": "AI verified",
