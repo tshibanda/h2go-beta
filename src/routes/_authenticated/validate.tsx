@@ -196,7 +196,7 @@ function ValidatePage() {
         <div className="flex-1 flex flex-col items-center justify-center gap-3 p-6 bg-gradient-to-b from-rose-50 to-orange-50 text-foreground">
           <Splash mood="thinking" size={130} />
           <h2 className="font-display text-3xl font-bold">{t("val.rejected")}</h2>
-          <p className="text-sm text-muted-foreground text-center max-w-xs">{result.reason}</p>
+          <p className="text-sm text-muted-foreground text-center max-w-xs">{t("val.rejectGeneric")}</p>
           <div className="flex gap-2 mt-6 w-full max-w-xs">
             <button onClick={() => navigate({ to: "/home" })} className="flex-1 py-3 rounded-2xl border border-border bg-card">
               {t("val.later")}

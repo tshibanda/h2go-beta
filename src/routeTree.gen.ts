@@ -9,6 +9,7 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as TermsRouteImport } from './routes/terms'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as OnboardingRouteImport } from './routes/onboarding'
 import { Route as CalculatorRouteImport } from './routes/calculator'
@@ -25,6 +26,11 @@ import { Route as AuthenticatedLeaderboardRouteImport } from './routes/_authenti
 import { Route as AuthenticatedHomeRouteImport } from './routes/_authenticated/home'
 import { Route as ApiPublicPaymentsWebhookRouteImport } from './routes/api/public/payments/webhook'
 
+const TermsRoute = TermsRouteImport.update({
+  id: '/terms',
+  path: '/terms',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
   id: '/sitemap.xml',
   path: '/sitemap.xml',
@@ -108,6 +114,7 @@ export interface FileRoutesByFullPath {
   '/calculator': typeof CalculatorRoute
   '/onboarding': typeof OnboardingRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/terms': typeof TermsRoute
   '/home': typeof AuthenticatedHomeRoute
   '/leaderboard': typeof AuthenticatedLeaderboardRoute
   '/premium': typeof AuthenticatedPremiumRoute
@@ -124,6 +131,7 @@ export interface FileRoutesByTo {
   '/calculator': typeof CalculatorRoute
   '/onboarding': typeof OnboardingRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/terms': typeof TermsRoute
   '/home': typeof AuthenticatedHomeRoute
   '/leaderboard': typeof AuthenticatedLeaderboardRoute
   '/premium': typeof AuthenticatedPremiumRoute
@@ -142,6 +150,7 @@ export interface FileRoutesById {
   '/calculator': typeof CalculatorRoute
   '/onboarding': typeof OnboardingRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/terms': typeof TermsRoute
   '/_authenticated/home': typeof AuthenticatedHomeRoute
   '/_authenticated/leaderboard': typeof AuthenticatedLeaderboardRoute
   '/_authenticated/premium': typeof AuthenticatedPremiumRoute
@@ -160,6 +169,7 @@ export interface FileRouteTypes {
     | '/calculator'
     | '/onboarding'
     | '/sitemap.xml'
+    | '/terms'
     | '/home'
     | '/leaderboard'
     | '/premium'
@@ -176,6 +186,7 @@ export interface FileRouteTypes {
     | '/calculator'
     | '/onboarding'
     | '/sitemap.xml'
+    | '/terms'
     | '/home'
     | '/leaderboard'
     | '/premium'
@@ -193,6 +204,7 @@ export interface FileRouteTypes {
     | '/calculator'
     | '/onboarding'
     | '/sitemap.xml'
+    | '/terms'
     | '/_authenticated/home'
     | '/_authenticated/leaderboard'
     | '/_authenticated/premium'
@@ -211,12 +223,20 @@ export interface RootRouteChildren {
   CalculatorRoute: typeof CalculatorRoute
   OnboardingRoute: typeof OnboardingRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
+  TermsRoute: typeof TermsRoute
   CheckoutReturnRoute: typeof CheckoutReturnRoute
   ApiPublicPaymentsWebhookRoute: typeof ApiPublicPaymentsWebhookRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/terms': {
+      id: '/terms'
+      path: '/terms'
+      fullPath: '/terms'
+      preLoaderRoute: typeof TermsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/sitemap.xml': {
       id: '/sitemap.xml'
       path: '/sitemap.xml'
@@ -355,6 +375,7 @@ const rootRouteChildren: RootRouteChildren = {
   CalculatorRoute: CalculatorRoute,
   OnboardingRoute: OnboardingRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
+  TermsRoute: TermsRoute,
   CheckoutReturnRoute: CheckoutReturnRoute,
   ApiPublicPaymentsWebhookRoute: ApiPublicPaymentsWebhookRoute,
 }
