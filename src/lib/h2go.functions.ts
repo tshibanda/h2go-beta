@@ -156,14 +156,14 @@ export const completeOnboarding = createServerFn({ method: "POST" })
   )
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
-    const update: Record<string, unknown> = {
+    const update = {
       name: data.name,
       age: data.age,
       weight_kg: data.weight_kg,
       daily_goal_ml: data.daily_goal_ml,
       onboarded: true,
+      ...(data.avatar_url !== undefined ? { avatar_url: data.avatar_url } : {}),
     };
-    if (data.avatar_url !== undefined) update.avatar_url = data.avatar_url;
     await supabase.from("profiles").update(update).eq("id", userId);
 
     const sorted = [...data.times].sort();
