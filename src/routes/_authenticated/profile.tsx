@@ -282,7 +282,10 @@ function ProfilePage() {
                   data: { returnUrl: window.location.href, environment: getStripeEnvironment() },
                 });
                 if ("error" in r) throw new Error(r.error);
-                window.open(r.url, "_blank");
+                const win = window.open(r.url, "_blank");
+                if (!win || win.closed || typeof win.closed === "undefined") {
+                  window.location.assign(r.url);
+                }
               } catch (e) {
                 toast.error(e instanceof Error ? e.message : "Failed to open portal");
               }

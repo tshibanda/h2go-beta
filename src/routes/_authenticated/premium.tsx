@@ -101,8 +101,8 @@ function PremiumPage() {
           </div>
 
           <div className="mx-4 grid grid-cols-2 gap-3">
-            <PlanCard title={t("pay.monthly")} price={locale === "en" ? "$4.99" : "€4.99"} subtitle={t("pay.perMonth")} cta={t("pay.start")} onStart={() => start("h2go_monthly")} />
-            <PlanCard title={t("pay.yearly")} price={locale === "en" ? "$39.99" : "€39.99"} subtitle={t("pay.perYear")} cta={t("pay.start")} highlight onStart={() => start("h2go_yearly")} />
+            <PlanCard title={t("pay.monthly")} price={locale === "en" ? "$4.99" : "€4.99"} subtitle={t("pay.perMonth")} cta={t("pay.start")} onStart={() => start(locale === "en" ? "h2go_monthly_usd" : "h2go_monthly")} />
+            <PlanCard title={t("pay.yearly")} price={locale === "en" ? "$39.99" : "€39.99"} subtitle={t("pay.perYear")} cta={t("pay.start")} highlight onStart={() => start(locale === "en" ? "h2go_yearly_usd" : "h2go_yearly")} />
           </div>
 
           <p className="mx-4 text-[11px] text-muted-foreground text-center">{t("pay.legal")}</p>
