@@ -2,7 +2,7 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
-import { Star, Crown, ChevronRight, LogOut, Languages, Settings } from "lucide-react";
+import { Star, Crown, ChevronRight, LogOut, Languages } from "lucide-react";
 import { getDashboard, getTotals, saveReminders } from "@/lib/h2go.functions";
 import { createPortalSession } from "@/lib/payments.functions";
 import { MobileShell } from "@/components/h2go/MobileShell";
@@ -11,10 +11,10 @@ import { supabase } from "@/integrations/supabase/client";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
-import { HydrationReminderSettings } from "@/components/h2go/HydrationReminderSettings";
 import { useEffect } from "react";
 import { maybePromptFirstLaunch } from "@/lib/notifications";
 import { useT } from "@/i18n";
+import { LEVEL_NAMES } from "@/i18n/translations";
 import { getStripeEnvironment } from "@/lib/stripe";
 
 export const Route = createFileRoute("/_authenticated/profile")({
@@ -93,7 +93,7 @@ function ProfilePage() {
             <div className="w-20 h-20 rounded-full flex items-center justify-center text-4xl bg-white/20 border-[3px] border-white/45">🌊</div>
             <div className="flex-1">
               <p className="font-display text-2xl font-bold">{name}</p>
-              <p className="text-xs text-white/80">{lvl.name}</p>
+              <p className="text-xs text-white/80">{LEVEL_NAMES[locale][lvl.name] ?? lvl.name}</p>
               <div className="flex items-center gap-1.5 mt-2">
                 {[1, 2, 3, 4, 5].map((i) => (
                   <Star key={i} size={13} color={i <= Math.min(5, lvl.level) ? "#FDE68A" : "rgba(255,255,255,0.3)"} fill={i <= Math.min(5, lvl.level) ? "#FDE68A" : "none"} />
@@ -177,7 +177,7 @@ function ProfilePage() {
           <p className="text-[10px] text-muted-foreground mt-2">{t("p.reminderHint")}</p>
         </div>
 
-        <HydrationReminderSettings />
+        
 
         {/* Language */}
         <div className="mx-4 rounded-2xl p-4 bg-card shadow-sm">
@@ -197,20 +197,10 @@ function ProfilePage() {
           </div>
         </div>
 
-        {/* Premium */}
-        <Link to="/premium" className="mx-4 rounded-2xl p-4 flex items-center gap-3 bg-gradient-to-br from-[#1E3A8A] to-primary shadow-lg">
-          <Crown size={26} color="#FDE68A" />
-          <div className="flex-1">
-            <p className="font-display text-base font-bold text-white">{t("p.premium")}</p>
-            <p className="text-[11px] text-white/80">
-              {isPremium ? t("p.premiumActive") : t("p.premiumPitch")}
-            </p>
-          </div>
-          <ChevronRight size={18} className="text-white/60" />
-        </Link>
-
-        {isPremium && (
+        {/* Premium — also opens Stripe portal when subscribed */}
+        {isPremium ? (
           <button
+            type="button"
             onClick={async () => {
               try {
                 const r = await createPortalSession({
@@ -222,15 +212,26 @@ function ProfilePage() {
                 toast.error(e instanceof Error ? e.message : "Failed to open portal");
               }
             }}
-            className="mx-4 rounded-2xl p-4 flex items-center gap-3 bg-card shadow-sm"
+            className="mx-4 rounded-2xl p-4 flex items-center gap-3 bg-gradient-to-br from-[#1E3A8A] to-primary shadow-lg text-left w-[calc(100%-2rem)]"
           >
-            <Settings size={20} className="text-muted-foreground" />
-            <div className="flex-1 text-left">
-              <p className="font-display text-sm font-semibold">{t("p.manageSub")}</p>
-              <p className="text-[11px] text-muted-foreground">{t("p.manageSubHint")}</p>
+            <Crown size={26} color="#FDE68A" />
+            <div className="flex-1">
+              <p className="font-display text-base font-bold text-white">{t("p.premium")}</p>
+              <p className="text-[11px] text-white/80">
+                {t("p.premiumActive")} · {t("p.manageSubHint")}
+              </p>
             </div>
-            <ChevronRight size={18} className="text-muted-foreground" />
+            <ChevronRight size={18} className="text-white/60" />
           </button>
+        ) : (
+          <Link to="/premium" className="mx-4 rounded-2xl p-4 flex items-center gap-3 bg-gradient-to-br from-[#1E3A8A] to-primary shadow-lg">
+            <Crown size={26} color="#FDE68A" />
+            <div className="flex-1">
+              <p className="font-display text-base font-bold text-white">{t("p.premium")}</p>
+              <p className="text-[11px] text-white/80">{t("p.premiumPitch")}</p>
+            </div>
+            <ChevronRight size={18} className="text-white/60" />
+          </Link>
         )}
       </div>
     </MobileShell>
