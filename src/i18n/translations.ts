@@ -41,6 +41,11 @@ export const TRANSLATIONS = {
     "ob.setup": "Let's set you up",
     "ob.toastReady": "You're all set!",
     "ob.toastFail": "Setup failed",
+    "ob.photo": "Profile photo (optional)",
+    "ob.photoHint": "We use your Google/Apple photo by default — you can change it anytime in your profile.",
+    "ob.photoChange": "Change photo",
+    "ob.photoRemove": "Remove",
+    "ob.photoUploading": "Uploading…",
 
     // Paywall / Premium
     "pay.title": "H2GO Premium",
@@ -246,6 +251,11 @@ export const TRANSLATIONS = {
     "ob.setup": "Configurons ton profil",
     "ob.toastReady": "Tu es prêt !",
     "ob.toastFail": "Échec de la configuration",
+    "ob.photo": "Photo de profil (optionnelle)",
+    "ob.photoHint": "On utilise ta photo Google/Apple par défaut — tu peux la changer à tout moment depuis ton profil.",
+    "ob.photoChange": "Changer la photo",
+    "ob.photoRemove": "Supprimer",
+    "ob.photoUploading": "Envoi…",
 
     "pay.title": "H2GO Premium",
     "pay.trialNote": "7 jours d'essai gratuit — carte bancaire requise, sans engagement",
