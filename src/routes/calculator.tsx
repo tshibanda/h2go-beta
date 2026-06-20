@@ -23,10 +23,10 @@ export const Route = createFileRoute("/calculator")({
         content:
           "Calculate how much water you should drink per day. Personalized recommendation based on weight and activity.",
       },
-      { property: "og:url", content: "https://h2go-beta.lovable.app/calculator" },
+      { property: "og:url", content: "https://h2go-app.com/calculator" },
       { property: "og:type", content: "website" },
     ],
-    links: [{ rel: "canonical", href: "https://h2go-beta.lovable.app/calculator" }],
+    links: [{ rel: "canonical", href: "https://h2go-app.com/calculator" }],
     scripts: [
       {
         type: "application/ld+json",
@@ -34,7 +34,7 @@ export const Route = createFileRoute("/calculator")({
           "@context": "https://schema.org",
           "@type": "WebApplication",
           name: "H2GO Water Intake Calculator",
-          url: "https://h2go-beta.lovable.app/calculator",
+          url: "https://h2go-app.com/calculator",
           applicationCategory: "HealthApplication",
           operatingSystem: "Any",
           offers: { "@type": "Offer", price: "0", priceCurrency: "USD" },
@@ -126,12 +126,9 @@ function CalculatorPage() {
       <main className="max-w-xl mx-auto px-5 pt-10 pb-16 flex flex-col gap-6">
         <header className="flex flex-col items-center text-center gap-3">
           <Splash mood="happy" size={96} />
-          <h1 className="font-display text-4xl font-bold leading-tight">
-            Water Intake Calculator
-          </h1>
+          <h1 className="font-display text-4xl font-bold leading-tight">Water Intake Calculator</h1>
           <p className="text-white/85">
-            Estimate how much water you should drink each day — based on your weight,
-            activity, and climate.
+            Estimate how much water you should drink each day — based on your weight, activity, and climate.
           </p>
         </header>
 
@@ -213,9 +210,7 @@ function CalculatorPage() {
             aria-live="polite"
             className="bg-white text-primary rounded-3xl p-6 flex flex-col items-center text-center gap-2 shadow-xl"
           >
-            <p className="text-sm font-semibold uppercase tracking-wide text-primary/70">
-              Your daily goal
-            </p>
+            <p className="text-sm font-semibold uppercase tracking-wide text-primary/70">Your daily goal</p>
             <p className="font-display text-5xl font-bold">{result.liters} L</p>
             <p className="text-sm text-primary/80">
               ≈ {result.ounces} oz · {result.cups} cups · {result.ml} ml
@@ -231,14 +226,13 @@ function CalculatorPage() {
         <section className="bg-white/10 backdrop-blur rounded-3xl p-5 border border-white/15 flex flex-col gap-3 text-sm leading-relaxed">
           <h2 className="font-display text-xl font-bold">How much water should you drink?</h2>
           <p>
-            A widely-used baseline is <strong>35 ml of water per kilogram of body weight</strong>
-            {" "}(about 0.5 oz per pound). Add roughly <strong>500 ml for every 30 minutes</strong>
-            {" "}of exercise, and increase intake in hot or humid weather.
+            A widely-used baseline is <strong>35 ml of water per kilogram of body weight</strong> (about 0.5 oz per
+            pound). Add roughly <strong>500 ml for every 30 minutes</strong> of exercise, and increase intake in hot or
+            humid weather.
           </p>
           <p>
-            Our calculator combines these factors with your activity level to give a
-            personalized starting point. Listen to your body — thirst, urine color, and
-            energy levels are useful signals.
+            Our calculator combines these factors with your activity level to give a personalized starting point. Listen
+            to your body — thirst, urine color, and energy levels are useful signals.
           </p>
           <h3 className="font-display text-lg font-bold mt-2">Tips to hit your goal</h3>
           <ul className="list-disc pl-5 flex flex-col gap-1">

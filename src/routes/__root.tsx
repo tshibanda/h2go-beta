@@ -1,12 +1,5 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import {
-  Outlet,
-  Link,
-  createRootRouteWithContext,
-  useRouter,
-  HeadContent,
-  Scripts,
-} from "@tanstack/react-router";
+import { Outlet, Link, createRootRouteWithContext, useRouter, HeadContent, Scripts } from "@tanstack/react-router";
 import { useEffect, type ReactNode } from "react";
 import { Toaster } from "@/components/ui/sonner";
 import { supabase } from "@/integrations/supabase/client";
@@ -47,9 +40,7 @@ function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
   return (
     <div className="flex min-h-screen items-center justify-center bg-background px-4">
       <div className="max-w-md text-center">
-        <h1 className="text-xl font-semibold tracking-tight text-foreground">
-          This page didn't load
-        </h1>
+        <h1 className="text-xl font-semibold tracking-tight text-foreground">This page didn't load</h1>
         <p className="mt-2 text-sm text-muted-foreground">
           Something went wrong on our end. You can try refreshing or head back home.
         </p>
@@ -83,16 +74,33 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { name: "theme-color", content: "#3B82F6" },
       { name: "google-site-verification", content: "mUJW2_k87QngLotGkwf2ixtnvpj5vbrv42T3tEoDzeU" },
       { title: "H2GO — Premium Hydration Coaching" },
-      { name: "description", content: "H2GO is a premium hydration coach: AI-verified sips, streaks, XP, and a growing water tree." },
+      {
+        name: "description",
+        content: "H2GO is a premium hydration coach: AI-verified sips, streaks, XP, and a growing water tree.",
+      },
       { name: "author", content: "H2GO" },
       { property: "og:title", content: "H2GO — Premium Hydration Coaching" },
-      { property: "og:description", content: "H2GO is a premium hydration coach: AI-verified sips, streaks, XP, and a growing water tree." },
+      {
+        property: "og:description",
+        content: "H2GO is a premium hydration coach: AI-verified sips, streaks, XP, and a growing water tree.",
+      },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
       { name: "twitter:title", content: "H2GO — Premium Hydration Coaching" },
-      { name: "twitter:description", content: "H2GO is a premium hydration coach: AI-verified sips, streaks, XP, and a growing water tree." },
-      { property: "og:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/PbLPqLp40jSL0dv5hV7ZjZYsGZu1/social-images/social-1781876519311-Logo_H2GO.webp" },
-      { name: "twitter:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/PbLPqLp40jSL0dv5hV7ZjZYsGZu1/social-images/social-1781876519311-Logo_H2GO.webp" },
+      {
+        name: "twitter:description",
+        content: "H2GO is a premium hydration coach: AI-verified sips, streaks, XP, and a growing water tree.",
+      },
+      {
+        property: "og:image",
+        content:
+          "https://storage.googleapis.com/gpt-engineer-file-uploads/PbLPqLp40jSL0dv5hV7ZjZYsGZu1/social-images/social-1781876519311-Logo_H2GO.webp",
+      },
+      {
+        name: "twitter:image",
+        content:
+          "https://storage.googleapis.com/gpt-engineer-file-uploads/PbLPqLp40jSL0dv5hV7ZjZYsGZu1/social-images/social-1781876519311-Logo_H2GO.webp",
+      },
     ],
     links: [
       {
@@ -109,9 +117,8 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
           "@context": "https://schema.org",
           "@type": "WebSite",
           name: "H2GO",
-          url: "https://h2go-beta.lovable.app",
-          description:
-            "H2GO is a premium hydration coach: AI-verified sips, streaks, XP, and a growing water tree.",
+          url: "https://h2go-app.com",
+          description: "H2GO is a premium hydration coach: AI-verified sips, streaks, XP, and a growing water tree.",
         }),
       },
       {
@@ -120,7 +127,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
           "@context": "https://schema.org",
           "@type": "Organization",
           name: "H2GO",
-          url: "https://h2go-beta.lovable.app",
+          url: "https://h2go-app.com",
           logo: "https://storage.googleapis.com/gpt-engineer-file-uploads/PbLPqLp40jSL0dv5hV7ZjZYsGZu1/social-images/social-1781876519311-Logo_H2GO.webp",
           description:
             "Premium hydration coaching service that verifies real sips, builds streaks, and grows a personal water tree.",

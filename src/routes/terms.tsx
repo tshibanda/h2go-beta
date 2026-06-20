@@ -12,9 +12,9 @@ export const Route = createFileRoute("/terms")({
       },
       { property: "og:title", content: "Terms & Privacy — H2GO" },
       { property: "og:description", content: "H2GO terms of service and privacy policy." },
-      { property: "og:url", content: "https://h2go-beta.lovable.app/terms" },
+      { property: "og:url", content: "https://h2go-app.com/terms" },
     ],
-    links: [{ rel: "canonical", href: "https://h2go-beta.lovable.app/terms" }],
+    links: [{ rel: "canonical", href: "https://h2go-app.com/terms" }],
   }),
   component: TermsPage,
 });

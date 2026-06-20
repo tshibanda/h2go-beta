@@ -31,9 +31,9 @@ export const Route = createFileRoute("/_authenticated/profile")({
         property: "og:description",
         content: "View your H2GO hydration stats, badges, level progress, reminders, and subscription settings.",
       },
-      { property: "og:url", content: "https://h2go-beta.lovable.app/profile" },
+      { property: "og:url", content: "https://h2go-app.com/profile" },
     ],
-    links: [{ rel: "canonical", href: "https://h2go-beta.lovable.app/profile" }],
+    links: [{ rel: "canonical", href: "https://h2go-app.com/profile" }],
   }),
   component: ProfilePage,
 });

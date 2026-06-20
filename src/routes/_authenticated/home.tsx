@@ -10,25 +10,24 @@ import { WaterRing } from "@/components/h2go/WaterRing";
 import { levelForXp, treeStageForLogs } from "@/lib/gamification";
 import { useT } from "@/i18n";
 import { LEVEL_NAMES, FACT_FR } from "@/i18n/translations";
-import {
-  Sheet,
-  SheetContent,
-  SheetDescription,
-  SheetHeader,
-  SheetTitle,
-  SheetTrigger,
-} from "@/components/ui/sheet";
+import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 
 export const Route = createFileRoute("/_authenticated/home")({
   head: () => ({
     meta: [
       { title: "Hydration Dashboard — H2GO" },
-      { name: "description", content: "Track your daily water intake, grow your hydration tree, and keep your streak alive with H2GO." },
+      {
+        name: "description",
+        content: "Track your daily water intake, grow your hydration tree, and keep your streak alive with H2GO.",
+      },
       { property: "og:title", content: "Hydration Dashboard — H2GO" },
-      { property: "og:description", content: "Track your daily water intake, grow your hydration tree, and keep your streak alive with H2GO." },
-      { property: "og:url", content: "https://h2go-beta.lovable.app/home" },
+      {
+        property: "og:description",
+        content: "Track your daily water intake, grow your hydration tree, and keep your streak alive with H2GO.",
+      },
+      { property: "og:url", content: "https://h2go-app.com/home" },
     ],
-    links: [{ rel: "canonical", href: "https://h2go-beta.lovable.app/home" }],
+    links: [{ rel: "canonical", href: "https://h2go-app.com/home" }],
   }),
   component: HomePage,
 });
@@ -111,7 +110,9 @@ function HomePage() {
               {now.toLocaleDateString(locale, { weekday: "long", day: "numeric", month: "long" })}
             </p>
             <h1 className="sr-only">{t("home.dashboard")}</h1>
-            <p className="font-display text-2xl font-bold" aria-hidden="true">{t("home.greeting")} {name} 👋</p>
+            <p className="font-display text-2xl font-bold" aria-hidden="true">
+              {t("home.greeting")} {name} 👋
+            </p>
           </div>
           <div className="flex items-center gap-2">
             <Sheet>
@@ -135,12 +136,16 @@ function HomePage() {
                 <div className="flex flex-col gap-4 mt-4">
                   {reminders.length > 0 && (
                     <div>
-                      <p className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground mb-2">{t("home.notifUpcoming")}</p>
+                      <p className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground mb-2">
+                        {t("home.notifUpcoming")}
+                      </p>
                       <ul className="flex flex-col gap-2">
                         {reminders.map((r) => (
                           <li key={r.id} className="flex items-center gap-3 rounded-2xl p-3 bg-primary-soft">
                             <span className="text-xl">⏰</span>
-                            <span className="font-display font-semibold">{(r.reminder_time as string).slice(0, 5)}</span>
+                            <span className="font-display font-semibold">
+                              {(r.reminder_time as string).slice(0, 5)}
+                            </span>
                           </li>
                         ))}
                       </ul>
@@ -148,7 +153,9 @@ function HomePage() {
                   )}
                   {data.fact && (
                     <div>
-                      <p className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground mb-2">{t("home.notifFact")}</p>
+                      <p className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground mb-2">
+                        {t("home.notifFact")}
+                      </p>
                       <div className="rounded-2xl p-3 bg-teal-50 border border-teal-200/40 text-sm text-teal-900">
                         {locale === "fr" ? (FACT_FR[data.fact.fact_text] ?? data.fact.fact_text) : data.fact.fact_text}
                       </div>
@@ -235,7 +242,9 @@ function HomePage() {
             </div>
             <div className="px-3 py-1.5 rounded-full bg-primary-soft">
               <span className="text-xs text-primary font-semibold">
-                {nextMins! < 60 ? t("home.inMins", { n: nextMins! }) : t("home.inHours", { n: Math.round(nextMins! / 60) })}
+                {nextMins! < 60
+                  ? t("home.inMins", { n: nextMins! })
+                  : t("home.inHours", { n: Math.round(nextMins! / 60) })}
               </span>
             </div>
           </div>
@@ -255,17 +264,25 @@ function HomePage() {
         )}
 
         {/* Level card */}
-        <Link to="/profile" className="mx-4 rounded-2xl p-4 flex items-center gap-3 bg-gradient-to-br from-violet-100 to-violet-200 border border-violet-300/30">
+        <Link
+          to="/profile"
+          className="mx-4 rounded-2xl p-4 flex items-center gap-3 bg-gradient-to-br from-violet-100 to-violet-200 border border-violet-300/30"
+        >
           <div className="w-12 h-12 rounded-2xl bg-violet-500/15 flex items-center justify-center text-2xl">🛡️</div>
           <div className="flex-1">
             <p className="text-[11px] text-violet-800">{t("home.level", { n: lvl.level })}</p>
-            <p className="font-display text-base font-bold text-violet-900">{LEVEL_NAMES[locale][lvl.name] ?? lvl.name}</p>
+            <p className="font-display text-base font-bold text-violet-900">
+              {LEVEL_NAMES[locale][lvl.name] ?? lvl.name}
+            </p>
           </div>
           <ChevronRight size={18} className="text-violet-700" />
         </Link>
 
         {/* Tree teaser */}
-        <Link to="/tree" className="mx-4 rounded-2xl p-4 flex items-center gap-3 bg-gradient-to-br from-emerald-50 to-emerald-100 border border-emerald-300/30">
+        <Link
+          to="/tree"
+          className="mx-4 rounded-2xl p-4 flex items-center gap-3 bg-gradient-to-br from-emerald-50 to-emerald-100 border border-emerald-300/30"
+        >
           <div className="text-3xl">{treeStageForLogs(0).emoji}</div>
           <div className="flex-1">
             <p className="text-[11px] text-emerald-800">{t("home.treeTitle")}</p>
