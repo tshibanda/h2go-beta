@@ -1,9 +1,9 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { useState } from "react";
-import { Star, Crown, ChevronRight, LogOut, Languages } from "lucide-react";
-import { getDashboard, getTotals, saveReminders } from "@/lib/h2go.functions";
+import { useRef, useState } from "react";
+import { Star, Crown, ChevronRight, LogOut, Languages, Camera, Trash2 } from "lucide-react";
+import { getDashboard, getTotals, saveReminders, updateAvatar } from "@/lib/h2go.functions";
 import { createPortalSession } from "@/lib/payments.functions";
 import { MobileShell } from "@/components/h2go/MobileShell";
 import { levelForXp } from "@/lib/gamification";
@@ -16,6 +16,7 @@ import { maybePromptFirstLaunch } from "@/lib/notifications";
 import { useT } from "@/i18n";
 import { LEVEL_NAMES } from "@/i18n/translations";
 import { getStripeEnvironment } from "@/lib/stripe";
+import { uploadAvatar, removeAvatar, resolveAvatarUrl } from "@/lib/avatar";
 
 export const Route = createFileRoute("/_authenticated/profile")({
   head: () => ({
