@@ -9,6 +9,15 @@ import { Splash } from "@/components/h2go/Splash";
 import { WaterRing } from "@/components/h2go/WaterRing";
 import { levelForXp, treeStageForLogs } from "@/lib/gamification";
 import { useT } from "@/i18n";
+import { LEVEL_NAMES, FACT_FR } from "@/i18n/translations";
+import {
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet";
 
 export const Route = createFileRoute("/_authenticated/home")({
   head: () => ({
