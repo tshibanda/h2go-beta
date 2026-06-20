@@ -10,7 +10,7 @@ import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { useT } from "@/i18n";
 import { supabase } from "@/integrations/supabase/client";
-import { uploadAvatar, resolveAvatarUrl, isRemoteUrl } from "@/lib/avatar";
+import { uploadAvatar, resolveAvatarUrl } from "@/lib/avatar";
 
 export const Route = createFileRoute("/onboarding")({
   ssr: false,
