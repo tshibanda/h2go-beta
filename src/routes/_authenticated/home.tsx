@@ -259,7 +259,7 @@ function HomePage() {
           <div className="w-12 h-12 rounded-2xl bg-violet-500/15 flex items-center justify-center text-2xl">🛡️</div>
           <div className="flex-1">
             <p className="text-[11px] text-violet-800">{t("home.level", { n: lvl.level })}</p>
-            <p className="font-display text-base font-bold text-violet-900">{lvl.name}</p>
+            <p className="font-display text-base font-bold text-violet-900">{LEVEL_NAMES[locale][lvl.name] ?? lvl.name}</p>
           </div>
           <ChevronRight size={18} className="text-violet-700" />
         </Link>
