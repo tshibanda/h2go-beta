@@ -142,6 +142,47 @@ function Onboarding() {
 
             {step === 1 && (
               <div className="flex flex-col gap-3">
+                {/* Optional avatar */}
+                <div className="flex items-center gap-3">
+                  <div className="w-16 h-16 rounded-full overflow-hidden bg-primary-soft border-2 border-primary/30 flex items-center justify-center text-2xl">
+                    {avatarPreview ? (
+                      <img src={avatarPreview} alt="" className="w-full h-full object-cover" />
+                    ) : (
+                      <span aria-hidden>🌊</span>
+                    )}
+                  </div>
+                  <div className="flex-1">
+                    <Label className="text-xs">{t("ob.photo")}</Label>
+                    <div className="flex gap-2 mt-1">
+                      <button
+                        type="button"
+                        onClick={() => fileInputRef.current?.click()}
+                        disabled={uploading}
+                        className="text-xs px-2.5 py-1 rounded-lg bg-primary text-primary-foreground font-semibold disabled:opacity-60"
+                      >
+                        {uploading ? t("ob.photoUploading") : t("ob.photoChange")}
+                      </button>
+                      {avatarPreview && (
+                        <button
+                          type="button"
+                          onClick={removePhoto}
+                          className="text-xs px-2.5 py-1 rounded-lg bg-muted text-muted-foreground font-semibold"
+                        >
+                          {t("ob.photoRemove")}
+                        </button>
+                      )}
+                    </div>
+                    <input
+                      ref={fileInputRef}
+                      type="file"
+                      accept="image/*"
+                      className="hidden"
+                      onChange={onPickFile}
+                    />
+                  </div>
+                </div>
+                <p className="text-[10px] text-muted-foreground -mt-1">{t("ob.photoHint")}</p>
+
                 <div>
                   <Label>{t("ob.callYou")}</Label>
                   <Input value={name} onChange={(e) => setName(e.target.value)} placeholder={t("ob.yourName")} />
