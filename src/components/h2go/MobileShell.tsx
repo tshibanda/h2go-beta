@@ -1,5 +1,5 @@
 import { Link, useRouterState } from "@tanstack/react-router";
-import { Home, BarChart2, Leaf, Trophy, User } from "lucide-react";
+import { Home, BarChart2, Leaf, User } from "lucide-react";
 import { useT } from "@/i18n";
 import { PastDueBanner } from "./PastDueBanner";
 
@@ -7,7 +7,6 @@ const items = [
   { to: "/home", Icon: Home, key: "nav.home" as const },
   { to: "/stats", Icon: BarChart2, key: "nav.stats" as const },
   { to: "/tree", Icon: Leaf, key: "nav.tree" as const },
-  { to: "/leaderboard", Icon: Trophy, key: "nav.league" as const },
   { to: "/profile", Icon: User, key: "nav.profile" as const },
 ] as const;
 
