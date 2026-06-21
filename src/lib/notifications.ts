@@ -1,6 +1,6 @@
 import { Capacitor } from "@capacitor/core";
 import { LocalNotifications } from "@capacitor/local-notifications";
-import { Browser } from "@capacitor/browser";
+
 
 export type ReminderConfig = {
   intervalHours: number; // 1, 2, 3...
