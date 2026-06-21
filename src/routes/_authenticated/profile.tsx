@@ -89,6 +89,10 @@ function ProfilePage() {
       toast.success(t("p.remindersSaved"));
       setEditReminders(false);
       qc.invalidateQueries({ queryKey: ["dashboard"] });
+      if (isNative()) {
+        const res = await scheduleHydrationRemindersAtTimes(times, locale);
+        if (res.ok) toast.success(t("notif.scheduled").replace("{n}", String(res.count)));
+      }
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "Failed");
     }
