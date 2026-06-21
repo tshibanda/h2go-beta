@@ -473,7 +473,8 @@ export const TRANSLATIONS = {
     // Validation en attente
     "pv.title": "Confirme ton email",
     "pv.body": "Nous avons envoyé un lien de confirmation à {email}. Clique dessus pour activer ton compte.",
-    "pv.bodyNoEmail": "Nous avons envoyé un lien de confirmation à ta boîte mail. Clique dessus pour activer ton compte.",
+    "pv.bodyNoEmail":
+      "Nous avons envoyé un lien de confirmation à ta boîte mail. Clique dessus pour activer ton compte.",
     "pv.resend": "Renvoyer l'email de confirmation",
     "pv.resent": "Email de confirmation envoyé",
     "pv.resendFail": "Impossible de renvoyer. Réessaie dans un instant.",
@@ -487,7 +488,7 @@ export const TRANSLATIONS = {
     "landing.feature.ai": "Vérifié par IA",
     "landing.feature.streaks": "Séries",
     "landing.feature.tree": "Arbre d'hydratation",
-    "landing.cta": "Commencer — gratuit",
+    "landing.cta": "Commencer gratuitement",
     "landing.trial": "7 jours d'essai Premium. Annulation à tout moment.",
   },
 } as const;
