@@ -37,7 +37,7 @@ function AuthPage() {
     setBusy(true);
     try {
       if (mode === "signup") {
-        const { error } = await supabase.auth.signUp({
+        const { data, error } = await supabase.auth.signUp({
           email,
           password,
           options: {
@@ -46,11 +46,29 @@ function AuthPage() {
           },
         });
         if (error) throw error;
-        toast.success("Check your email to confirm your account.");
+        // If email confirmation is required, no session is returned → send to pending page.
+        if (!data.session) {
+          navigate({ to: "/pending-validation", search: { email } });
+          return;
+        }
         navigate({ to: "/onboarding" });
       } else {
         const { error } = await supabase.auth.signInWithPassword({ email, password });
-        if (error) throw error;
+        if (error) {
+          const msg = error.message?.toLowerCase() ?? "";
+          if (msg.includes("not confirmed") || msg.includes("email not confirmed")) {
+            navigate({ to: "/pending-validation", search: { email } });
+            return;
+          }
+          throw error;
+        }
+        // Extra guard: if somehow signed in without confirmation, gate here too.
+        const { data: u } = await supabase.auth.getUser();
+        if (u.user && !u.user.email_confirmed_at) {
+          await supabase.auth.signOut();
+          navigate({ to: "/pending-validation", search: { email } });
+          return;
+        }
         navigate({ to: "/home" });
       }
     } catch (err) {

@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as TermsRouteImport } from './routes/terms'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
+import { Route as PendingValidationRouteImport } from './routes/pending-validation'
 import { Route as OnboardingRouteImport } from './routes/onboarding'
 import { Route as CalculatorRouteImport } from './routes/calculator'
 import { Route as AuthRouteImport } from './routes/auth'
@@ -35,6 +36,11 @@ const TermsRoute = TermsRouteImport.update({
 const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
   id: '/sitemap.xml',
   path: '/sitemap.xml',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PendingValidationRoute = PendingValidationRouteImport.update({
+  id: '/pending-validation',
+  path: '/pending-validation',
   getParentRoute: () => rootRouteImport,
 } as any)
 const OnboardingRoute = OnboardingRouteImport.update({
@@ -120,6 +126,7 @@ export interface FileRoutesByFullPath {
   '/auth': typeof AuthRoute
   '/calculator': typeof CalculatorRoute
   '/onboarding': typeof OnboardingRoute
+  '/pending-validation': typeof PendingValidationRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/terms': typeof TermsRoute
   '/home': typeof AuthenticatedHomeRoute
@@ -138,6 +145,7 @@ export interface FileRoutesByTo {
   '/auth': typeof AuthRoute
   '/calculator': typeof CalculatorRoute
   '/onboarding': typeof OnboardingRoute
+  '/pending-validation': typeof PendingValidationRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/terms': typeof TermsRoute
   '/home': typeof AuthenticatedHomeRoute
@@ -158,6 +166,7 @@ export interface FileRoutesById {
   '/auth': typeof AuthRoute
   '/calculator': typeof CalculatorRoute
   '/onboarding': typeof OnboardingRoute
+  '/pending-validation': typeof PendingValidationRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/terms': typeof TermsRoute
   '/_authenticated/home': typeof AuthenticatedHomeRoute
@@ -178,6 +187,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/calculator'
     | '/onboarding'
+    | '/pending-validation'
     | '/sitemap.xml'
     | '/terms'
     | '/home'
@@ -196,6 +206,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/calculator'
     | '/onboarding'
+    | '/pending-validation'
     | '/sitemap.xml'
     | '/terms'
     | '/home'
@@ -215,6 +226,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/calculator'
     | '/onboarding'
+    | '/pending-validation'
     | '/sitemap.xml'
     | '/terms'
     | '/_authenticated/home'
@@ -235,6 +247,7 @@ export interface RootRouteChildren {
   AuthRoute: typeof AuthRoute
   CalculatorRoute: typeof CalculatorRoute
   OnboardingRoute: typeof OnboardingRoute
+  PendingValidationRoute: typeof PendingValidationRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   TermsRoute: typeof TermsRoute
   CheckoutReturnRoute: typeof CheckoutReturnRoute
@@ -256,6 +269,13 @@ declare module '@tanstack/react-router' {
       path: '/sitemap.xml'
       fullPath: '/sitemap.xml'
       preLoaderRoute: typeof SitemapDotxmlRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/pending-validation': {
+      id: '/pending-validation'
+      path: '/pending-validation'
+      fullPath: '/pending-validation'
+      preLoaderRoute: typeof PendingValidationRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/onboarding': {
@@ -395,6 +415,7 @@ const rootRouteChildren: RootRouteChildren = {
   AuthRoute: AuthRoute,
   CalculatorRoute: CalculatorRoute,
   OnboardingRoute: OnboardingRoute,
+  PendingValidationRoute: PendingValidationRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   TermsRoute: TermsRoute,
   CheckoutReturnRoute: CheckoutReturnRoute,

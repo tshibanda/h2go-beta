@@ -230,6 +230,17 @@ export const TRANSLATIONS = {
     "notif.permDenied": "Permission denied for notifications",
     "notif.savedWeb": "Preferences saved",
 
+    // Pending validation
+    "pv.title": "Verify your email",
+    "pv.body": "We sent a confirmation link to {email}. Click it to activate your account.",
+    "pv.bodyNoEmail": "We sent a confirmation link to your inbox. Click it to activate your account.",
+    "pv.resend": "Resend confirmation email",
+    "pv.resent": "Confirmation email sent",
+    "pv.resendFail": "Could not resend. Try again in a moment.",
+    "pv.checkAgain": "I've confirmed — sign in",
+    "pv.notConfirmed": "Your email is not confirmed yet. Check your inbox.",
+    "pv.signOut": "Use a different account",
+
     // Landing
     "landing.title": "Hydrate.\nValidate.\nRepeat.",
     "landing.body":
@@ -458,6 +469,17 @@ export const TRANSLATIONS = {
     "notif.permGranted": "Notifications activées",
     "notif.permDenied": "Permission refusée pour les notifications",
     "notif.savedWeb": "Préférences enregistrées",
+
+    // Validation en attente
+    "pv.title": "Confirme ton email",
+    "pv.body": "Nous avons envoyé un lien de confirmation à {email}. Clique dessus pour activer ton compte.",
+    "pv.bodyNoEmail": "Nous avons envoyé un lien de confirmation à ta boîte mail. Clique dessus pour activer ton compte.",
+    "pv.resend": "Renvoyer l'email de confirmation",
+    "pv.resent": "Email de confirmation envoyé",
+    "pv.resendFail": "Impossible de renvoyer. Réessaie dans un instant.",
+    "pv.checkAgain": "C'est confirmé — me connecter",
+    "pv.notConfirmed": "Ton email n'est pas encore confirmé. Vérifie ta boîte mail.",
+    "pv.signOut": "Utiliser un autre compte",
 
     "landing.title": "Hydrate-toi.\nValide.\nRecommence.",
     "landing.body":

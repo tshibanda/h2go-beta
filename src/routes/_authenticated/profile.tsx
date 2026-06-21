@@ -12,7 +12,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { useEffect } from "react";
-import { maybePromptFirstLaunch } from "@/lib/notifications";
+import { maybePromptFirstLaunch, scheduleHydrationRemindersAtTimes, isNative } from "@/lib/notifications";
 import { useT } from "@/i18n";
 import { LEVEL_NAMES } from "@/i18n/translations";
 import { getStripeEnvironment } from "@/lib/stripe";
@@ -58,6 +58,13 @@ function ProfilePage() {
     void maybePromptFirstLaunch();
   }, []);
 
+  // Re-schedule notifications when reminders or app language change, so titles/bodies match locale.
+  useEffect(() => {
+    if (!isNative() || !data?.reminders?.length) return;
+    const t = data.reminders.map((r) => (r.reminder_time as string).slice(0, 5));
+    void scheduleHydrationRemindersAtTimes(t, locale);
+  }, [data?.reminders, locale]);
+
   useEffect(() => {
     resolveAvatarUrl(data?.profile?.avatar_url).then(setAvatarUrl);
   }, [data?.profile?.avatar_url]);
@@ -89,6 +96,10 @@ function ProfilePage() {
       toast.success(t("p.remindersSaved"));
       setEditReminders(false);
       qc.invalidateQueries({ queryKey: ["dashboard"] });
+      if (isNative()) {
+        const res = await scheduleHydrationRemindersAtTimes(times, locale);
+        if (res.ok) toast.success(t("notif.scheduled").replace("{n}", String(res.count)));
+      }
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "Failed");
     }

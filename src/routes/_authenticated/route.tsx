@@ -7,6 +7,11 @@ export const Route = createFileRoute("/_authenticated")({
     const { data, error } = await supabase.auth.getUser();
     if (error || !data.user) throw redirect({ to: "/auth" });
 
+    // Email confirmation gate: any signed-in but unconfirmed user → pending page.
+    if (!data.user.email_confirmed_at) {
+      throw redirect({ to: "/pending-validation", search: { email: data.user.email ?? undefined } });
+    }
+
     const { data: profile } = await supabase
       .from("profiles")
       .select("onboarded, subscription_status, trial_ends_at")
