@@ -1,6 +1,6 @@
 import { Capacitor } from "@capacitor/core";
 import { LocalNotifications } from "@capacitor/local-notifications";
-import { Browser } from "@capacitor/browser";
+
 
 export type ReminderConfig = {
   intervalHours: number; // 1, 2, 3...
@@ -41,21 +41,7 @@ const BODIES_FR = [
  * Idéal pour les connexions Google, mentions légales, etc.
  */
 export async function openInternalLink(url: string): Promise<void> {
-  if (isNative()) {
-    try {
-      await Browser.open({ 
-        url: url,
-        windowName: '_blank',
-        toolbarColor: '#ffffff' // Optionnel : personnalise la couleur de la barre
-      });
-    } catch (error) {
-      console.error("Erreur lors de l'ouverture du navigateur interne:", error);
-      window.open(url, "_blank");
-    }
-  } else {
-    // Mode Web / Développement
-    window.open(url, "_blank");
-  }
+  window.open(url, "_blank");
 }
 
 export function isNative(): boolean {
@@ -186,6 +172,69 @@ export async function scheduleHydrationReminders(
       smallIcon: "ic_stat_icon_config_sample",
     };
   });
+
+  try {
+    await LocalNotifications.schedule({ notifications: notifications as any });
+    return { ok: true, count: notifications.length };
+  } catch (e) {
+    return { ok: false, count: 0, reason: e instanceof Error ? e.message : "schedule-failed" };
+  }
+}
+
+export async function scheduleHydrationRemindersAtTimes(
+  times: string[],
+  locale: "en" | "fr" = "en",
+): Promise<{ ok: boolean; count: number; reason?: string }> {
+  if (!isNative()) return { ok: false, count: 0, reason: "not-native" };
+
+  const granted = await requestNotificationPermission();
+  if (!granted) return { ok: false, count: 0, reason: "permission-denied" };
+
+  await cancelAllHydrationReminders();
+
+  try {
+    await LocalNotifications.createChannel({
+      id: CHANNEL_ID,
+      name: "Hydration reminders",
+      description: "Reminders to drink water",
+      importance: 5,
+      visibility: 1,
+      sound: "alarm",
+      vibration: true,
+    });
+  } catch {
+    /* noop */
+  }
+
+  const titles = locale === "fr" ? TITLES_FR : TITLES_EN;
+  const bodies = locale === "fr" ? BODIES_FR : BODIES_EN;
+
+  const parsed = (times || [])
+    .map((t) => {
+      const m = /^(\d{1,2}):(\d{2})$/.exec(String(t).trim());
+      if (!m) return null;
+      const hour = Number(m[1]);
+      const minute = Number(m[2]);
+      if (hour < 0 || hour > 23 || minute < 0 || minute > 59) return null;
+      return { hour, minute };
+    })
+    .filter((v): v is { hour: number; minute: number } => v !== null);
+
+  if (parsed.length === 0) return { ok: false, count: 0, reason: "no-times" };
+
+  const notifications = parsed.map((t, i) => ({
+    id: NOTIF_ID_BASE + i,
+    title: titles[i % titles.length],
+    body: bodies[i % bodies.length],
+    channelId: CHANNEL_ID,
+    sound: "alarm.wav",
+    schedule: {
+      on: { hour: t.hour, minute: t.minute },
+      allowWhileIdle: true,
+      repeats: true,
+    },
+    smallIcon: "ic_stat_icon_config_sample",
+  }));
 
   try {
     await LocalNotifications.schedule({ notifications: notifications as any });
