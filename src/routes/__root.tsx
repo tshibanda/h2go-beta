@@ -166,9 +166,9 @@ function RootComponent() {
     let active = true;
     let listener: { remove: () => Promise<void> | void } | undefined;
 
-    void import("@capacitor/app").then(({ App }) => {
+    void import("@capacitor/app").then((appModule) => {
       if (!active) return;
-      return App.addListener("appUrlOpen", async (event: { url: string }) => {
+      return appModule.App.addListener("appUrlOpen", async (event: { url: string }) => {
         const { url } = event;
         if (!url.startsWith("https://h2go-app.com")) return;
 
