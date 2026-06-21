@@ -470,6 +470,17 @@ export const TRANSLATIONS = {
     "notif.permDenied": "Permission refusée pour les notifications",
     "notif.savedWeb": "Préférences enregistrées",
 
+    // Validation en attente
+    "pv.title": "Confirme ton email",
+    "pv.body": "Nous avons envoyé un lien de confirmation à {email}. Clique dessus pour activer ton compte.",
+    "pv.bodyNoEmail": "Nous avons envoyé un lien de confirmation à ta boîte mail. Clique dessus pour activer ton compte.",
+    "pv.resend": "Renvoyer l'email de confirmation",
+    "pv.resent": "Email de confirmation envoyé",
+    "pv.resendFail": "Impossible de renvoyer. Réessaie dans un instant.",
+    "pv.checkAgain": "C'est confirmé — me connecter",
+    "pv.notConfirmed": "Ton email n'est pas encore confirmé. Vérifie ta boîte mail.",
+    "pv.signOut": "Utiliser un autre compte",
+
     "landing.title": "Hydrate-toi.\nValide.\nRecommence.",
     "landing.body":
       "H2GO est ton coach d'hydratation premium. Vérification par vraie photo, séries, XP et arbre d'eau vivant qui grandit à chaque gorgée.",
