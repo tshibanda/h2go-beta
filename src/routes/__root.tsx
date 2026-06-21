@@ -170,34 +170,34 @@ function RootComponent() {
       if (!active) return;
       return App.addListener("appUrlOpen", async (event: { url: string }) => {
         const { url } = event;
-      if (!url.startsWith("https://h2go-app.com")) return;
+        if (!url.startsWith("https://h2go-app.com")) return;
 
-      // Garder ce log pendant les tests, à retirer une fois confirmé que ça fonctionne.
-      console.log("[OAuth] Callback URL reçue:", url);
+        // Garder ce log pendant les tests, à retirer une fois confirmé que ça fonctionne.
+        console.log("[OAuth] Callback URL reçue:", url);
 
-      try {
-        const parsed = new URL(url);
-        const query = parsed.hash ? parsed.hash.slice(1) : parsed.search.slice(1);
-        const params = new URLSearchParams(query);
+        try {
+          const parsed = new URL(url);
+          const query = parsed.hash ? parsed.hash.slice(1) : parsed.search.slice(1);
+          const params = new URLSearchParams(query);
 
-        const access_token = params.get("access_token");
-        const refresh_token = params.get("refresh_token");
+          const access_token = params.get("access_token");
+          const refresh_token = params.get("refresh_token");
 
-        if (!access_token || !refresh_token) {
-          console.error("[OAuth] Tokens manquants dans l'URL de callback:", url);
-          return;
+          if (!access_token || !refresh_token) {
+            console.error("[OAuth] Tokens manquants dans l'URL de callback:", url);
+            return;
+          }
+
+          const { error } = await supabase.auth.setSession({ access_token, refresh_token });
+          if (error) {
+            console.error("[OAuth] Erreur setSession:", error.message);
+            return;
+          }
+
+          window.location.href = "/home";
+        } catch (e) {
+          console.error("[OAuth] Erreur de parsing du callback:", e);
         }
-
-        const { error } = await supabase.auth.setSession({ access_token, refresh_token });
-        if (error) {
-          console.error("[OAuth] Erreur setSession:", error.message);
-          return;
-        }
-
-        window.location.href = "/home";
-      } catch (e) {
-        console.error("[OAuth] Erreur de parsing du callback:", e);
-      }
       }).then((handle) => {
         listener = handle;
       });
