@@ -4,7 +4,6 @@ import { useEffect, type ReactNode } from "react";
 import { Toaster } from "@/components/ui/sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { LanguageProvider } from "@/i18n";
-import { App as CapacitorApp } from "@capacitor/app";
 import { Capacitor } from "@capacitor/core";
 
 import appCss from "../styles.css?url";
@@ -161,45 +160,52 @@ function RootComponent() {
   const { queryClient } = Route.useRouteContext();
   const router = useRouter();
 
-  // Listener pour le retour OAuth natif (Google/Apple) via deep link custom scheme.
-  // Capacitor ouvre Safari pour l'auth, puis Safari redirige vers com.h2go.app://auth-callback,
-  // ce qui déclenche cet événement et redonne la main à l'app.
   useEffect(() => {
     if (!Capacitor.isNativePlatform()) return;
 
-    const listenerPromise = CapacitorApp.addListener("appUrlOpen", async ({ url }) => {
-      if (!url.startsWith("https://h2go-app.com")) return;
+    let active = true;
+    let listener: { remove: () => Promise<void> | void } | undefined;
 
-      // Garder ce log pendant les tests, à retirer une fois confirmé que ça fonctionne.
-      console.log("[OAuth] Callback URL reçue:", url);
+    void import("@capacitor/app").then((appModule) => {
+      if (!active) return;
+      return appModule.App.addListener("appUrlOpen", async (event: { url: string }) => {
+        const { url } = event;
+        if (!url.startsWith("https://h2go-app.com")) return;
 
-      try {
-        const parsed = new URL(url);
-        const query = parsed.hash ? parsed.hash.slice(1) : parsed.search.slice(1);
-        const params = new URLSearchParams(query);
+        // Garder ce log pendant les tests, à retirer une fois confirmé que ça fonctionne.
+        console.log("[OAuth] Callback URL reçue:", url);
 
-        const access_token = params.get("access_token");
-        const refresh_token = params.get("refresh_token");
+        try {
+          const parsed = new URL(url);
+          const query = parsed.hash ? parsed.hash.slice(1) : parsed.search.slice(1);
+          const params = new URLSearchParams(query);
 
-        if (!access_token || !refresh_token) {
-          console.error("[OAuth] Tokens manquants dans l'URL de callback:", url);
-          return;
+          const access_token = params.get("access_token");
+          const refresh_token = params.get("refresh_token");
+
+          if (!access_token || !refresh_token) {
+            console.error("[OAuth] Tokens manquants dans l'URL de callback:", url);
+            return;
+          }
+
+          const { error } = await supabase.auth.setSession({ access_token, refresh_token });
+          if (error) {
+            console.error("[OAuth] Erreur setSession:", error.message);
+            return;
+          }
+
+          window.location.href = "/home";
+        } catch (e) {
+          console.error("[OAuth] Erreur de parsing du callback:", e);
         }
-
-        const { error } = await supabase.auth.setSession({ access_token, refresh_token });
-        if (error) {
-          console.error("[OAuth] Erreur setSession:", error.message);
-          return;
-        }
-
-        window.location.href = "/home";
-      } catch (e) {
-        console.error("[OAuth] Erreur de parsing du callback:", e);
-      }
+      }).then((handle) => {
+        listener = handle;
+      });
     });
 
     return () => {
-      listenerPromise.then((listener) => listener.remove());
+      active = false;
+      void listener?.remove();
     };
   }, []);
 
