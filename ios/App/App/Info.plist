@@ -57,6 +57,10 @@
 		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
 	<key>UIViewControllerBasedStatusBarAppearance</key>
+	<key>NSCameraUsageDescription</key>
+	<string>H2GO utilise la caméra pour vérifier que tu bois bien de l'eau lors de tes rappels d'hydratation.</string>
+	<key>NSPhotoLibraryAddUsageDescription</key>
+	<string>H2GO peut enregistrer tes photos de vérification dans ta galerie.</string>
 	<true/>
 </dict>
 </plist>
