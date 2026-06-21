@@ -12,7 +12,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { useEffect } from "react";
-import { maybePromptFirstLaunch } from "@/lib/notifications";
+import { maybePromptFirstLaunch, scheduleHydrationRemindersAtTimes, isNative } from "@/lib/notifications";
 import { useT } from "@/i18n";
 import { LEVEL_NAMES } from "@/i18n/translations";
 import { getStripeEnvironment } from "@/lib/stripe";
