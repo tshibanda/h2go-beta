@@ -107,14 +107,18 @@ export async function scheduleHydrationReminders(
 
   await cancelAllHydrationReminders();
 
-  // Try creating an Android channel (no-op on iOS)
+  // Android channel: MAX importance for heads-up + loud alarm sound. iOS ignores channel.
   try {
     await LocalNotifications.createChannel({
       id: CHANNEL_ID,
       name: "Hydration reminders",
       description: "Reminders to drink water",
-      importance: 4,
+      importance: 5, // MAX — heads-up banner + sound even in DND priority mode
       visibility: 1,
+      // Reference to android/app/src/main/res/raw/alarm.mp3 (filename without extension)
+      sound: "alarm",
+      vibration: true,
+      lights: true,
     });
   } catch {
     /* noop */
@@ -139,12 +143,16 @@ export async function scheduleHydrationReminders(
       title,
       body,
       channelId: CHANNEL_ID,
+      // iOS: alarm.wav must be bundled in ios/App/App/. Android: filename without extension already on channel.
+      sound: "alarm.wav",
       schedule: {
         on: { hour, minute: 0 },
         allowWhileIdle: true,
         repeats: true,
       },
       smallIcon: "ic_stat_icon_config_sample",
+      // iOS critical-alert payload (requires entitlement; otherwise plays normally)
+      extra: { critical: true },
     };
   });
 
