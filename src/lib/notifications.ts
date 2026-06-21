@@ -156,7 +156,7 @@ export async function scheduleHydrationReminders(
       title,
       body,
       channelId: CHANNEL_ID,
-      sound: "alarm.wav",
+      sound: "alarm.caf",
       schedule: {
         on: { hour, minute: 0 },
         allowWhileIdle: true,
