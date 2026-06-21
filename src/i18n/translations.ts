@@ -230,6 +230,17 @@ export const TRANSLATIONS = {
     "notif.permDenied": "Permission denied for notifications",
     "notif.savedWeb": "Preferences saved",
 
+    // Pending validation
+    "pv.title": "Verify your email",
+    "pv.body": "We sent a confirmation link to {email}. Click it to activate your account.",
+    "pv.bodyNoEmail": "We sent a confirmation link to your inbox. Click it to activate your account.",
+    "pv.resend": "Resend confirmation email",
+    "pv.resent": "Confirmation email sent",
+    "pv.resendFail": "Could not resend. Try again in a moment.",
+    "pv.checkAgain": "I've confirmed — sign in",
+    "pv.notConfirmed": "Your email is not confirmed yet. Check your inbox.",
+    "pv.signOut": "Use a different account",
+
     // Landing
     "landing.title": "Hydrate.\nValidate.\nRepeat.",
     "landing.body":
