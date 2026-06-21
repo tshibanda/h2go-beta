@@ -4,7 +4,6 @@ import { useEffect, type ReactNode } from "react";
 import { Toaster } from "@/components/ui/sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { LanguageProvider } from "@/i18n";
-import { App as CapacitorApp } from "@capacitor/app";
 import { Capacitor } from "@capacitor/core";
 
 import appCss from "../styles.css?url";
@@ -161,13 +160,16 @@ function RootComponent() {
   const { queryClient } = Route.useRouteContext();
   const router = useRouter();
 
-  // Listener pour le retour OAuth natif (Google/Apple) via deep link custom scheme.
-  // Capacitor ouvre Safari pour l'auth, puis Safari redirige vers com.h2go.app://auth-callback,
-  // ce qui déclenche cet événement et redonne la main à l'app.
   useEffect(() => {
     if (!Capacitor.isNativePlatform()) return;
 
-    const listenerPromise = CapacitorApp.addListener("appUrlOpen", async ({ url }) => {
+    let active = true;
+    let listener: { remove: () => Promise<void> | void } | undefined;
+
+    void import("@capacitor/app").then(({ App }) => {
+      if (!active) return;
+      return App.addListener("appUrlOpen", async (event: { url: string }) => {
+        const { url } = event;
       if (!url.startsWith("https://h2go-app.com")) return;
 
       // Garder ce log pendant les tests, à retirer une fois confirmé que ça fonctionne.
@@ -196,10 +198,14 @@ function RootComponent() {
       } catch (e) {
         console.error("[OAuth] Erreur de parsing du callback:", e);
       }
+      }).then((handle) => {
+        listener = handle;
+      });
     });
 
     return () => {
-      listenerPromise.then((listener) => listener.remove());
+      active = false;
+      void listener?.remove();
     };
   }, []);
 
