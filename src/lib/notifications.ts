@@ -73,11 +73,28 @@ export async function requestNotificationPermission(): Promise<boolean> {
 
 export async function maybePromptFirstLaunch(): Promise<void> {
   if (!isNative() || typeof window === "undefined") return;
-  if (localStorage.getItem(PROMPTED_KEY)) return;
-  localStorage.setItem(PROMPTED_KEY, "1");
-  const granted = await requestNotificationPermission();
-  if (granted) {
-    await scheduleHydrationReminders(loadConfig(), "en");
+
+  const alreadyPrompted = !!localStorage.getItem(PROMPTED_KEY);
+
+  if (!alreadyPrompted) {
+    localStorage.setItem(PROMPTED_KEY, "1");
+    const granted = await requestNotificationPermission();
+    if (granted) {
+      await scheduleHydrationReminders(loadConfig(), "en");
+    }
+    return;
+  }
+
+  // Already asked for permission before. If it was granted, re-schedule on
+  // every native launch so that code changes (e.g. a newly added custom
+  // sound) apply to already-existing reminders, not just newly created ones.
+  try {
+    const status = await LocalNotifications.checkPermissions();
+    if (status.display === "granted") {
+      await scheduleHydrationReminders(loadConfig(), "en");
+    }
+  } catch {
+    /* noop */
   }
 }
 
@@ -139,7 +156,7 @@ export async function scheduleHydrationReminders(
       title,
       body,
       channelId: CHANNEL_ID,
-      sound: "alarm.caf",
+      sound: "alarm.wav",
       schedule: {
         on: { hour, minute: 0 },
         allowWhileIdle: true,
