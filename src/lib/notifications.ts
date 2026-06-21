@@ -96,6 +96,73 @@ export async function cancelAllHydrationReminders(): Promise<void> {
   }
 }
 
+/**
+ * Schedule notifications at specific HH:MM times (from the profile's reminders table).
+ * Repeats daily. Replaces any existing hydration reminders.
+ */
+export async function scheduleHydrationRemindersAtTimes(
+  times: string[],
+  locale: "en" | "fr" = "en",
+): Promise<{ ok: boolean; count: number; reason?: string }> {
+  if (!isNative()) return { ok: false, count: 0, reason: "not-native" };
+
+  const granted = await requestNotificationPermission();
+  if (!granted) return { ok: false, count: 0, reason: "permission-denied" };
+
+  await cancelAllHydrationReminders();
+
+  try {
+    await LocalNotifications.createChannel({
+      id: CHANNEL_ID,
+      name: "Hydration reminders",
+      description: "Reminders to drink water",
+      importance: 5,
+      visibility: 1,
+      sound: "alarm",
+      vibration: true,
+      lights: true,
+    });
+  } catch {
+    /* noop */
+  }
+
+  const titles = locale === "fr" ? TITLES_FR : TITLES_EN;
+  const bodies = locale === "fr" ? BODIES_FR : BODIES_EN;
+
+  const parsed = times
+    .map((t) => {
+      const [h, m] = t.split(":").map(Number);
+      return Number.isFinite(h) && Number.isFinite(m) ? { hour: h, minute: m } : null;
+    })
+    .filter((x): x is { hour: number; minute: number } => x !== null)
+    .slice(0, 64);
+
+  if (parsed.length === 0) return { ok: false, count: 0, reason: "no-times" };
+
+  const notifications = parsed.map((t, i) => ({
+    id: NOTIF_ID_BASE + i,
+    title: titles[i % titles.length],
+    body: bodies[i % bodies.length],
+    channelId: CHANNEL_ID,
+    sound: "alarm.wav",
+    schedule: {
+      on: { hour: t.hour, minute: t.minute },
+      allowWhileIdle: true,
+      repeats: true,
+    },
+    smallIcon: "ic_stat_icon_config_sample",
+    extra: { critical: true },
+  }));
+
+  try {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    await LocalNotifications.schedule({ notifications: notifications as any });
+    return { ok: true, count: notifications.length };
+  } catch (e) {
+    return { ok: false, count: 0, reason: e instanceof Error ? e.message : "schedule-failed" };
+  }
+}
+
 export async function scheduleHydrationReminders(
   cfg: ReminderConfig,
   locale: "en" | "fr" = "en",
