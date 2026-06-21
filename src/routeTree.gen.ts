@@ -15,6 +15,7 @@ import { Route as PendingValidationRouteImport } from './routes/pending-validati
 import { Route as OnboardingRouteImport } from './routes/onboarding'
 import { Route as CalculatorRouteImport } from './routes/calculator'
 import { Route as AuthRouteImport } from './routes/auth'
+import { Route as AasaRouteImport } from './routes/aasa'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as CheckoutReturnRouteImport } from './routes/checkout.return'
@@ -56,6 +57,11 @@ const CalculatorRoute = CalculatorRouteImport.update({
 const AuthRoute = AuthRouteImport.update({
   id: '/auth',
   path: '/auth',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AasaRoute = AasaRouteImport.update({
+  id: '/aasa',
+  path: '/aasa',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
@@ -123,6 +129,7 @@ const ApiPublicPaymentsWebhookRoute =
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/aasa': typeof AasaRoute
   '/auth': typeof AuthRoute
   '/calculator': typeof CalculatorRoute
   '/onboarding': typeof OnboardingRoute
@@ -142,6 +149,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/aasa': typeof AasaRoute
   '/auth': typeof AuthRoute
   '/calculator': typeof CalculatorRoute
   '/onboarding': typeof OnboardingRoute
@@ -163,6 +171,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
+  '/aasa': typeof AasaRoute
   '/auth': typeof AuthRoute
   '/calculator': typeof CalculatorRoute
   '/onboarding': typeof OnboardingRoute
@@ -184,6 +193,7 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/aasa'
     | '/auth'
     | '/calculator'
     | '/onboarding'
@@ -203,6 +213,7 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/aasa'
     | '/auth'
     | '/calculator'
     | '/onboarding'
@@ -223,6 +234,7 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/_authenticated'
+    | '/aasa'
     | '/auth'
     | '/calculator'
     | '/onboarding'
@@ -244,6 +256,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
+  AasaRoute: typeof AasaRoute
   AuthRoute: typeof AuthRoute
   CalculatorRoute: typeof CalculatorRoute
   OnboardingRoute: typeof OnboardingRoute
@@ -297,6 +310,13 @@ declare module '@tanstack/react-router' {
       path: '/auth'
       fullPath: '/auth'
       preLoaderRoute: typeof AuthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/aasa': {
+      id: '/aasa'
+      path: '/aasa'
+      fullPath: '/aasa'
+      preLoaderRoute: typeof AasaRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_authenticated': {
@@ -412,6 +432,7 @@ const AuthenticatedRouteRouteWithChildren =
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
+  AasaRoute: AasaRoute,
   AuthRoute: AuthRoute,
   CalculatorRoute: CalculatorRoute,
   OnboardingRoute: OnboardingRoute,
@@ -425,3 +446,13 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
