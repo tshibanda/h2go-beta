@@ -36,7 +36,7 @@
 	<key>NSUserNotificationsUsageDescription</key>
 	<string>Nous utilisons les notifications pour te rappeler de boire de l'eau régulièrement.</string>
 	<key>UILaunchStoryboardName</key>
-	<string></string>
+	<string>LaunchScreen</string>
 	<key>UIMainStoryboardFile</key>
 	<string>Main</string>
 	<key>UIRequiredDeviceCapabilities</key>
