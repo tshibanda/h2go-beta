@@ -58,6 +58,13 @@ function ProfilePage() {
     void maybePromptFirstLaunch();
   }, []);
 
+  // Re-schedule notifications when reminders or app language change, so titles/bodies match locale.
+  useEffect(() => {
+    if (!isNative() || !data?.reminders?.length) return;
+    const t = data.reminders.map((r) => (r.reminder_time as string).slice(0, 5));
+    void scheduleHydrationRemindersAtTimes(t, locale);
+  }, [data?.reminders, locale]);
+
   useEffect(() => {
     resolveAvatarUrl(data?.profile?.avatar_url).then(setAvatarUrl);
   }, [data?.profile?.avatar_url]);
