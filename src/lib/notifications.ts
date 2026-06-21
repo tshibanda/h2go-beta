@@ -41,21 +41,7 @@ const BODIES_FR = [
  * Idéal pour les connexions Google, mentions légales, etc.
  */
 export async function openInternalLink(url: string): Promise<void> {
-  if (isNative()) {
-    try {
-      await Browser.open({ 
-        url: url,
-        windowName: '_blank',
-        toolbarColor: '#ffffff' // Optionnel : personnalise la couleur de la barre
-      });
-    } catch (error) {
-      console.error("Erreur lors de l'ouverture du navigateur interne:", error);
-      window.open(url, "_blank");
-    }
-  } else {
-    // Mode Web / Développement
-    window.open(url, "_blank");
-  }
+  window.open(url, "_blank");
 }
 
 export function isNative(): boolean {
