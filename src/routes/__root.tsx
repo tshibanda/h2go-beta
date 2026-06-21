@@ -4,7 +4,9 @@ import { useEffect, type ReactNode } from "react";
 import { Toaster } from "@/components/ui/sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { LanguageProvider } from "@/i18n";
+import { App as CapacitorApp } from "@capacitor/app";
 import { Capacitor } from "@capacitor/core";
+import { Browser } from "@capacitor/browser";
 
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
@@ -160,52 +162,76 @@ function RootComponent() {
   const { queryClient } = Route.useRouteContext();
   const router = useRouter();
 
+  // Intercepte les liens externes (CGU, support, etc.) pour les ouvrir dans une
+  // fenêtre intégrée à l'app (Browser plugin) plutôt qu'en basculant vers Safari.
+  // Ne s'applique pas au flux OAuth Google/Apple, qui doit obligatoirement
+  // passer par un vrai navigateur système pour des raisons de sécurité imposées
+  // par Google — voir le listener appUrlOpen ci-dessous pour le retour automatique.
   useEffect(() => {
     if (!Capacitor.isNativePlatform()) return;
 
-    let active = true;
-    let listener: { remove: () => Promise<void> | void } | undefined;
+    const handleClick = (e: MouseEvent) => {
+      const target = e.target as HTMLElement | null;
+      const link = target?.closest("a");
+      if (!link || !link.href) return;
 
-    void import("@capacitor/app").then((appModule) => {
-      if (!active) return;
-      return appModule.App.addListener("appUrlOpen", async (event: { url: string }) => {
-        const { url } = event;
-        if (!url.startsWith("https://h2go-app.com")) return;
+      let url: URL;
+      try {
+        url = new URL(link.href);
+      } catch {
+        return;
+      }
 
-        // Garder ce log pendant les tests, à retirer une fois confirmé que ça fonctionne.
-        console.log("[OAuth] Callback URL reçue:", url);
+      // Laisse les liens internes (même origine) être gérés normalement par le router.
+      if (url.origin === window.location.origin) return;
 
-        try {
-          const parsed = new URL(url);
-          const query = parsed.hash ? parsed.hash.slice(1) : parsed.search.slice(1);
-          const params = new URLSearchParams(query);
+      e.preventDefault();
+      Browser.open({ url: link.href });
+    };
 
-          const access_token = params.get("access_token");
-          const refresh_token = params.get("refresh_token");
+    document.addEventListener("click", handleClick);
+    return () => document.removeEventListener("click", handleClick);
+  }, []);
 
-          if (!access_token || !refresh_token) {
-            console.error("[OAuth] Tokens manquants dans l'URL de callback:", url);
-            return;
-          }
+  // Listener pour le retour OAuth natif (Google/Apple) via deep link custom scheme.
+  // Capacitor ouvre Safari pour l'auth, puis Safari redirige vers com.h2go.app://auth-callback,
+  // ce qui déclenche cet événement et redonne la main à l'app.
+  useEffect(() => {
+    if (!Capacitor.isNativePlatform()) return;
 
-          const { error } = await supabase.auth.setSession({ access_token, refresh_token });
-          if (error) {
-            console.error("[OAuth] Erreur setSession:", error.message);
-            return;
-          }
+    const listenerPromise = CapacitorApp.addListener("appUrlOpen", async ({ url }) => {
+      if (!url.startsWith("https://h2go-app.com")) return;
 
-          window.location.href = "/home";
-        } catch (e) {
-          console.error("[OAuth] Erreur de parsing du callback:", e);
+      // Garder ce log pendant les tests, à retirer une fois confirmé que ça fonctionne.
+      console.log("[OAuth] Callback URL reçue:", url);
+
+      try {
+        const parsed = new URL(url);
+        const query = parsed.hash ? parsed.hash.slice(1) : parsed.search.slice(1);
+        const params = new URLSearchParams(query);
+
+        const access_token = params.get("access_token");
+        const refresh_token = params.get("refresh_token");
+
+        if (!access_token || !refresh_token) {
+          console.error("[OAuth] Tokens manquants dans l'URL de callback:", url);
+          return;
         }
-      }).then((handle) => {
-        listener = handle;
-      });
+
+        const { error } = await supabase.auth.setSession({ access_token, refresh_token });
+        if (error) {
+          console.error("[OAuth] Erreur setSession:", error.message);
+          return;
+        }
+
+        window.location.href = "/home";
+      } catch (e) {
+        console.error("[OAuth] Erreur de parsing du callback:", e);
+      }
     });
 
     return () => {
-      active = false;
-      void listener?.remove();
+      listenerPromise.then((listener) => listener.remove());
     };
   }, []);
 
