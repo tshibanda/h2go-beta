@@ -1,5 +1,6 @@
 import { Capacitor } from "@capacitor/core";
 import { LocalNotifications } from "@capacitor/local-notifications";
+import { Browser } from "@capacitor/browser";
 
 export type ReminderConfig = {
   intervalHours: number; // 1, 2, 3...
@@ -9,8 +10,8 @@ export type ReminderConfig = {
 
 const STORAGE_KEY = "h2go.reminderConfig";
 const PROMPTED_KEY = "h2go.notifPromptedV1";
-const CHANNEL_ID = "hydration";
-const NOTIF_ID_BASE = 1000;
+const CHANNEL_ID = "hydration_alarm_v4";
+const NOTIF_ID_BASE = 7000;
 
 export const DEFAULT_CONFIG: ReminderConfig = {
   intervalHours: 2,
@@ -34,6 +35,28 @@ const BODIES_FR = [
   "Tes cellules adorent l'eau. Une gorgée s'impose !",
   "Un verre d'eau = un esprit plus clair. Allez, à toi !",
 ];
+
+/**
+ * Ouvre un lien dans le navigateur interne de l'application (In-App Browser)
+ * Idéal pour les connexions Google, mentions légales, etc.
+ */
+export async function openInternalLink(url: string): Promise<void> {
+  if (isNative()) {
+    try {
+      await Browser.open({ 
+        url: url,
+        windowName: '_blank',
+        toolbarColor: '#ffffff' // Optionnel : personnalise la couleur de la barre
+      });
+    } catch (error) {
+      console.error("Erreur lors de l'ouverture du navigateur interne:", error);
+      window.open(url, "_blank");
+    }
+  } else {
+    // Mode Web / Développement
+    window.open(url, "_blank");
+  }
+}
 
 export function isNative(): boolean {
   try {
@@ -85,9 +108,6 @@ export async function maybePromptFirstLaunch(): Promise<void> {
     return;
   }
 
-  // Already asked for permission before. If it was granted, re-schedule on
-  // every native launch so that code changes (e.g. a newly added custom
-  // sound) apply to already-existing reminders, not just newly created ones.
   try {
     const status = await LocalNotifications.checkPermissions();
     if (status.display === "granted") {
@@ -124,14 +144,15 @@ export async function scheduleHydrationReminders(
 
   await cancelAllHydrationReminders();
 
-  // Try creating an Android channel (no-op on iOS)
   try {
     await LocalNotifications.createChannel({
       id: CHANNEL_ID,
       name: "Hydration reminders",
       description: "Reminders to drink water",
-      importance: 4,
+      importance: 5,
       visibility: 1,
+      sound: "alarm",
+      vibration: true,
     });
   } catch {
     /* noop */
@@ -156,7 +177,7 @@ export async function scheduleHydrationReminders(
       title,
       body,
       channelId: CHANNEL_ID,
-      sound: "alarm.caf",
+      sound: "alarm.wav",
       schedule: {
         on: { hour, minute: 0 },
         allowWhileIdle: true,
@@ -167,7 +188,6 @@ export async function scheduleHydrationReminders(
   });
 
   try {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     await LocalNotifications.schedule({ notifications: notifications as any });
     return { ok: true, count: notifications.length };
   } catch (e) {
