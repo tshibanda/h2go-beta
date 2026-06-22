@@ -18,6 +18,34 @@ async function getServerEntry(): Promise<ServerEntry> {
   return serverEntryPromise;
 }
 
+// Fichier requis par iOS pour les Universal Links (retour automatique dans
+// l'app après l'auth Google/Apple). Intercepté ici, avant le routeur
+// TanStack Start, pour garantir qu'il est toujours servi correctement
+// (le mécanisme public/_redirects de Cloudflare Pages ne s'applique pas
+// ici car le déploiement utilise le préset cloudflare-module/Workers).
+const AASA_CONTENT = JSON.stringify({
+  applinks: {
+    apps: [],
+    details: [
+      {
+        appID: "64WRGLMF42.com.h2go.app",
+        paths: ["*"],
+      },
+    ],
+  },
+});
+
+function maybeServeAasa(request: Request): Response | null {
+  const url = new URL(request.url);
+  if (url.pathname === "/.well-known/apple-app-site-association") {
+    return new Response(AASA_CONTENT, {
+      status: 200,
+      headers: { "content-type": "application/json" },
+    });
+  }
+  return null;
+}
+
 // h3 swallows in-handler throws into a normal 500 Response with body
 // {"unhandled":true,"message":"HTTPError"} — try/catch alone never fires for those.
 async function normalizeCatastrophicSsrResponse(response: Response): Promise<Response> {
@@ -39,6 +67,9 @@ async function normalizeCatastrophicSsrResponse(response: Response): Promise<Res
 
 export default {
   async fetch(request: Request, env: unknown, ctx: unknown) {
+    const aasaResponse = maybeServeAasa(request);
+    if (aasaResponse) return aasaResponse;
+
     try {
       const handler = await getServerEntry();
       const response = await handler.fetch(request, env, ctx);
