@@ -4,6 +4,8 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useRef, useState } from "react";
 import { Star, Crown, ChevronRight, LogOut, Languages, Camera, Trash2 } from "lucide-react";
 import { getDashboard, getTotals, saveReminders, updateAvatar } from "@/lib/h2go.functions";
+import { createPortalSession } from "@/lib/payments.functions";
+import { getStripeEnvironment } from "@/lib/stripe";
 import { MobileShell } from "@/components/h2go/MobileShell";
 import { levelForXp } from "@/lib/gamification";
 import { supabase } from "@/integrations/supabase/client";
@@ -325,7 +327,26 @@ function ProfilePage() {
         {/* Premium */}
 
         {isPremium ? (
-          <div
+          <button
+            type="button"
+            onClick={async (e) => {
+              if (e.detail === 0) return;
+              try {
+                const r = await createPortalSession({
+                  data: {
+                    returnUrl: window.location.href,
+                    environment: getStripeEnvironment(),
+                  },
+                });
+                if ("error" in r) {
+                  toast.error(r.error);
+                  return;
+                }
+                window.location.assign(r.url);
+              } catch (err) {
+                toast.error(err instanceof Error ? err.message : "Erreur");
+              }
+            }}
             className="mx-4 rounded-2xl p-4 flex items-center gap-3 bg-gradient-to-br from-[#1E3A8A] to-primary shadow-lg text-left w-[calc(100%-2rem)]"
           >
             <Crown size={26} color="#FDE68A" />
@@ -334,7 +355,8 @@ function ProfilePage() {
               <p className="text-[11px] text-white/80">{t("p.premiumActive")}</p>
             </div>
             <ChevronRight size={18} className="text-white/60" />
-          </div>
+          </button>
+
 
         ) : (
           <Link
