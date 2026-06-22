@@ -4,7 +4,6 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useRef, useState } from "react";
 import { Star, Crown, ChevronRight, LogOut, Languages, Camera, Trash2 } from "lucide-react";
 import { getDashboard, getTotals, saveReminders, updateAvatar } from "@/lib/h2go.functions";
-import { createPortalSession } from "@/lib/payments.functions";
 import { MobileShell } from "@/components/h2go/MobileShell";
 import { levelForXp } from "@/lib/gamification";
 import { supabase } from "@/integrations/supabase/client";
@@ -15,7 +14,6 @@ import { useEffect } from "react";
 import { maybePromptFirstLaunch, scheduleHydrationRemindersAtTimes, isNative } from "@/lib/notifications";
 import { useT } from "@/i18n";
 import { LEVEL_NAMES } from "@/i18n/translations";
-import { getStripeEnvironment } from "@/lib/stripe";
 import { uploadAvatar, removeAvatar, resolveAvatarUrl } from "@/lib/avatar";
 
 export const Route = createFileRoute("/_authenticated/profile")({
@@ -324,37 +322,19 @@ function ProfilePage() {
           </div>
         </div>
 
-        {/* Premium — also opens Stripe portal when subscribed */}
+        {/* Premium */}
 
         {isPremium ? (
-          <button
-            type="button"
-            onClick={async (e) => {
-              // Garde explicite : n'agir que sur un vrai clic (évite les
-              // déclenchements parasites lors d'un scroll sur mobile/PWA).
-              if (e.detail === 0) return;
-              try {
-                const r = await createPortalSession({
-                  data: { returnUrl: window.location.href, environment: getStripeEnvironment() },
-                });
-                if ("error" in r) throw new Error(r.error);
-                // Navigation top-level : fonctionne en web, PWA standalone et natif.
-                window.location.assign(r.url);
-              } catch (err) {
-                toast.error(err instanceof Error ? err.message : "Failed to open portal");
-              }
-            }}
+          <div
             className="mx-4 rounded-2xl p-4 flex items-center gap-3 bg-gradient-to-br from-[#1E3A8A] to-primary shadow-lg text-left w-[calc(100%-2rem)]"
           >
             <Crown size={26} color="#FDE68A" />
             <div className="flex-1">
               <p className="font-display text-base font-bold text-white">{t("p.premium")}</p>
-              <p className="text-[11px] text-white/80">
-                {t("p.premiumActive")} · {t("p.manageSubHint")}
-              </p>
+              <p className="text-[11px] text-white/80">{t("p.premiumActive")}</p>
             </div>
             <ChevronRight size={18} className="text-white/60" />
-          </button>
+          </div>
 
         ) : (
           <Link
