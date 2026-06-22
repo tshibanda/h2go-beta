@@ -12,7 +12,7 @@ const AASA_CONTENT = {
   },
 };
 
-export const Route = createFileRoute("/aasa")({
+export const Route = createFileRoute("/apple-app-site-association")({
   server: {
     handlers: {
       GET: async () => {
