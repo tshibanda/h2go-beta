@@ -70,6 +70,16 @@ function ProfilePage() {
     resolveAvatarUrl(data?.profile?.avatar_url).then(setAvatarUrl);
   }, [data?.profile?.avatar_url]);
 
+  useEffect(() => {
+    const main = document.querySelector("main.overflow-y-auto");
+    if (!main) return;
+    const onScroll = () => {
+      lastScrollRef.current = Date.now();
+    };
+    main.addEventListener("scroll", onScroll, { passive: true });
+    return () => main.removeEventListener("scroll", onScroll);
+  }, []);
+
   if (!data)
     return (
       <MobileShell>
