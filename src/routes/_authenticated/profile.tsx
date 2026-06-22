@@ -4,6 +4,8 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useRef, useState } from "react";
 import { Star, Crown, ChevronRight, LogOut, Languages, Camera, Trash2 } from "lucide-react";
 import { getDashboard, getTotals, saveReminders, updateAvatar } from "@/lib/h2go.functions";
+import { createPortalSession } from "@/lib/payments.functions";
+import { getStripeEnvironment } from "@/lib/stripe";
 import { MobileShell } from "@/components/h2go/MobileShell";
 import { levelForXp } from "@/lib/gamification";
 import { supabase } from "@/integrations/supabase/client";
