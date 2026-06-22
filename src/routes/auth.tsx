@@ -79,6 +79,7 @@ function AuthPage() {
 
   async function handleOAuth(provider: "google" | "apple") {
     setBusy(true);
+    console.log("[DEBUG] redirect_uri envoyé:", window.location.origin); // ligne temporaire de debug, à retirer après test
     // Toujours utiliser l'origine actuelle comme redirect_uri. Le broker OAuth
     // de Lovable rejette les schémas personnalisés (com.h2go.app://...).
     // Sur natif, les Universal Links interceptent automatiquement la
