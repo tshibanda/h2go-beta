@@ -53,6 +53,7 @@ function ProfilePage() {
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   const [uploadingAvatar, setUploadingAvatar] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const lastScrollRef = useRef(0);
 
   useEffect(() => {
     void maybePromptFirstLaunch();
@@ -68,6 +69,16 @@ function ProfilePage() {
   useEffect(() => {
     resolveAvatarUrl(data?.profile?.avatar_url).then(setAvatarUrl);
   }, [data?.profile?.avatar_url]);
+
+  useEffect(() => {
+    const main = document.querySelector("main.overflow-y-auto");
+    if (!main) return;
+    const onScroll = () => {
+      lastScrollRef.current = Date.now();
+    };
+    main.addEventListener("scroll", onScroll, { passive: true });
+    return () => main.removeEventListener("scroll", onScroll);
+  }, []);
 
   if (!data)
     return (
@@ -331,6 +342,7 @@ function ProfilePage() {
             type="button"
             onClick={async (e) => {
               if (e.detail === 0) return;
+              if (Date.now() - lastScrollRef.current < 300) return;
               try {
                 const r = await createPortalSession({
                   data: {
