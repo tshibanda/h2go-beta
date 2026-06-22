@@ -342,6 +342,7 @@ function ProfilePage() {
             type="button"
             onClick={async (e) => {
               if (e.detail === 0) return;
+              if (Date.now() - lastScrollRef.current < 300) return;
               try {
                 const r = await createPortalSession({
                   data: {
