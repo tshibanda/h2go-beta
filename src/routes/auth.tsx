@@ -1,6 +1,5 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { Capacitor } from "@capacitor/core";
 import { supabase } from "@/integrations/supabase/client";
 import { lovable } from "@/integrations/lovable";
 import { Splash, SplashDefs } from "@/components/h2go/Splash";
@@ -80,10 +79,13 @@ function AuthPage() {
 
   async function handleOAuth(provider: "google" | "apple") {
     setBusy(true);
-    const redirectUri = Capacitor.isNativePlatform() ? "com.h2go.app://auth-callback" : window.location.origin;
-
+    // Toujours utiliser l'origine actuelle comme redirect_uri. Le broker OAuth
+    // de Lovable rejette les schémas personnalisés (com.h2go.app://...).
+    // Sur natif, les Universal Links interceptent automatiquement la
+    // redirection vers ce domaine et redonnent la main à l'app (voir le
+    // listener appUrlOpen dans __root.tsx).
     const result = await lovable.auth.signInWithOAuth(provider, {
-      redirect_uri: redirectUri,
+      redirect_uri: window.location.origin,
     });
     if (result.error) {
       toast.error(result.error.message ?? `${provider} sign-in failed`);
