@@ -15,7 +15,7 @@ import { Route as PendingValidationRouteImport } from './routes/pending-validati
 import { Route as OnboardingRouteImport } from './routes/onboarding'
 import { Route as CalculatorRouteImport } from './routes/calculator'
 import { Route as AuthRouteImport } from './routes/auth'
-import { Route as AasaRouteImport } from './routes/aasa'
+import { Route as AppleAppSiteAssociationRouteImport } from './routes/apple-app-site-association'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as CheckoutReturnRouteImport } from './routes/checkout.return'
@@ -59,9 +59,9 @@ const AuthRoute = AuthRouteImport.update({
   path: '/auth',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AasaRoute = AasaRouteImport.update({
-  id: '/aasa',
-  path: '/aasa',
+const AppleAppSiteAssociationRoute = AppleAppSiteAssociationRouteImport.update({
+  id: '/apple-app-site-association',
+  path: '/apple-app-site-association',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
@@ -129,7 +129,7 @@ const ApiPublicPaymentsWebhookRoute =
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/aasa': typeof AasaRoute
+  '/apple-app-site-association': typeof AppleAppSiteAssociationRoute
   '/auth': typeof AuthRoute
   '/calculator': typeof CalculatorRoute
   '/onboarding': typeof OnboardingRoute
@@ -149,7 +149,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/aasa': typeof AasaRoute
+  '/apple-app-site-association': typeof AppleAppSiteAssociationRoute
   '/auth': typeof AuthRoute
   '/calculator': typeof CalculatorRoute
   '/onboarding': typeof OnboardingRoute
@@ -171,7 +171,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
-  '/aasa': typeof AasaRoute
+  '/apple-app-site-association': typeof AppleAppSiteAssociationRoute
   '/auth': typeof AuthRoute
   '/calculator': typeof CalculatorRoute
   '/onboarding': typeof OnboardingRoute
@@ -193,7 +193,7 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
-    | '/aasa'
+    | '/apple-app-site-association'
     | '/auth'
     | '/calculator'
     | '/onboarding'
@@ -213,7 +213,7 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
-    | '/aasa'
+    | '/apple-app-site-association'
     | '/auth'
     | '/calculator'
     | '/onboarding'
@@ -234,7 +234,7 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/_authenticated'
-    | '/aasa'
+    | '/apple-app-site-association'
     | '/auth'
     | '/calculator'
     | '/onboarding'
@@ -256,7 +256,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
-  AasaRoute: typeof AasaRoute
+  AppleAppSiteAssociationRoute: typeof AppleAppSiteAssociationRoute
   AuthRoute: typeof AuthRoute
   CalculatorRoute: typeof CalculatorRoute
   OnboardingRoute: typeof OnboardingRoute
@@ -312,11 +312,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/aasa': {
-      id: '/aasa'
-      path: '/aasa'
-      fullPath: '/aasa'
-      preLoaderRoute: typeof AasaRouteImport
+    '/apple-app-site-association': {
+      id: '/apple-app-site-association'
+      path: '/apple-app-site-association'
+      fullPath: '/apple-app-site-association'
+      preLoaderRoute: typeof AppleAppSiteAssociationRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_authenticated': {
@@ -432,7 +432,7 @@ const AuthenticatedRouteRouteWithChildren =
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
-  AasaRoute: AasaRoute,
+  AppleAppSiteAssociationRoute: AppleAppSiteAssociationRoute,
   AuthRoute: AuthRoute,
   CalculatorRoute: CalculatorRoute,
   OnboardingRoute: OnboardingRoute,
