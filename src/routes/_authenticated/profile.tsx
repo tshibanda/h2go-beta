@@ -329,24 +329,19 @@ function ProfilePage() {
         {isPremium ? (
           <button
             type="button"
-            onClick={async () => {
-              // Pré-ouvre un onglet de façon synchrone pour préserver le user-gesture
-              // (sinon window.open après await est bloqué sur mobile / PWA standalone).
-              const popup = window.open("about:blank", "_blank");
+            onClick={async (e) => {
+              // Garde explicite : n'agir que sur un vrai clic (évite les
+              // déclenchements parasites lors d'un scroll sur mobile/PWA).
+              if (e.detail === 0) return;
               try {
                 const r = await createPortalSession({
                   data: { returnUrl: window.location.href, environment: getStripeEnvironment() },
                 });
                 if ("error" in r) throw new Error(r.error);
-                if (popup && !popup.closed) {
-                  popup.location.href = r.url;
-                } else {
-                  // PWA standalone / popup bloqué : navigation dans la webapp
-                  window.location.assign(r.url);
-                }
-              } catch (e) {
-                if (popup && !popup.closed) popup.close();
-                toast.error(e instanceof Error ? e.message : "Failed to open portal");
+                // Navigation top-level : fonctionne en web, PWA standalone et natif.
+                window.location.assign(r.url);
+              } catch (err) {
+                toast.error(err instanceof Error ? err.message : "Failed to open portal");
               }
             }}
             className="mx-4 rounded-2xl p-4 flex items-center gap-3 bg-gradient-to-br from-[#1E3A8A] to-primary shadow-lg text-left w-[calc(100%-2rem)]"
@@ -360,6 +355,7 @@ function ProfilePage() {
             </div>
             <ChevronRight size={18} className="text-white/60" />
           </button>
+
         ) : (
           <Link
             to="/premium"
