@@ -19,6 +19,7 @@ class CustomBridgeViewController: CAPBridgeViewController {
 
     override func capacitorDidLoad() {
         super.capacitorDidLoad()
+        bridge?.registerPluginInstance(AuthSessionPlugin())
         originalDelegate = webView?.navigationDelegate
         webView?.navigationDelegate = self
     }
@@ -42,10 +43,7 @@ extension CustomBridgeViewController: WKNavigationDelegate {
         }
 
         // Tout le reste : transfère au delegate original de Capacitor.
-        if let original = originalDelegate,
-           original.responds(to: #selector(WKNavigationDelegate.webView(_:decidePolicyFor:decisionHandler:))) {
-            original.webView?(webView, decidePolicyFor: navigationAction, decisionHandler: decisionHandler)
-        } else {
+        if originalDelegate?.webView?(webView, decidePolicyFor: navigationAction, decisionHandler: decisionHandler) == nil {
             decisionHandler(.allow)
         }
     }
