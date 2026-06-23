@@ -183,6 +183,10 @@ export const createCheckoutSession = createServerFn({ method: "POST" })
         // Disable Stripe's automatic currency conversion offer — we expose
         // dedicated EUR and USD prices and select the right one based on locale.
         adaptive_pricing: { enabled: false },
+        // Restrict to card payments only. Link / Apple Pay / Google Pay open
+        // popups (window.open) which the iOS WKWebView opens as an external
+        // Safari tab, breaking the in-app embedded checkout experience.
+        payment_method_types: ["card"],
         metadata: { userId },
         subscription_data: {
           trial_period_days: 7,
