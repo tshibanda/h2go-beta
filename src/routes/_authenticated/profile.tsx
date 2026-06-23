@@ -53,8 +53,29 @@ function ProfilePage() {
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   const [uploadingAvatar, setUploadingAvatar] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const pointerStartRef = useRef<{ x: number; y: number; t: number } | null>(null);
-  const pointerMovedRef = useRef(false);
+  const [openingPortal, setOpeningPortal] = useState(false);
+
+  async function openBilling() {
+    if (openingPortal) return;
+    setOpeningPortal(true);
+    try {
+      const r = await createPortalSession({
+        data: {
+          returnUrl: window.location.href,
+          environment: getStripeEnvironment(),
+        },
+      });
+      if ("error" in r) {
+        toast.error(r.error);
+        return;
+      }
+      window.location.href = r.url;
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Erreur");
+    } finally {
+      setOpeningPortal(false);
+    }
+  }
 
   useEffect(() => {
     void maybePromptFirstLaunch();
