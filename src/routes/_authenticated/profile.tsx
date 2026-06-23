@@ -53,7 +53,8 @@ function ProfilePage() {
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   const [uploadingAvatar, setUploadingAvatar] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const lastScrollRef = useRef(0);
+  const pointerStartRef = useRef<{ x: number; y: number; t: number } | null>(null);
+  const pointerMovedRef = useRef(false);
 
   useEffect(() => {
     void maybePromptFirstLaunch();
@@ -70,15 +71,6 @@ function ProfilePage() {
     resolveAvatarUrl(data?.profile?.avatar_url).then(setAvatarUrl);
   }, [data?.profile?.avatar_url]);
 
-  useEffect(() => {
-    const main = document.querySelector("main.overflow-y-auto");
-    if (!main) return;
-    const onScroll = () => {
-      lastScrollRef.current = Date.now();
-    };
-    main.addEventListener("scroll", onScroll, { passive: true });
-    return () => main.removeEventListener("scroll", onScroll);
-  }, []);
 
   if (!data)
     return (
@@ -340,9 +332,20 @@ function ProfilePage() {
         {isPremium ? (
           <button
             type="button"
+            onPointerDown={(e) => {
+              pointerStartRef.current = { x: e.clientX, y: e.clientY, t: Date.now() };
+              pointerMovedRef.current = false;
+            }}
+            onPointerMove={(e) => {
+              const s = pointerStartRef.current;
+              if (!s) return;
+              if (Math.abs(e.clientX - s.x) > 8 || Math.abs(e.clientY - s.y) > 8) {
+                pointerMovedRef.current = true;
+              }
+            }}
             onClick={async (e) => {
               if (e.detail === 0) return;
-              if (Date.now() - lastScrollRef.current < 300) return;
+              if (pointerMovedRef.current) return;
               try {
                 const r = await createPortalSession({
                   data: {
