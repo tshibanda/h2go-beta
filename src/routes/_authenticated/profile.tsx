@@ -53,7 +53,8 @@ function ProfilePage() {
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   const [uploadingAvatar, setUploadingAvatar] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const lastScrollRef = useRef(0);
+  const pointerStartRef = useRef<{ x: number; y: number; t: number } | null>(null);
+  const pointerMovedRef = useRef(false);
 
   useEffect(() => {
     void maybePromptFirstLaunch();
