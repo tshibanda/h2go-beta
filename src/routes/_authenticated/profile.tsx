@@ -332,9 +332,20 @@ function ProfilePage() {
         {isPremium ? (
           <button
             type="button"
+            onPointerDown={(e) => {
+              pointerStartRef.current = { x: e.clientX, y: e.clientY, t: Date.now() };
+              pointerMovedRef.current = false;
+            }}
+            onPointerMove={(e) => {
+              const s = pointerStartRef.current;
+              if (!s) return;
+              if (Math.abs(e.clientX - s.x) > 8 || Math.abs(e.clientY - s.y) > 8) {
+                pointerMovedRef.current = true;
+              }
+            }}
             onClick={async (e) => {
               if (e.detail === 0) return;
-              if (Date.now() - lastScrollRef.current < 300) return;
+              if (pointerMovedRef.current) return;
               try {
                 const r = await createPortalSession({
                   data: {
