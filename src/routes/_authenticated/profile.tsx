@@ -353,55 +353,20 @@ function ProfilePage() {
         {isPremium ? (
           <button
             type="button"
-            onPointerDown={(e) => {
-              if (e.pointerType === "mouse" && e.button !== 0) return;
-              pointerStartRef.current = { x: e.clientX, y: e.clientY, t: Date.now() };
-              pointerMovedRef.current = false;
-            }}
-            onPointerMove={(e) => {
-              const s = pointerStartRef.current;
-              if (!s) return;
-              if (Math.abs(e.clientX - s.x) > 6 || Math.abs(e.clientY - s.y) > 6) {
-                pointerMovedRef.current = true;
-              }
-            }}
-            onPointerCancel={() => {
-              pointerStartRef.current = null;
-              pointerMovedRef.current = true;
-            }}
-            onClick={async (e) => {
-              const s = pointerStartRef.current;
-              pointerStartRef.current = null;
-              // Require a real, deliberate tap: pointerdown happened, pointer didn't move, tap < 500ms
-              if (e.detail === 0) return;
-              if (!s) return;
-              if (pointerMovedRef.current) return;
-              if (Date.now() - s.t > 500) return;
-              try {
-                const r = await createPortalSession({
-                  data: {
-                    returnUrl: window.location.href,
-                    environment: getStripeEnvironment(),
-                  },
-                });
-                if ("error" in r) {
-                  toast.error(r.error);
-                  return;
-                }
-                window.open(r.url, "_blank", "noopener,noreferrer");
-              } catch (err) {
-                toast.error(err instanceof Error ? err.message : "Erreur");
-              }
-            }}
-            className="mx-4 rounded-2xl p-4 flex items-center gap-3 bg-gradient-to-br from-[#1E3A8A] to-primary shadow-lg text-left w-[calc(100%-2rem)] touch-manipulation select-none"
+            onClick={openBilling}
+            disabled={openingPortal}
+            className="mx-4 rounded-2xl p-4 flex items-center gap-3 bg-gradient-to-br from-[#1E3A8A] to-primary shadow-lg text-left w-[calc(100%-2rem)] disabled:opacity-70"
           >
             <Crown size={26} color="#FDE68A" />
             <div className="flex-1">
               <p className="font-display text-base font-bold text-white">{t("p.premium")}</p>
-              <p className="text-[11px] text-white/80">{t("p.premiumActive")}</p>
+              <p className="text-[11px] text-white/80">
+                {openingPortal ? "…" : t("p.premiumActive")}
+              </p>
             </div>
             <ChevronRight size={18} className="text-white/60" />
           </button>
+
 
 
         ) : (
