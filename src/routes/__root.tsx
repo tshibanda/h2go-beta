@@ -5,8 +5,13 @@ import { Toaster } from "@/components/ui/sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { LanguageProvider } from "@/i18n";
 import { App as CapacitorApp } from "@capacitor/app";
-import { Capacitor } from "@capacitor/core";
+import { Capacitor, registerPlugin } from "@capacitor/core";
 import { Browser } from "@capacitor/browser";
+
+interface AuthSessionPluginType {
+  cancel(): Promise<void>;
+}
+const AuthSessionPlugin = registerPlugin<AuthSessionPluginType>("AuthSessionPlugin");
 
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
@@ -223,6 +228,10 @@ function RootComponent() {
           console.error("[OAuth] Erreur setSession:", error.message);
           return;
         }
+
+        // Ferme la session ASWebAuthenticationSession encore affichée
+        // (le retour HTTPS ne la termine pas automatiquement).
+        AuthSessionPlugin.cancel().catch(() => {});
 
         window.location.href = "/home";
       } catch (e) {

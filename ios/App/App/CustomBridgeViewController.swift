@@ -1,55 +1,72 @@
 import UIKit
 import Capacitor
-import SafariServices
 import WebKit
 
-class CustomBridgeViewController: CAPBridgeViewController, WKNavigationDelegate {
+class CustomBridgeViewController: CAPBridgeViewController {
 
-    // Domaines qui doivent rester DANS la WebView de l'app (ton propre site).
-    // Tout le reste sera ouvert dans un SFSafariViewController intégré,
-    // SAUF les domaines OAuth (Google/Apple) qui doivent rester en navigateur
-    // système complet pour des raisons de sécurité imposées par Google.
-    private let ownDomains = ["h2go-app.com", "h2go-beta.lovable.app"]
+    // Référence vers le delegate que Capacitor met en place lui-même.
+    // On lui transfère tout ce qu'on ne veut pas intercepter, pour ne rien
+    // casser de son fonctionnement interne (bridge JS, cycle de vie, etc.).
+    private weak var originalDelegate: WKNavigationDelegate?
 
-    // Domaines qui doivent IMPÉRATIVEMENT ouvrir le vrai Safari système
-    // (Google bloque les navigateurs intégrés pour son flux OAuth).
-    private let mustUseSystemSafari = [
+    // Domaines qui doivent ouvrir une session d'authentification native
+    // (ASWebAuthenticationSession) au lieu de basculer vers Safari système.
+    private let authDomains = [
         "accounts.google.com",
-        "appleid.apple.com"
+        "appleid.apple.com",
+        "oauth.lovable.app"
     ]
 
     override func capacitorDidLoad() {
         super.capacitorDidLoad()
-        self.webView?.navigationDelegate = self
+        originalDelegate = webView?.navigationDelegate
+        webView?.navigationDelegate = self
     }
+}
+
+extension CustomBridgeViewController: WKNavigationDelegate {
 
     func webView(
         _ webView: WKWebView,
         decidePolicyFor navigationAction: WKNavigationAction,
         decisionHandler: @escaping (WKNavigationActionPolicy) -> Void
     ) {
-        guard let url = navigationAction.request.url,
-              let host = url.host else {
-            decisionHandler(.allow)
-            return
-        }
-
-        // Navigation vers ton propre domaine : laisse faire normalement.
-        if ownDomains.contains(where: { host == $0 || host.hasSuffix(".\($0)") }) {
-            decisionHandler(.allow)
-            return
-        }
-
-        // Domaines OAuth sensibles : Safari système obligatoire.
-        if mustUseSystemSafari.contains(where: { host == $0 || host.hasSuffix(".\($0)") }) {
+        if let url = navigationAction.request.url,
+           let host = url.host,
+           authDomains.contains(where: { host == $0 || host.hasSuffix(".\($0)") }) {
             decisionHandler(.cancel)
-            UIApplication.shared.open(url, options: [:], completionHandler: nil)
+            if let plugin = self.bridge?.plugin(withName: "AuthSessionPlugin") as? AuthSessionPlugin {
+                plugin.startSession(url: url)
+            }
             return
         }
 
-        // Tout le reste (liens externes génériques) : navigateur intégré.
-        decisionHandler(.cancel)
-        let safariVC = SFSafariViewController(url: url)
-        self.present(safariVC, animated: true, completion: nil)
+        // Tout le reste : transfère au delegate original de Capacitor.
+        if let original = originalDelegate,
+           original.responds(to: #selector(WKNavigationDelegate.webView(_:decidePolicyFor:decisionHandler:))) {
+            original.webView?(webView, decidePolicyFor: navigationAction, decisionHandler: decisionHandler)
+        } else {
+            decisionHandler(.allow)
+        }
+    }
+
+    func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
+        originalDelegate?.webView?(webView, didFinish: navigation)
+    }
+
+    func webView(_ webView: WKWebView, didFail navigation: WKNavigation!, withError error: Error) {
+        originalDelegate?.webView?(webView, didFail: navigation, withError: error)
+    }
+
+    func webView(_ webView: WKWebView, didFailProvisionalNavigation navigation: WKNavigation!, withError error: Error) {
+        originalDelegate?.webView?(webView, didFailProvisionalNavigation: navigation, withError: error)
+    }
+
+    func webView(_ webView: WKWebView, didStartProvisionalNavigation navigation: WKNavigation!) {
+        originalDelegate?.webView?(webView, didStartProvisionalNavigation: navigation)
+    }
+
+    func webView(_ webView: WKWebView, didCommit navigation: WKNavigation!) {
+        originalDelegate?.webView?(webView, didCommit: navigation)
     }
 }
