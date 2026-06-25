@@ -32,6 +32,42 @@ function AuthPage() {
     supabase.auth.getSession().then(({ data }) => {
       if (data.session) navigate({ to: "/home" });
     });
+
+    // Sur natif (iOS/Android), capter le retour du navigateur système après OAuth.
+    // Google bloque la WebView (disallowed_useragent), on doit donc ouvrir
+    // le navigateur natif et revenir via deep link / Universal Link.
+    if (!Capacitor.isNativePlatform()) return;
+
+    const sub = CapacitorApp.addListener("appUrlOpen", async ({ url }) => {
+      try {
+        if (!url) return;
+        // Récupérer tokens dans le hash (#access_token=...) ou code (?code=...)
+        const u = new URL(url);
+        const hash = u.hash?.startsWith("#") ? u.hash.slice(1) : u.hash;
+        const hashParams = new URLSearchParams(hash || "");
+        const access_token = hashParams.get("access_token");
+        const refresh_token = hashParams.get("refresh_token");
+        const code = u.searchParams.get("code");
+
+        if (access_token && refresh_token) {
+          const { error } = await supabase.auth.setSession({ access_token, refresh_token });
+          if (error) throw error;
+        } else if (code) {
+          const { error } = await supabase.auth.exchangeCodeForSession(code);
+          if (error) throw error;
+        } else {
+          return;
+        }
+        try { await Browser.close(); } catch {}
+        navigate({ to: "/home" });
+      } catch (err) {
+        toast.error(err instanceof Error ? err.message : "OAuth callback failed");
+      }
+    });
+
+    return () => {
+      sub.then((s) => s.remove()).catch(() => {});
+    };
   }, [navigate]);
 
   async function handleEmail(e: React.FormEvent) {
