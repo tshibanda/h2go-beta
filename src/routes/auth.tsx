@@ -126,7 +126,8 @@ function AuthPage() {
       return;
     }
     if (result.redirected) return;
-    navigate({ to: "/home" });
+    const path = await getPostAuthRedirect();
+    navigate({ to: path });
   }
 
   return (
