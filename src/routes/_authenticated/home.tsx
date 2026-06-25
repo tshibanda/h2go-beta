@@ -120,7 +120,7 @@ function HomePage() {
                 <button
                   type="button"
                   aria-label={t("home.viewNotifs")}
-                  className="w-10 h-10 rounded-full bg-primary-soft flex items-center justify-center relative"
+                  className="hidden w-10 h-10 rounded-full bg-primary-soft items-center justify-center relative"
                 >
                   <Bell size={18} color="#3B82F6" />
                   {(next || data.fact) && (
@@ -128,6 +128,7 @@ function HomePage() {
                   )}
                 </button>
               </SheetTrigger>
+
               <SheetContent side="right" className="w-[88%] sm:w-[400px] overflow-y-auto">
                 <SheetHeader>
                   <SheetTitle>{t("home.notifTitle")}</SheetTitle>
