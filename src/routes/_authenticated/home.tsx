@@ -4,6 +4,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import { Bell, Flame, Zap, ChevronRight, Camera } from "lucide-react";
 import { getDashboard } from "@/lib/h2go.functions";
+import { resolveAvatarUrl } from "@/lib/avatar";
 import { MobileShell } from "@/components/h2go/MobileShell";
 import { Splash } from "@/components/h2go/Splash";
 import { WaterRing } from "@/components/h2go/WaterRing";
@@ -99,6 +100,17 @@ function HomePage() {
     .sort((a, b) => a.d.getTime() - b.d.getTime())[0];
   const nextMins = next ? Math.round((next.d.getTime() - now.getTime()) / 60000) : null;
   const name = data.profile?.name ?? "friend";
+  const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
+  useEffect(() => {
+    resolveAvatarUrl(data.profile?.avatar_url).then(setAvatarUrl);
+  }, [data.profile?.avatar_url]);
+  const initials = (() => {
+    const src = (data.profile?.name?.trim()) || (data.profile?.email ? data.profile.email.split("@")[0] : "");
+    if (!src) return "?";
+    const parts = src.split(/\s+/).filter(Boolean);
+    if (parts.length >= 2) return (parts[0][0] + parts[1][0]).toUpperCase();
+    return src.slice(0, 2).toUpperCase();
+  })();
 
   return (
     <MobileShell>
@@ -171,9 +183,13 @@ function HomePage() {
             <Link
               to="/profile"
               aria-label={t("home.viewProfile")}
-              className="w-10 h-10 rounded-full flex items-center justify-center text-xl bg-gradient-to-br from-[#60A5FA] to-primary text-white"
+              className="w-10 h-10 rounded-full flex items-center justify-center overflow-hidden bg-gradient-to-br from-[#60A5FA] to-primary text-white"
             >
-              🌊
+              {avatarUrl ? (
+                <img src={avatarUrl} alt="" className="w-full h-full object-cover" />
+              ) : (
+                <span className="text-sm font-bold">{initials}</span>
+              )}
             </Link>
           </div>
         </div>
