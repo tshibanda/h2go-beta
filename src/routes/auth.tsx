@@ -171,7 +171,10 @@ function AuthPage() {
           variant="outline"
           className="w-full rounded-2xl h-12 mt-2 bg-black text-white hover:bg-black/90 hover:text-white border-black"
         >
-          <span className="mr-2"></span> {t("auth.continueApple")}
+          <svg className="mr-2 h-5 w-5" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+            <path d="M17.05 20.28c-.98.95-2.05.88-3.08.4-1.09-.5-2.09-.48-3.15 0-1.39.65-2.13.53-2.97-.4-4.99-5.16-2.74-12.97 1.87-13.04 1.04.02 1.86.51 2.49.55.91.07 1.74-.49 2.78-.59.95.04 1.78.49 2.31.99-2.07.71-2.56 2.8-2.12 4.46.46 1.77 2.11 2.93 3.52 2.73-.33 1.46-1.27 2.63-2.65 3.9zM12.03 7.25c-.15-2.23 1.66-4.07 3.74-4.25.29 2.58-2.34 4.5-3.74 4.25z"/>
+          </svg>
+          {t("auth.continueApple")}
         </Button>
 
         <p className="text-center text-sm text-muted-foreground mt-4">
