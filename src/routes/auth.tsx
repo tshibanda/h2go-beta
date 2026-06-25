@@ -16,6 +16,41 @@ export const Route = createFileRoute("/auth")({
   component: AuthPage,
 });
 
+async function getPostAuthRedirect(): Promise<string> {
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return "/auth";
+
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("onboarded, subscription_status, trial_ends_at")
+    .eq("id", user.id)
+    .maybeSingle();
+
+  if (profile && !profile.onboarded) return "/onboarding";
+
+  const status = profile?.subscription_status ?? "free";
+  const trialEnd = profile?.trial_ends_at;
+  const trialActive = status === "trialing" && trialEnd && new Date(trialEnd).getTime() > Date.now();
+
+  let pastDueGrace = false;
+  if (status === "past_due") {
+    const { data: sub } = await supabase
+      .from("subscriptions")
+      .select("past_due_since")
+      .eq("user_id", user.id)
+      .maybeSingle();
+    const since = (sub as { past_due_since?: string | null } | null)?.past_due_since;
+    if (since) {
+      pastDueGrace = Date.now() - new Date(since).getTime() < 3 * 86400000;
+    } else {
+      pastDueGrace = true;
+    }
+  }
+
+  const hasAccess = status === "active" || trialActive || pastDueGrace;
+  return hasAccess ? "/home" : "/premium";
+}
+
 function AuthPage() {
   const navigate = useNavigate();
   const { t, locale, setLocale } = useT();
@@ -27,7 +62,9 @@ function AuthPage() {
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => {
-      if (data.session) navigate({ to: "/home" });
+      if (data.session) {
+        getPostAuthRedirect().then((path) => navigate({ to: path }));
+      }
     });
   }, [navigate]);
 
