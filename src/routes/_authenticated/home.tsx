@@ -75,6 +75,11 @@ function HomePage() {
     return () => clearTimeout(t);
   }, [reminders]);
 
+  const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
+  useEffect(() => {
+    resolveAvatarUrl(data?.profile?.avatar_url).then(setAvatarUrl);
+  }, [data?.profile?.avatar_url]);
+
   if (isLoading || !data) {
     return (
       <MobileShell>
@@ -100,10 +105,6 @@ function HomePage() {
     .sort((a, b) => a.d.getTime() - b.d.getTime())[0];
   const nextMins = next ? Math.round((next.d.getTime() - now.getTime()) / 60000) : null;
   const name = data.profile?.name ?? "friend";
-  const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
-  useEffect(() => {
-    resolveAvatarUrl(data.profile?.avatar_url).then(setAvatarUrl);
-  }, [data.profile?.avatar_url]);
   const initials = (() => {
     const src = (data.profile?.name?.trim()) || (data.profile?.email ? data.profile.email.split("@")[0] : "");
     if (!src) return "?";
@@ -111,6 +112,7 @@ function HomePage() {
     if (parts.length >= 2) return (parts[0][0] + parts[1][0]).toUpperCase();
     return src.slice(0, 2).toUpperCase();
   })();
+
 
   return (
     <MobileShell>
