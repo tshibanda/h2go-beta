@@ -19,7 +19,7 @@ export function MobileShell({ children }: { children: React.ReactNode }) {
       <div className="relative flex flex-col w-full sm:w-[390px] h-full max-h-dvh sm:max-h-[844px] sm:rounded-[44px] bg-background overflow-hidden shadow-2xl">
         <PastDueBanner />
         <main className="flex-1 min-h-0 overflow-y-auto overscroll-contain no-sb relative pb-2">{children}</main>
-        <nav className="flex-shrink-0 px-2 pt-1 pb-safe bg-card border-t border-border">
+        <nav className="flex-shrink-0 px-2 pt-1 pb-1 bg-card border-t border-border">
           <div className="flex">
             {items.map(({ to, Icon, key }) => {
               const active = pathname === to;
