@@ -4,6 +4,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import { Bell, Flame, Zap, ChevronRight, Camera } from "lucide-react";
 import { getDashboard } from "@/lib/h2go.functions";
+import { resolveAvatarUrl } from "@/lib/avatar";
 import { MobileShell } from "@/components/h2go/MobileShell";
 import { Splash } from "@/components/h2go/Splash";
 import { WaterRing } from "@/components/h2go/WaterRing";
