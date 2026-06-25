@@ -9,8 +9,15 @@ const config: CapacitorConfig = {
     cleartext: false,
     allowNavigation: [
       'h2go-app.com',
+      'www.h2go-app.com',
       'h2go-beta.lovable.app',
-      '*.supabase.co'
+      '*.lovable.app',
+      'oauth.lovable.app',
+      '*.supabase.co',
+      'accounts.google.com',
+      '*.google.com',
+      'appleid.apple.com',
+      '*.apple.com'
     ]
   },
   plugins: {
