@@ -137,7 +137,7 @@ export async function scheduleHydrationReminders(
       description: "Reminders to drink water",
       importance: 5,
       visibility: 1,
-      sound: "alarm",
+      sound: "drink",
       vibration: true,
     });
   } catch {
@@ -163,7 +163,7 @@ export async function scheduleHydrationReminders(
       title,
       body,
       channelId: CHANNEL_ID,
-      sound: "alarm.wav",
+      sound: "drink.caf",
       schedule: {
         on: { hour, minute: 0 },
         allowWhileIdle: true,
@@ -207,7 +207,7 @@ export async function scheduleHydrationRemindersAtTimes(
       description: "Reminders to drink water",
       importance: 5,
       visibility: 1,
-      sound: "alarm",
+      sound: "drink",
       vibration: true,
     });
   } catch {
@@ -235,7 +235,7 @@ export async function scheduleHydrationRemindersAtTimes(
     title: titles[i % titles.length],
     body: bodies[i % bodies.length],
     channelId: CHANNEL_ID,
-    sound: "alarm.wav",
+    sound: "drink.caf",
     schedule: {
       on: { hour: t.hour, minute: t.minute },
       allowWhileIdle: true,
