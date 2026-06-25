@@ -8,9 +8,6 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { useT } from "@/i18n";
-import { Capacitor } from "@capacitor/core";
-import { Browser } from "@capacitor/browser";
-import { App as CapacitorApp } from "@capacitor/app";
 
 export const Route = createFileRoute("/auth")({
   head: () => ({
@@ -32,42 +29,6 @@ function AuthPage() {
     supabase.auth.getSession().then(({ data }) => {
       if (data.session) navigate({ to: "/home" });
     });
-
-    // Sur natif (iOS/Android), capter le retour du navigateur système après OAuth.
-    // Google bloque la WebView (disallowed_useragent), on doit donc ouvrir
-    // le navigateur natif et revenir via deep link / Universal Link.
-    if (!Capacitor.isNativePlatform()) return;
-
-    const sub = CapacitorApp.addListener("appUrlOpen", async ({ url }) => {
-      try {
-        if (!url) return;
-        // Récupérer tokens dans le hash (#access_token=...) ou code (?code=...)
-        const u = new URL(url);
-        const hash = u.hash?.startsWith("#") ? u.hash.slice(1) : u.hash;
-        const hashParams = new URLSearchParams(hash || "");
-        const access_token = hashParams.get("access_token");
-        const refresh_token = hashParams.get("refresh_token");
-        const code = u.searchParams.get("code");
-
-        if (access_token && refresh_token) {
-          const { error } = await supabase.auth.setSession({ access_token, refresh_token });
-          if (error) throw error;
-        } else if (code) {
-          const { error } = await supabase.auth.exchangeCodeForSession(code);
-          if (error) throw error;
-        } else {
-          return;
-        }
-        try { await Browser.close(); } catch {}
-        navigate({ to: "/home" });
-      } catch (err) {
-        toast.error(err instanceof Error ? err.message : "OAuth callback failed");
-      }
-    });
-
-    return () => {
-      sub.then((s) => s.remove()).catch(() => {});
-    };
   }, [navigate]);
 
   async function handleEmail(e: React.FormEvent) {
@@ -116,40 +77,18 @@ function AuthPage() {
 
   async function handleOAuth(provider: "google" | "apple") {
     setBusy(true);
-    try {
-      // Sur natif: Google interdit l'OAuth dans la WebView (disallowed_useragent).
-      // On ouvre donc le navigateur système (SFSafariViewController / Chrome Custom Tabs)
-      // et on revient via Universal Link sur https://h2go-app.com.
-      if (Capacitor.isNativePlatform()) {
-        const redirectTo = "https://h2go-app.com/auth/callback";
-        const { data, error } = await supabase.auth.signInWithOAuth({
-          provider,
-          options: {
-            redirectTo,
-            skipBrowserRedirect: true,
-          },
-        });
-        if (error) throw error;
-        if (!data?.url) throw new Error("OAuth URL missing");
-        await Browser.open({ url: data.url, presentationStyle: "popover" });
-        return;
-      }
-
-      // Web / preview: flux managé Lovable habituel
-      const result = await lovable.auth.signInWithOAuth(provider, {
-        redirect_uri: window.location.origin,
-      });
-      if (result.error) {
-        toast.error(result.error.message ?? `${provider} sign-in failed`);
-        setBusy(false);
-        return;
-      }
-      if (result.redirected) return;
-      navigate({ to: "/home" });
-    } catch (err) {
-      toast.error(err instanceof Error ? err.message : `${provider} sign-in failed`);
+    // Web + natif (Capacitor): la WebView charge déjà https://h2go-app.com
+    // donc le broker Lovable peut rediriger vers l'origine sans deep-link.
+    const result = await lovable.auth.signInWithOAuth(provider, {
+      redirect_uri: window.location.origin,
+    });
+    if (result.error) {
+      toast.error(result.error.message ?? `${provider} sign-in failed`);
       setBusy(false);
+      return;
     }
+    if (result.redirected) return;
+    navigate({ to: "/home" });
   }
 
   return (
