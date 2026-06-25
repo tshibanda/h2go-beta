@@ -1,4 +1,6 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { useEffect, useState } from "react";
+import { supabase } from "@/integrations/supabase/client";
 import { Splash, SplashDefs } from "@/components/h2go/Splash";
 import { Button } from "@/components/ui/button";
 import { useT } from "@/i18n";
@@ -24,6 +26,49 @@ export const Route = createFileRoute("/")({
 
 function Landing() {
   const { t } = useT();
+  const navigate = useNavigate();
+  const [checking, setChecking] = useState(true);
+
+  useEffect(() => {
+    let cancelled = false;
+    async function check() {
+      const { data: auth } = await supabase.auth.getUser();
+      if (!auth.user) {
+        setChecking(false);
+        return;
+      }
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("onboarded,subscription_status,trial_ends_at")
+        .eq("id", auth.user.id)
+        .maybeSingle();
+      if (cancelled) return;
+      if (!profile || profile.onboarded !== true) {
+        navigate({ to: "/onboarding" });
+        return;
+      }
+      const status = profile.subscription_status ?? "free";
+      const trialEnd = profile.trial_ends_at;
+      const trialActive = status === "trialing" && trialEnd && new Date(trialEnd).getTime() > Date.now();
+      const hasAccess = status === "active" || trialActive;
+      if (hasAccess) {
+        navigate({ to: "/home" });
+      } else {
+        navigate({ to: "/premium" });
+      }
+    }
+    check();
+    return () => { cancelled = true; };
+  }, [navigate]);
+
+  if (checking) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-[#1E3A8A] via-[#3B82F6] to-[#0D9488] flex items-center justify-center">
+        <SplashDefs />
+        <Splash mood="happy" size={80} />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#1E3A8A] via-[#3B82F6] to-[#0D9488] text-white">
