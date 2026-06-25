@@ -1,8 +1,9 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useEffect, useRef, useState } from "react";
-import { Camera, X, Zap, Flame } from "lucide-react";
+import { Camera, X, Zap, Minus, Plus } from "lucide-react";
 import { validatePhoto } from "@/lib/validate.functions";
+import { adjustHydrationVolume } from "@/lib/adjust-volume.functions";
 import { Splash, SplashDefs } from "@/components/h2go/Splash";
 import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
