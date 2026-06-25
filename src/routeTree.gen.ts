@@ -19,6 +19,7 @@ import { Route as AppleAppSiteAssociationRouteImport } from './routes/apple-app-
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as CheckoutReturnRouteImport } from './routes/checkout.return'
+import { Route as AuthCallbackRouteImport } from './routes/auth.callback'
 import { Route as AuthenticatedValidateRouteImport } from './routes/_authenticated/validate'
 import { Route as AuthenticatedTreeRouteImport } from './routes/_authenticated/tree'
 import { Route as AuthenticatedStatsRouteImport } from './routes/_authenticated/stats'
@@ -78,6 +79,11 @@ const CheckoutReturnRoute = CheckoutReturnRouteImport.update({
   path: '/checkout/return',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthCallbackRoute = AuthCallbackRouteImport.update({
+  id: '/callback',
+  path: '/callback',
+  getParentRoute: () => AuthRoute,
+} as any)
 const AuthenticatedValidateRoute = AuthenticatedValidateRouteImport.update({
   id: '/validate',
   path: '/validate',
@@ -130,7 +136,7 @@ const ApiPublicPaymentsWebhookRoute =
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/apple-app-site-association': typeof AppleAppSiteAssociationRoute
-  '/auth': typeof AuthRoute
+  '/auth': typeof AuthRouteWithChildren
   '/calculator': typeof CalculatorRoute
   '/onboarding': typeof OnboardingRoute
   '/pending-validation': typeof PendingValidationRoute
@@ -143,6 +149,7 @@ export interface FileRoutesByFullPath {
   '/stats': typeof AuthenticatedStatsRoute
   '/tree': typeof AuthenticatedTreeRoute
   '/validate': typeof AuthenticatedValidateRoute
+  '/auth/callback': typeof AuthCallbackRoute
   '/checkout/return': typeof CheckoutReturnRoute
   '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
   '/lovable/email/queue/process': typeof LovableEmailQueueProcessRoute
@@ -150,7 +157,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/apple-app-site-association': typeof AppleAppSiteAssociationRoute
-  '/auth': typeof AuthRoute
+  '/auth': typeof AuthRouteWithChildren
   '/calculator': typeof CalculatorRoute
   '/onboarding': typeof OnboardingRoute
   '/pending-validation': typeof PendingValidationRoute
@@ -163,6 +170,7 @@ export interface FileRoutesByTo {
   '/stats': typeof AuthenticatedStatsRoute
   '/tree': typeof AuthenticatedTreeRoute
   '/validate': typeof AuthenticatedValidateRoute
+  '/auth/callback': typeof AuthCallbackRoute
   '/checkout/return': typeof CheckoutReturnRoute
   '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
   '/lovable/email/queue/process': typeof LovableEmailQueueProcessRoute
@@ -172,7 +180,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/apple-app-site-association': typeof AppleAppSiteAssociationRoute
-  '/auth': typeof AuthRoute
+  '/auth': typeof AuthRouteWithChildren
   '/calculator': typeof CalculatorRoute
   '/onboarding': typeof OnboardingRoute
   '/pending-validation': typeof PendingValidationRoute
@@ -185,6 +193,7 @@ export interface FileRoutesById {
   '/_authenticated/stats': typeof AuthenticatedStatsRoute
   '/_authenticated/tree': typeof AuthenticatedTreeRoute
   '/_authenticated/validate': typeof AuthenticatedValidateRoute
+  '/auth/callback': typeof AuthCallbackRoute
   '/checkout/return': typeof CheckoutReturnRoute
   '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
   '/lovable/email/queue/process': typeof LovableEmailQueueProcessRoute
@@ -207,6 +216,7 @@ export interface FileRouteTypes {
     | '/stats'
     | '/tree'
     | '/validate'
+    | '/auth/callback'
     | '/checkout/return'
     | '/api/public/payments/webhook'
     | '/lovable/email/queue/process'
@@ -227,6 +237,7 @@ export interface FileRouteTypes {
     | '/stats'
     | '/tree'
     | '/validate'
+    | '/auth/callback'
     | '/checkout/return'
     | '/api/public/payments/webhook'
     | '/lovable/email/queue/process'
@@ -248,6 +259,7 @@ export interface FileRouteTypes {
     | '/_authenticated/stats'
     | '/_authenticated/tree'
     | '/_authenticated/validate'
+    | '/auth/callback'
     | '/checkout/return'
     | '/api/public/payments/webhook'
     | '/lovable/email/queue/process'
@@ -257,7 +269,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   AppleAppSiteAssociationRoute: typeof AppleAppSiteAssociationRoute
-  AuthRoute: typeof AuthRoute
+  AuthRoute: typeof AuthRouteWithChildren
   CalculatorRoute: typeof CalculatorRoute
   OnboardingRoute: typeof OnboardingRoute
   PendingValidationRoute: typeof PendingValidationRoute
@@ -339,6 +351,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/checkout/return'
       preLoaderRoute: typeof CheckoutReturnRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/auth/callback': {
+      id: '/auth/callback'
+      path: '/callback'
+      fullPath: '/auth/callback'
+      preLoaderRoute: typeof AuthCallbackRouteImport
+      parentRoute: typeof AuthRoute
     }
     '/_authenticated/validate': {
       id: '/_authenticated/validate'
@@ -429,11 +448,21 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
 const AuthenticatedRouteRouteWithChildren =
   AuthenticatedRouteRoute._addFileChildren(AuthenticatedRouteRouteChildren)
 
+interface AuthRouteChildren {
+  AuthCallbackRoute: typeof AuthCallbackRoute
+}
+
+const AuthRouteChildren: AuthRouteChildren = {
+  AuthCallbackRoute: AuthCallbackRoute,
+}
+
+const AuthRouteWithChildren = AuthRoute._addFileChildren(AuthRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   AppleAppSiteAssociationRoute: AppleAppSiteAssociationRoute,
-  AuthRoute: AuthRoute,
+  AuthRoute: AuthRouteWithChildren,
   CalculatorRoute: CalculatorRoute,
   OnboardingRoute: OnboardingRoute,
   PendingValidationRoute: PendingValidationRoute,
