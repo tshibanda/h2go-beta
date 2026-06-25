@@ -179,20 +179,78 @@ function ValidatePage() {
         </div>
       )}
 
-      {phase === "approved" && result && (
+      {phase === "approved" && result && result.log && (
         <div className="flex-1 flex flex-col items-center justify-center gap-3 p-6 bg-gradient-to-b from-[#EFF6FF] to-[#DBEAFE] text-foreground">
-          <Splash mood="celebrating" size={130} />
-          <h2 className="font-display text-4xl font-bold">{t("val.approved")}</h2>
-          <p className="text-muted-foreground">{t("val.approvedBody", { ml: result.volume_ml })}</p>
+          <Splash mood="celebrating" size={110} />
+          <h2 className="font-display text-3xl font-bold">{t("val.approved")}</h2>
+          <p className="text-muted-foreground text-sm">{t("val.adjustHint")}</p>
+
+          <div className="mt-2 w-full max-w-xs rounded-2xl bg-white/80 shadow-sm p-4 flex flex-col items-center gap-3">
+            <span className="text-xs uppercase tracking-wide text-muted-foreground">{t("val.adjustLabel")}</span>
+            <div className="flex items-center gap-4">
+              <button
+                type="button"
+                aria-label="-50 ml"
+                onClick={() => setAdjustedMl((v) => Math.max(50, v - 50))}
+                className="w-11 h-11 rounded-full bg-primary-soft text-primary flex items-center justify-center active:scale-95"
+              >
+                <Minus size={20} />
+              </button>
+              <div className="min-w-[110px] text-center">
+                <span className="font-display text-3xl font-bold text-primary">{adjustedMl}</span>
+                <span className="text-base font-semibold text-primary/80 ml-1">ml</span>
+              </div>
+              <button
+                type="button"
+                aria-label="+50 ml"
+                onClick={() => setAdjustedMl((v) => Math.min(2000, v + 50))}
+                className="w-11 h-11 rounded-full bg-primary-soft text-primary flex items-center justify-center active:scale-95"
+              >
+                <Plus size={20} />
+              </button>
+            </div>
+            <div className="flex gap-2 flex-wrap justify-center">
+              {[150, 250, 330, 500, 750, 1000].map((preset) => (
+                <button
+                  key={preset}
+                  type="button"
+                  onClick={() => setAdjustedMl(preset)}
+                  className={`px-3 py-1 rounded-full text-xs font-semibold border ${
+                    adjustedMl === preset
+                      ? "bg-primary text-white border-primary"
+                      : "bg-white text-primary border-primary/30"
+                  }`}
+                >
+                  {preset}ml
+                </button>
+              ))}
+            </div>
+          </div>
+
           <div className="flex items-center gap-2 px-5 py-2 rounded-full bg-emerald-100">
             <Zap size={16} className="text-emerald-700" />
             <span className="text-sm font-semibold text-emerald-800">+10 XP</span>
           </div>
+
           <button
-            onClick={() => navigate({ to: "/home" })}
-            className="mt-8 w-full max-w-xs py-4 rounded-2xl bg-gradient-to-r from-primary to-secondary text-white font-semibold"
+            disabled={saving}
+            onClick={async () => {
+              if (!result?.log) return;
+              setSaving(true);
+              try {
+                if (adjustedMl !== result.volume_ml) {
+                  await adjust({ data: { logId: result.log.id, volume_ml: adjustedMl } });
+                  qc.invalidateQueries({ queryKey: ["dashboard"] });
+                }
+                navigate({ to: "/home" });
+              } catch (e) {
+                toast.error(e instanceof Error ? e.message : t("val.failed"));
+                setSaving(false);
+              }
+            }}
+            className="mt-4 w-full max-w-xs py-4 rounded-2xl bg-gradient-to-r from-primary to-secondary text-white font-semibold disabled:opacity-60"
           >
-            {t("val.continue")}
+            {saving ? "…" : t("val.saveContinue")}
           </button>
         </div>
       )}
