@@ -79,29 +79,8 @@ function AuthPage() {
 
   async function handleOAuth(provider: "google" | "apple") {
     setBusy(true);
-
-    if (Capacitor.isNativePlatform()) {
-      // Sur natif, ouvrir l'OAuth dans le navigateur intégré (SFSafariViewController).
-      // Le custom scheme com.h2go.app:// est intercepté par iOS même depuis
-      // SFSafariViewController (contrairement aux Universal Links https://).
-      const { data, error } = await supabase.auth.signInWithOAuth({
-        provider,
-        options: {
-          redirectTo: "com.h2go.app://auth-callback",
-          skipBrowserRedirect: true,
-        },
-      });
-      if (error || !data.url) {
-        toast.error(error?.message ?? `${provider} sign-in failed`);
-        setBusy(false);
-        return;
-      }
-      await Browser.open({ url: data.url });
-      setBusy(false);
-      return;
-    }
-
-    // Web : utiliser le broker OAuth de Lovable.
+    // Web + natif (Capacitor): la WebView charge déjà https://h2go-app.com
+    // donc le broker Lovable peut rediriger vers l'origine sans deep-link.
     const result = await lovable.auth.signInWithOAuth(provider, {
       redirect_uri: window.location.origin,
     });
