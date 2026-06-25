@@ -1,4 +1,6 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { useEffect, useState } from "react";
+import { supabase } from "@/integrations/supabase/client";
 import { Splash, SplashDefs } from "@/components/h2go/Splash";
 import { Button } from "@/components/ui/button";
 import { useT } from "@/i18n";
