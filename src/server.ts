@@ -46,6 +46,24 @@ function maybeServeAasa(request: Request): Response | null {
   return null;
 }
 
+async function maybeServeApplePayDomainAssociation(request: Request): Promise<Response | null> {
+  const url = new URL(request.url);
+  if (url.pathname !== "/.well-known/apple-developer-merchantid-domain-association") {
+    return null;
+  }
+
+  const stripeAssociation = await fetch(
+    "https://stripe.com/files/apple-pay/apple-developer-merchantid-domain-association",
+  );
+  return new Response(await stripeAssociation.text(), {
+    status: 200,
+    headers: {
+      "content-type": "text/plain; charset=utf-8",
+      "cache-control": "public, max-age=86400",
+    },
+  });
+}
+
 // h3 swallows in-handler throws into a normal 500 Response with body
 // {"unhandled":true,"message":"HTTPError"} — try/catch alone never fires for those.
 async function normalizeCatastrophicSsrResponse(response: Response): Promise<Response> {
@@ -69,6 +87,9 @@ export default {
   async fetch(request: Request, env: unknown, ctx: unknown) {
     const aasaResponse = maybeServeAasa(request);
     if (aasaResponse) return aasaResponse;
+
+    const applePayAssociationResponse = await maybeServeApplePayDomainAssociation(request);
+    if (applePayAssociationResponse) return applePayAssociationResponse;
 
     try {
       const handler = await getServerEntry();
