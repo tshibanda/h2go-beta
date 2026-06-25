@@ -174,6 +174,25 @@ export const createCheckoutSession = createServerFn({ method: "POST" })
         customerId,
       });
 
+      // Register the checkout return-URL domain with Stripe for Apple Pay.
+      // Apple Pay refuses to authorize transactions on domains that aren't
+      // verified with Stripe — symptom: the sheet shows "Paiement en cours"
+      // forever and then declines. Registration is idempotent.
+      try {
+        const returnOrigin = new URL(data.returnUrl).hostname;
+        const skip =
+          returnOrigin === "localhost" ||
+          returnOrigin.endsWith(".lovable.app") ||
+          returnOrigin.endsWith(".lovableproject.com");
+        if (!skip) {
+          await stripe.applePayDomains.create({ domain_name: returnOrigin });
+          console.log("[checkout] registered Apple Pay domain", { returnOrigin });
+        }
+      } catch (e) {
+        // Already-registered errors are expected on every subsequent call.
+        console.warn("[checkout] applePayDomains.create skipped", e);
+      }
+
       const session = await stripe.checkout.sessions.create({
         line_items: [{ price: stripePrice.id, quantity: 1 }],
         mode: "subscription",
@@ -183,10 +202,11 @@ export const createCheckoutSession = createServerFn({ method: "POST" })
         // Disable Stripe's automatic currency conversion offer — we expose
         // dedicated EUR and USD prices and select the right one based on locale.
         adaptive_pricing: { enabled: false },
-        // Restrict to card payments only. Link / Apple Pay / Google Pay open
-        // popups (window.open) which the iOS WKWebView opens as an external
-        // Safari tab, breaking the in-app embedded checkout experience.
-        payment_method_types: ["card"],
+        // Let Stripe auto-enable wallet methods (Apple Pay / Google Pay /
+        // card) configured on the account. Restricting to ["card"] caused
+        // the Apple Pay sheet to spin forever and decline because the
+        // session refused wallet payment methods.
+        automatic_payment_methods: { enabled: true, allow_redirects: "never" },
         metadata: { userId },
         subscription_data: {
           trial_period_days: 7,
