@@ -110,27 +110,22 @@
   body {
     background-color: var(--color-background);
     color: var(--color-foreground);
-    /* Respecte les zones safe-area iOS/Android (notch, Dynamic Island, status bar, home indicator) */
-    padding-top: env(safe-area-inset-top);
-    padding-right: env(safe-area-inset-right);
-    padding-bottom: env(safe-area-inset-bottom);
-    padding-left: env(safe-area-inset-left);
   }
   h1, h2, h3, h4, .font-display { font-family: "Fredoka", system-ui, sans-serif; font-weight: 600; }
 }
 
 /* Utilities pour appliquer les safe-areas individuellement (header fixe, bottom nav, etc.) */
 @utility pt-safe {
-  padding-top: env(safe-area-inset-top);
+  padding-top: env(safe-area-inset-top, 0px);
 }
 @utility pb-safe {
-  padding-bottom: env(safe-area-inset-bottom);
+  padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 0.25rem);
 }
 @utility mt-safe {
-  margin-top: env(safe-area-inset-top);
+  margin-top: env(safe-area-inset-top, 0px);
 }
 @utility mb-safe {
-  margin-bottom: env(safe-area-inset-bottom);
+  margin-bottom: env(safe-area-inset-bottom, 0px);
 }
 
 /* hide scrollbars on mobile shell */
