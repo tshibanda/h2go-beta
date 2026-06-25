@@ -8,13 +8,11 @@
 
 /* Begin PBXBuildFile section */
 		2FAD9763203C412B000D30F8 /* config.xml in Resources */ = {isa = PBXBuildFile; fileRef = 2FAD9762203C412B000D30F8 /* config.xml */; };
-		4733AD942FE8529500FB90FF /* CustomBridgeViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4733AD932FE8529500FB90FF /* CustomBridgeViewController.swift */; };
+		4755AB5A2FEC8EF00062F513 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 504EC3071FED79650016851F /* AppDelegate.swift */; };
 		477578002FE77D690057420E /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 477577FF2FE77D690057420E /* Assets.xcassets */; };
-		47D7AA382FEB411E000094A9 /* AuthSessionPlugin.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47D7AA372FEB411E000094A9 /* AuthSessionPlugin.swift */; };
 		47F8284D2FE8005E00F1E2B3 /* alarm.caf in Resources */ = {isa = PBXBuildFile; fileRef = 47F8284C2FE8005E00F1E2B3 /* alarm.caf */; };
 		4D22ABE92AF431CB00220026 /* CapApp-SPM in Frameworks */ = {isa = PBXBuildFile; productRef = 4D22ABE82AF431CB00220026 /* CapApp-SPM */; };
 		50379B232058CBB4000EE86E /* capacitor.config.json in Resources */ = {isa = PBXBuildFile; fileRef = 50379B222058CBB4000EE86E /* capacitor.config.json */; };
-		504EC3081FED79650016851F /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 504EC3071FED79650016851F /* AppDelegate.swift */; };
 		504EC30D1FED79650016851F /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 504EC30B1FED79650016851F /* Main.storyboard */; };
 		504EC3121FED79650016851F /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 504EC3101FED79650016851F /* LaunchScreen.storyboard */; };
 		50B271D11FEDC1A000F3C39B /* public in Resources */ = {isa = PBXBuildFile; fileRef = 50B271D01FEDC1A000F3C39B /* public */; };
@@ -22,10 +20,8 @@
 
 /* Begin PBXFileReference section */
 		2FAD9762203C412B000D30F8 /* config.xml */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = config.xml; sourceTree = "<group>"; };
-		4733AD932FE8529500FB90FF /* CustomBridgeViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomBridgeViewController.swift; sourceTree = "<group>"; };
 		477577FF2FE77D690057420E /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		477D2B7B2FE8C13E0042EC09 /* App.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = App.entitlements; sourceTree = "<group>"; };
-		47D7AA372FEB411E000094A9 /* AuthSessionPlugin.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthSessionPlugin.swift; sourceTree = "<group>"; };
 		47F8284C2FE8005E00F1E2B3 /* alarm.caf */ = {isa = PBXFileReference; lastKnownFileType = file; path = alarm.caf; sourceTree = "<group>"; };
 		50379B222058CBB4000EE86E /* capacitor.config.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = capacitor.config.json; sourceTree = "<group>"; };
 		504EC3041FED79650016851F /* App.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = App.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -69,7 +65,6 @@
 		504EC3061FED79650016851F /* App */ = {
 			isa = PBXGroup;
 			children = (
-				47D7AA372FEB411E000094A9 /* AuthSessionPlugin.swift */,
 				477D2B7B2FE8C13E0042EC09 /* App.entitlements */,
 				50379B222058CBB4000EE86E /* capacitor.config.json */,
 				504EC3071FED79650016851F /* AppDelegate.swift */,
@@ -80,7 +75,6 @@
 				50B271D01FEDC1A000F3C39B /* public */,
 				477577FF2FE77D690057420E /* Assets.xcassets */,
 				47F8284C2FE8005E00F1E2B3 /* alarm.caf */,
-				4733AD932FE8529500FB90FF /* CustomBridgeViewController.swift */,
 			);
 			path = App;
 			sourceTree = "<group>";
@@ -167,9 +161,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				4733AD942FE8529500FB90FF /* CustomBridgeViewController.swift in Sources */,
-				47D7AA382FEB411E000094A9 /* AuthSessionPlugin.swift in Sources */,
-				504EC3081FED79650016851F /* AppDelegate.swift in Sources */,
+				4755AB5A2FEC8EF00062F513 /* AppDelegate.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
