@@ -104,7 +104,22 @@ function Onboarding() {
         },
       });
       toast.success(t("ob.toastReady"));
-      navigate({ to: "/home" });
+      // After onboarding, check subscription and redirect accordingly
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        const { data: profile } = await supabase
+          .from("profiles")
+          .select("subscription_status, trial_ends_at")
+          .eq("id", user.id)
+          .maybeSingle();
+        const status = profile?.subscription_status ?? "free";
+        const trialEnd = profile?.trial_ends_at;
+        const trialActive = status === "trialing" && trialEnd && new Date(trialEnd).getTime() > Date.now();
+        const hasAccess = status === "active" || trialActive;
+        navigate({ to: hasAccess ? "/home" : "/premium" });
+      } else {
+        navigate({ to: "/home" });
+      }
     } catch (e) {
       toast.error(e instanceof Error ? e.message : t("ob.toastFail"));
     } finally {
