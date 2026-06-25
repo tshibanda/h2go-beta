@@ -119,7 +119,7 @@
   padding-top: env(safe-area-inset-top, 0px);
 }
 @utility pb-safe {
-  padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 0.25rem);
+  padding-bottom: env(safe-area-inset-bottom, 0px);
 }
 @utility mt-safe {
   margin-top: env(safe-area-inset-top, 0px);
