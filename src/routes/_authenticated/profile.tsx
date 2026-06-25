@@ -257,6 +257,14 @@ function ProfilePage() {
           <div className="grid grid-cols-4 gap-2.5">
             {data.achievements.map((a) => {
               const unlocked = earned.has(a.id);
+              const tKey = `ach.${a.code}.title` as Parameters<typeof t>[0];
+              let label = a.title;
+              try {
+                const translated = t(tKey);
+                if (translated && translated !== tKey) label = translated;
+              } catch {
+                label = a.title;
+              }
               return (
                 <div key={a.id} className="flex flex-col items-center gap-1">
                   <div
@@ -265,7 +273,7 @@ function ProfilePage() {
                     {a.badge_emoji}
                   </div>
                   <span className={`text-[9px] text-center ${unlocked ? "text-primary" : "text-muted-foreground"}`}>
-                    {a.title}
+                    {label}
                   </span>
                 </div>
               );
