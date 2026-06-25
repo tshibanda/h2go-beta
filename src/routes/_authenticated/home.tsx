@@ -183,9 +183,13 @@ function HomePage() {
             <Link
               to="/profile"
               aria-label={t("home.viewProfile")}
-              className="w-10 h-10 rounded-full flex items-center justify-center text-xl bg-gradient-to-br from-[#60A5FA] to-primary text-white"
+              className="w-10 h-10 rounded-full flex items-center justify-center overflow-hidden bg-gradient-to-br from-[#60A5FA] to-primary text-white"
             >
-              🌊
+              {avatarUrl ? (
+                <img src={avatarUrl} alt="" className="w-full h-full object-cover" />
+              ) : (
+                <span className="text-sm font-bold">{initials}</span>
+              )}
             </Link>
           </div>
         </div>
