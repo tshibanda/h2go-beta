@@ -116,6 +116,28 @@ async function resolveH2goPrice(stripe: StripeClient, priceId: string) {
   }
 }
 
+function applePayDomainsForReturnUrl(returnUrl: string): string[] {
+  const hostname = new URL(returnUrl).hostname.replace(/^www\./, "");
+  const skip =
+    hostname === "localhost" ||
+    hostname.endsWith(".lovable.app") ||
+    hostname.endsWith(".lovableproject.com");
+  if (skip) return [];
+  return Array.from(new Set([hostname, `www.${hostname}`]));
+}
+
+async function ensureApplePayDomains(stripe: StripeClient, returnUrl: string) {
+  for (const domainName of applePayDomainsForReturnUrl(returnUrl)) {
+    try {
+      await stripe.applePayDomains.create({ domain_name: domainName });
+      console.log("[checkout] registered Apple Pay domain", { domainName });
+    } catch (e) {
+      // Existing/previously registered domains are expected here; checkout can continue.
+      console.warn("[checkout] applePayDomains.create skipped", { domainName, error: getStripeErrorMessage(e) });
+    }
+  }
+}
+
 
 export const createCheckoutSession = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
@@ -174,24 +196,7 @@ export const createCheckoutSession = createServerFn({ method: "POST" })
         customerId,
       });
 
-      // Register the checkout return-URL domain with Stripe for Apple Pay.
-      // Apple Pay refuses to authorize transactions on domains that aren't
-      // verified with Stripe — symptom: the sheet shows "Paiement en cours"
-      // forever and then declines. Registration is idempotent.
-      try {
-        const returnOrigin = new URL(data.returnUrl).hostname;
-        const skip =
-          returnOrigin === "localhost" ||
-          returnOrigin.endsWith(".lovable.app") ||
-          returnOrigin.endsWith(".lovableproject.com");
-        if (!skip) {
-          await stripe.applePayDomains.create({ domain_name: returnOrigin });
-          console.log("[checkout] registered Apple Pay domain", { returnOrigin });
-        }
-      } catch (e) {
-        // Already-registered errors are expected on every subsequent call.
-        console.warn("[checkout] applePayDomains.create skipped", e);
-      }
+      await ensureApplePayDomains(stripe, data.returnUrl);
 
       const session = await stripe.checkout.sessions.create({
         line_items: [{ price: stripePrice.id, quantity: 1 }],
@@ -199,6 +204,7 @@ export const createCheckoutSession = createServerFn({ method: "POST" })
         ui_mode: "embedded_page",
         return_url: data.returnUrl,
         customer: customerId,
+        payment_method_collection: "always",
         // Disable Stripe's automatic currency conversion offer — we expose
         // dedicated EUR and USD prices and select the right one based on locale.
         adaptive_pricing: { enabled: false },
