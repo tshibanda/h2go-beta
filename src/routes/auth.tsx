@@ -8,6 +8,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { useT } from "@/i18n";
+import { Capacitor } from "@capacitor/core";
+import { Browser } from "@capacitor/browser";
 
 export const Route = createFileRoute("/auth")({
   head: () => ({
@@ -45,7 +47,6 @@ function AuthPage() {
           },
         });
         if (error) throw error;
-        // If email confirmation is required, no session is returned → send to pending page.
         if (!data.session) {
           navigate({ to: "/pending-validation", search: { email } });
           return;
@@ -61,7 +62,6 @@ function AuthPage() {
           }
           throw error;
         }
-        // Extra guard: if somehow signed in without confirmation, gate here too.
         const { data: u } = await supabase.auth.getUser();
         if (u.user && !u.user.email_confirmed_at) {
           await supabase.auth.signOut();
@@ -79,11 +79,29 @@ function AuthPage() {
 
   async function handleOAuth(provider: "google" | "apple") {
     setBusy(true);
-    // Toujours utiliser l'origine actuelle comme redirect_uri. Le broker OAuth
-    // de Lovable rejette les schémas personnalisés (com.h2go.app://...).
-    // Sur natif, les Universal Links interceptent automatiquement la
-    // redirection vers ce domaine et redonnent la main à l'app (voir le
-    // listener appUrlOpen dans __root.tsx).
+
+    if (Capacitor.isNativePlatform()) {
+      // Sur natif, ouvrir l'OAuth dans le navigateur intégré (SFSafariViewController).
+      // Le custom scheme com.h2go.app:// est intercepté par iOS même depuis
+      // SFSafariViewController (contrairement aux Universal Links https://).
+      const { data, error } = await supabase.auth.signInWithOAuth({
+        provider,
+        options: {
+          redirectTo: "https://h2go-app.com",
+          skipBrowserRedirect: true,
+        },
+      });
+      if (error || !data.url) {
+        toast.error(error?.message ?? `${provider} sign-in failed`);
+        setBusy(false);
+        return;
+      }
+      await Browser.open({ url: data.url });
+      setBusy(false);
+      return;
+    }
+
+    // Web : utiliser le broker OAuth de Lovable.
     const result = await lovable.auth.signInWithOAuth(provider, {
       redirect_uri: window.location.origin,
     });

@@ -162,11 +162,35 @@ function RootComponent() {
   const { queryClient } = Route.useRouteContext();
   const router = useRouter();
 
+  // Relay OAuth : quand SFSafariViewController charge https://h2go-app.com?code=XXX,
+  // la page web relaie les paramètres vers le custom scheme com.h2go.app:// afin
+  // que iOS déclenche appUrlOpen dans l'app native (les Universal Links https://
+  // ne sont pas interceptés depuis SFSafariViewController lors d'une redirection serveur).
+  useEffect(() => {
+    if (Capacitor.isNativePlatform()) return;
+
+    const searchParams = new URLSearchParams(window.location.search);
+    const hashParams = new URLSearchParams(window.location.hash.slice(1));
+
+    const code = searchParams.get("code");
+    const access_token = hashParams.get("access_token") ?? searchParams.get("access_token");
+
+    if (!code && !access_token) return;
+
+    const relay = new URLSearchParams();
+    if (code) {
+      relay.set("code", code);
+    } else {
+      relay.set("access_token", access_token!);
+      const refresh_token = hashParams.get("refresh_token") ?? searchParams.get("refresh_token");
+      if (refresh_token) relay.set("refresh_token", refresh_token);
+    }
+
+    window.location.href = `com.h2go.app://auth-callback?${relay.toString()}`;
+  }, []);
+
   // Intercepte les liens externes (CGU, support, etc.) pour les ouvrir dans une
   // fenêtre intégrée à l'app (Browser plugin) plutôt qu'en basculant vers Safari.
-  // Ne s'applique pas au flux OAuth Google/Apple, qui doit obligatoirement
-  // passer par un vrai navigateur système pour des raisons de sécurité imposées
-  // par Google — voir le listener appUrlOpen ci-dessous pour le retour automatique.
   useEffect(() => {
     if (!Capacitor.isNativePlatform()) return;
 
@@ -182,7 +206,6 @@ function RootComponent() {
         return;
       }
 
-      // Laisse les liens internes (même origine) être gérés normalement par le router.
       if (url.origin === window.location.origin) return;
 
       e.preventDefault();
@@ -193,28 +216,44 @@ function RootComponent() {
     return () => document.removeEventListener("click", handleClick);
   }, []);
 
-  // Listener pour le retour OAuth natif (Google/Apple) via deep link custom scheme.
-  // Capacitor ouvre Safari pour l'auth, puis Safari redirige vers com.h2go.app://auth-callback,
-  // ce qui déclenche cet événement et redonne la main à l'app.
+  // Listener pour le retour OAuth natif (Google/Apple).
+  // Utilise le custom scheme com.h2go.app:// qui est intercepté par iOS même
+  // depuis SFSafariViewController (les Universal Links https:// ne le sont pas).
   useEffect(() => {
     if (!Capacitor.isNativePlatform()) return;
 
     const listenerPromise = CapacitorApp.addListener("appUrlOpen", async ({ url }) => {
-      if (!url.startsWith("https://h2go-app.com")) return;
+      const isOAuthCallback =
+        url.startsWith("com.h2go.app://auth-callback") ||
+        url.startsWith("https://h2go-app.com");
+      if (!isOAuthCallback) return;
 
-      // Garder ce log pendant les tests, à retirer une fois confirmé que ça fonctionne.
       console.log("[OAuth] Callback URL reçue:", url);
 
       try {
         const parsed = new URL(url);
-        const query = parsed.hash ? parsed.hash.slice(1) : parsed.search.slice(1);
-        const params = new URLSearchParams(query);
+        const searchParams = new URLSearchParams(parsed.search.slice(1));
+        const hashParams = new URLSearchParams(parsed.hash.slice(1));
 
-        const access_token = params.get("access_token");
-        const refresh_token = params.get("refresh_token");
+        // Flow PKCE (défaut Supabase v2) : code à échanger contre une session.
+        const code = searchParams.get("code") ?? hashParams.get("code");
+        if (code) {
+          const { error } = await supabase.auth.exchangeCodeForSession(code);
+          if (error) {
+            console.error("[OAuth] Erreur exchangeCodeForSession:", error.message);
+            return;
+          }
+          await Browser.close();
+          window.location.href = "/home";
+          return;
+        }
+
+        // Flow implicite (fallback) : tokens dans le hash ou la query.
+        const access_token = hashParams.get("access_token") ?? searchParams.get("access_token");
+        const refresh_token = hashParams.get("refresh_token") ?? searchParams.get("refresh_token");
 
         if (!access_token || !refresh_token) {
-          console.error("[OAuth] Tokens manquants dans l'URL de callback:", url);
+          console.error("[OAuth] Ni code ni tokens dans l'URL de callback:", url);
           return;
         }
 
@@ -224,6 +263,7 @@ function RootComponent() {
           return;
         }
 
+        await Browser.close();
         window.location.href = "/home";
       } catch (e) {
         console.error("[OAuth] Erreur de parsing du callback:", e);
