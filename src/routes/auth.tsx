@@ -155,7 +155,7 @@ function AuthPage() {
           </span>
         </div>
 
-        <Button
+        {/*<Button
           type="button"
           onClick={() => handleOAuth("google")}
           disabled={busy}
@@ -163,7 +163,7 @@ function AuthPage() {
           className="w-full rounded-2xl h-12"
         >
           <span className="mr-2">🌐</span> {t("auth.continueGoogle")}
-        </Button>
+        </Button>*/}
         <Button
           type="button"
           onClick={() => handleOAuth("apple")}
