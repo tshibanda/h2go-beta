@@ -116,24 +116,42 @@ async function resolveH2goPrice(stripe: StripeClient, priceId: string) {
   }
 }
 
-function applePayDomainsForReturnUrl(returnUrl: string): string[] {
-  const hostname = new URL(returnUrl).hostname;
-  const skip =
-    hostname === "localhost" ||
-    hostname.endsWith(".lovable.app") ||
-    hostname.endsWith(".lovableproject.com");
-  if (skip) return [];
-  return [hostname];
+function paymentMethodDomainsForReturnUrl(returnUrl: string): string[] {
+  const url = new URL(returnUrl);
+  if (url.protocol !== "https:") return [];
+
+  const hostname = url.hostname;
+  if (hostname === "localhost" || hostname.endsWith(".lovableproject.com")) return [];
+
+  return Array.from(new Set([hostname, "checkout.stripe.com", "js.stripe.com"]));
 }
 
-async function ensureApplePayDomains(stripe: StripeClient, returnUrl: string) {
-  for (const domainName of applePayDomainsForReturnUrl(returnUrl)) {
+async function ensurePaymentMethodDomains(stripe: StripeClient, returnUrl: string) {
+  for (const domainName of paymentMethodDomainsForReturnUrl(returnUrl)) {
     try {
-      await stripe.applePayDomains.create({ domain_name: domainName });
-      console.log("[checkout] registered Apple Pay domain", { domainName });
+      const existing = await stripe.paymentMethodDomains.list({ domain_name: domainName, limit: 1 });
+      let domain = existing.data[0];
+
+      if (!domain) {
+        domain = await stripe.paymentMethodDomains.create({ domain_name: domainName, enabled: true });
+        console.log("[checkout] registered payment method domain", { domainName });
+      } else if (!domain.enabled) {
+        domain = await stripe.paymentMethodDomains.update(domain.id, { enabled: true });
+        console.log("[checkout] re-enabled payment method domain", { domainName });
+      }
+
+      if (domain.apple_pay?.status !== "active") {
+        const validated = await stripe.paymentMethodDomains.validate(domain.id);
+        if (validated.apple_pay?.status !== "active") {
+          console.warn("[checkout] payment method domain not Apple Pay active", {
+            domainName,
+            status: validated.apple_pay?.status,
+            details: validated.apple_pay?.status_details,
+          });
+        }
+      }
     } catch (e) {
-      // Existing/previously registered domains are expected here; checkout can continue.
-      console.warn("[checkout] applePayDomains.create skipped", { domainName, error: getStripeErrorMessage(e) });
+      console.warn("[checkout] payment method domain check skipped", { domainName, error: getStripeErrorMessage(e) });
     }
   }
 }
@@ -196,7 +214,7 @@ export const createCheckoutSession = createServerFn({ method: "POST" })
         customerId,
       });
 
-      await ensureApplePayDomains(stripe, data.returnUrl);
+      await ensurePaymentMethodDomains(stripe, data.returnUrl);
 
       const session = await stripe.checkout.sessions.create({
         line_items: [{ price: stripePrice.id, quantity: 1 }],
