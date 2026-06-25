@@ -117,13 +117,13 @@ async function resolveH2goPrice(stripe: StripeClient, priceId: string) {
 }
 
 function applePayDomainsForReturnUrl(returnUrl: string): string[] {
-  const hostname = new URL(returnUrl).hostname.replace(/^www\./, "");
+  const hostname = new URL(returnUrl).hostname;
   const skip =
     hostname === "localhost" ||
     hostname.endsWith(".lovable.app") ||
     hostname.endsWith(".lovableproject.com");
   if (skip) return [];
-  return Array.from(new Set([hostname, `www.${hostname}`]));
+  return [hostname];
 }
 
 async function ensureApplePayDomains(stripe: StripeClient, returnUrl: string) {
@@ -204,14 +204,15 @@ export const createCheckoutSession = createServerFn({ method: "POST" })
         ui_mode: "embedded_page",
         return_url: data.returnUrl,
         customer: customerId,
+        payment_method_types: ["card"],
         payment_method_collection: "always",
         // Disable Stripe's automatic currency conversion offer — we expose
         // dedicated EUR and USD prices and select the right one based on locale.
         adaptive_pricing: { enabled: false },
-        // Do not pass payment_method_types or automatic_payment_methods here:
-        // Checkout Sessions enable Apple Pay / card methods automatically
-        // from the Stripe account configuration, while this API rejects the
-        // PaymentIntent-only automatic_payment_methods parameter.
+        // Apple Pay is exposed by Stripe as a card wallet in Checkout. Keeping
+        // the session card-only restores the previously working Apple Pay path
+        // and prevents redirect/local payment methods from being offered inside
+        // the iOS embedded checkout flow.
         metadata: { userId },
         subscription_data: {
           trial_period_days: 7,
