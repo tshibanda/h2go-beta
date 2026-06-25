@@ -168,22 +168,6 @@ export const createCheckoutSession = createServerFn({ method: "POST" })
       // Resolve price by lookup_key; self-heal live/test if the catalog was not synced yet.
       const stripePrice = await resolveH2goPrice(stripe, data.priceId);
 
-      // Ensure the return_url origin is registered for Apple Pay — without this
-      // the wallet initializes then times out ("loads forever, then declined").
-      // Idempotent: Stripe returns the existing record if already registered.
-      try {
-        const origin = new URL(data.returnUrl).hostname;
-        if (origin && !origin.endsWith(".lovable.app") && origin !== "localhost") {
-          await (stripe as unknown as {
-            applePayDomains: { create: (p: { domain_name: string }) => Promise<unknown> };
-          }).applePayDomains.create({ domain_name: origin });
-          console.log("[checkout] applePay domain registered", { origin });
-        }
-      } catch (e) {
-        // Already-registered domains throw — that's fine. Log others and continue.
-        console.warn("[checkout] applePay domain registration skipped", e);
-      }
-
       console.log("[checkout] creating session", {
         env: data.environment,
         priceId: data.priceId,
@@ -200,8 +184,10 @@ export const createCheckoutSession = createServerFn({ method: "POST" })
         // Disable Stripe's automatic currency conversion offer — we expose
         // dedicated EUR and USD prices and select the right one based on locale.
         adaptive_pricing: { enabled: false },
-        // Card includes wallets (Apple Pay / Google Pay) when the domain is
-        // registered with Stripe (handled above).
+        // Card only. Apple Pay / Google Pay / Link require a popup for 3DS,
+        // which iOS Safari/WKWebView blocks from inside the Stripe embedded
+        // iframe → the wallet sheet hangs on "Paiement en cours". Re-enabling
+        // wallets requires switching to Stripe hosted (redirect) checkout.
         payment_method_types: ["card"],
         metadata: { userId },
         subscription_data: {
