@@ -144,7 +144,7 @@ function Onboarding() {
         </div>
 
         {step === 0 ? (
-          <ConceptIntro onContinue={() => setStep(1)} />
+          <OnboardingCarousel onContinue={() => setStep(1)} />
         ) : (
           <>
             <div className="flex flex-col items-center gap-2 mb-4">
@@ -265,33 +265,5 @@ function Onboarding() {
   );
 }
 
-function ConceptIntro({ onContinue }: { onContinue: () => void }) {
-  const { t } = useT();
-  const items = [
-    { Icon: Bell, color: "text-amber-500", bg: "bg-amber-100", title: t("intro.s1.title"), body: t("intro.s1.body") },
-    { Icon: Camera, color: "text-primary", bg: "bg-primary-soft", title: t("intro.s2.title"), body: t("intro.s2.body") },
-    { Icon: Sparkles, color: "text-emerald-600", bg: "bg-emerald-100", title: t("intro.s3.title"), body: t("intro.s3.body") },
-  ];
-  return (
-    <div className="flex flex-col items-center gap-4">
-      <Splash mood="excited" size={80} />
-      <h1 className="font-display text-2xl font-bold text-center">{t("intro.title")}</h1>
-      <div className="flex flex-col gap-3 w-full">
-        {items.map(({ Icon, color, bg, title, body }) => (
-          <div key={title} className="flex gap-3 items-start">
-            <div className={`w-10 h-10 rounded-xl flex-shrink-0 flex items-center justify-center ${bg}`}>
-              <Icon className={color} size={20} />
-            </div>
-            <div className="flex-1">
-              <p className="font-display font-semibold text-sm">{title}</p>
-              <p className="text-xs text-muted-foreground leading-snug">{body}</p>
-            </div>
-          </div>
-        ))}
-      </div>
-      <Button onClick={onContinue} className="rounded-2xl h-12 w-full bg-gradient-to-r from-primary to-secondary mt-1">
-        {t("intro.continue")} →
-      </Button>
-    </div>
-  );
-}
+
+
