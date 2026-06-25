@@ -8,8 +8,6 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { useT } from "@/i18n";
-import { Capacitor } from "@capacitor/core";
-import { Browser } from "@capacitor/browser";
 
 export const Route = createFileRoute("/auth")({
   head: () => ({
