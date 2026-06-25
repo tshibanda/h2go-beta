@@ -170,6 +170,14 @@ export async function scheduleHydrationReminders(
         repeats: true,
       },
       smallIcon: "ic_stat_icon_config_sample",
+      // Urgence maximale
+      priority: 2,
+      importance: 5,
+      visibility: 1,
+      ongoing: false,
+      autoCancel: true,
+      iosInterruptionLevel: "timeSensitive",
+      extra: { interruptionLevel: "timeSensitive" },
     };
   });
 
@@ -234,6 +242,13 @@ export async function scheduleHydrationRemindersAtTimes(
       repeats: true,
     },
     smallIcon: "ic_stat_icon_config_sample",
+    priority: 2,
+    importance: 5,
+    visibility: 1,
+    ongoing: false,
+    autoCancel: true,
+    iosInterruptionLevel: "timeSensitive",
+    extra: { interruptionLevel: "timeSensitive" },
   }));
 
   try {
