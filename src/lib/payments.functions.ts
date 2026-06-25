@@ -167,7 +167,6 @@ export const createCheckoutSession = createServerFn({ method: "POST" })
 
       // Resolve price by lookup_key; self-heal live/test if the catalog was not synced yet.
       const stripePrice = await resolveH2goPrice(stripe, data.priceId);
-
       console.log("[checkout] creating session", {
         env: data.environment,
         priceId: data.priceId,
@@ -184,10 +183,9 @@ export const createCheckoutSession = createServerFn({ method: "POST" })
         // Disable Stripe's automatic currency conversion offer — we expose
         // dedicated EUR and USD prices and select the right one based on locale.
         adaptive_pricing: { enabled: false },
-        // Card only. Apple Pay / Google Pay / Link require a popup for 3DS,
-        // which iOS Safari/WKWebView blocks from inside the Stripe embedded
-        // iframe → the wallet sheet hangs on "Paiement en cours". Re-enabling
-        // wallets requires switching to Stripe hosted (redirect) checkout.
+        // Restrict to card payments only. Link / Apple Pay / Google Pay open
+        // popups (window.open) which the iOS WKWebView opens as an external
+        // Safari tab, breaking the in-app embedded checkout experience.
         payment_method_types: ["card"],
         metadata: { userId },
         subscription_data: {
