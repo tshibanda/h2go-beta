@@ -353,7 +353,7 @@ export const TRANSLATIONS = {
     "home.viewProfile": "Voir le profil",
     "home.dailyGoal": "Objectif",
     "home.remainingShort": "Restant",
-    "home.encouragement": "Continue, tu fais super !",
+    "home.encouragement": "Continue de t'hydrater !",
     "home.dayStreak": "jours de série",
     "home.totalXp": "XP total",
     "home.inMins": "dans {n}min",
