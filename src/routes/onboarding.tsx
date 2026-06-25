@@ -1,8 +1,8 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useEffect, useRef, useState } from "react";
-import { Bell, Camera, Sparkles } from "lucide-react";
 import { completeOnboarding } from "@/lib/h2go.functions";
+import { OnboardingCarousel } from "@/components/h2go/OnboardingCarousel";
 import { Splash, SplashDefs } from "@/components/h2go/Splash";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
