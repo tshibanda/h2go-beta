@@ -27,6 +27,23 @@ export const TRANSLATIONS = {
       "Our vision AI verifies the photo, validates the sip, and rewards you with XP and a growing streak.",
     "intro.continue": "Let's set you up",
 
+    // Onboarding carousel mock screenshots
+    "intro.mock.greeting": "Hi, Sophie 👋",
+    "intro.mock.todayTitle": "Today's hydration",
+    "intro.mock.sip": "+ Sip",
+    "intro.mock.history": "History",
+    "intro.mock.notifTitle": "Time to hydrate 💧",
+    "intro.mock.notifBody": "Snap a photo of your next sip",
+    "intro.mock.notifNow": "now",
+    "intro.mock.liveCapture": "Live capture · 00:48",
+    "intro.mock.aiVerified": "AI verified",
+    "intro.mock.aiQuote": "\"Nice glass of fresh water 💧 Looks like a standard 250 ml tumbler — counted.\"",
+    "intro.mock.xpLevel": "Level 4",
+    "intro.mock.streak": "7 day streak",
+    "intro.mock.keepGoing": "Keep going!",
+    "intro.mock.today": "Today",
+    "intro.mock.saved": "Saved to journal",
+
     // Onboarding form
     "ob.step": "Step {current} of {total}",
     "ob.callYou": "What should we call you?",
@@ -296,6 +313,22 @@ export const TRANSLATIONS = {
     "intro.s3.body":
       "Notre IA vision vérifie la photo, valide la prise et te récompense en XP avec une série qui grandit.",
     "intro.continue": "Configurons ton profil",
+
+    "intro.mock.greeting": "Salut Sophie 👋",
+    "intro.mock.todayTitle": "Hydratation du jour",
+    "intro.mock.sip": "+ Gorgée",
+    "intro.mock.history": "Historique",
+    "intro.mock.notifTitle": "C'est l'heure de boire 💧",
+    "intro.mock.notifBody": "Prends une photo de ta prochaine gorgée",
+    "intro.mock.notifNow": "maintenant",
+    "intro.mock.liveCapture": "Capture en direct · 00:48",
+    "intro.mock.aiVerified": "Validé par l'IA",
+    "intro.mock.aiQuote": "« Joli verre d'eau fraîche 💧 Un verre standard de 250 ml — comptabilisé. »",
+    "intro.mock.xpLevel": "Niveau 4",
+    "intro.mock.streak": "Série de 7 jours",
+    "intro.mock.keepGoing": "Continue !",
+    "intro.mock.today": "Aujourd'hui",
+    "intro.mock.saved": "Enregistré dans le journal",
 
     "ob.step": "Étape {current} sur {total}",
     "ob.callYou": "Comment doit-on t'appeler ?",
