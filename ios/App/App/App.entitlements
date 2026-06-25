@@ -6,5 +6,9 @@
 	<array>
 		<string>applinks:h2go-app.com</string>
 	</array>
+	<key>com.apple.developer.in-app-payments</key>
+	<array>
+		<string>merchant.com.h2go.app</string>
+	</array>
 </dict>
 </plist>
