@@ -87,7 +87,7 @@ function AuthPage() {
       const { data, error } = await supabase.auth.signInWithOAuth({
         provider,
         options: {
-          redirectTo: "https://h2go-app.com",
+          redirectTo: "com.h2go.app://auth-callback",
           skipBrowserRedirect: true,
         },
       });
