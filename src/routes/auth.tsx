@@ -116,18 +116,40 @@ function AuthPage() {
 
   async function handleOAuth(provider: "google" | "apple") {
     setBusy(true);
-    // Web + natif (Capacitor): la WebView charge déjà https://h2go-app.com
-    // donc le broker Lovable peut rediriger vers l'origine sans deep-link.
-    const result = await lovable.auth.signInWithOAuth(provider, {
-      redirect_uri: window.location.origin,
-    });
-    if (result.error) {
-      toast.error(result.error.message ?? `${provider} sign-in failed`);
+    try {
+      // Sur natif: Google interdit l'OAuth dans la WebView (disallowed_useragent).
+      // On ouvre donc le navigateur système (SFSafariViewController / Chrome Custom Tabs)
+      // et on revient via Universal Link sur https://h2go-app.com.
+      if (Capacitor.isNativePlatform()) {
+        const redirectTo = "https://h2go-app.com/auth/callback";
+        const { data, error } = await supabase.auth.signInWithOAuth({
+          provider,
+          options: {
+            redirectTo,
+            skipBrowserRedirect: true,
+          },
+        });
+        if (error) throw error;
+        if (!data?.url) throw new Error("OAuth URL missing");
+        await Browser.open({ url: data.url, presentationStyle: "popover" });
+        return;
+      }
+
+      // Web / preview: flux managé Lovable habituel
+      const result = await lovable.auth.signInWithOAuth(provider, {
+        redirect_uri: window.location.origin,
+      });
+      if (result.error) {
+        toast.error(result.error.message ?? `${provider} sign-in failed`);
+        setBusy(false);
+        return;
+      }
+      if (result.redirected) return;
+      navigate({ to: "/home" });
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : `${provider} sign-in failed`);
       setBusy(false);
-      return;
     }
-    if (result.redirected) return;
-    navigate({ to: "/home" });
   }
 
   return (
