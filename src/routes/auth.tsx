@@ -103,7 +103,8 @@ function AuthPage() {
           navigate({ to: "/pending-validation", search: { email } });
           return;
         }
-        navigate({ to: "/home" });
+        const path = await getPostAuthRedirect();
+        navigate({ to: path });
       }
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Auth failed");
