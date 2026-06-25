@@ -30,11 +30,14 @@ function ValidatePage() {
   const navigate = useNavigate();
   const qc = useQueryClient();
   const submit = useServerFn(validatePhoto);
+  const adjust = useServerFn(adjustHydrationVolume);
   const videoRef = useRef<HTMLVideoElement>(null);
   const streamRef = useRef<MediaStream | null>(null);
   const [phase, setPhase] = useState<Phase>("camera");
   const [seconds, setSeconds] = useState(60);
   const [result, setResult] = useState<Awaited<ReturnType<typeof validatePhoto>> | null>(null);
+  const [adjustedMl, setAdjustedMl] = useState<number>(0);
+  const [saving, setSaving] = useState(false);
   const [errMsg, setErrMsg] = useState<string | null>(null);
 
   // start / restart camera whenever we're in the camera phase
