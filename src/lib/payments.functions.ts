@@ -202,11 +202,10 @@ export const createCheckoutSession = createServerFn({ method: "POST" })
         // Disable Stripe's automatic currency conversion offer — we expose
         // dedicated EUR and USD prices and select the right one based on locale.
         adaptive_pricing: { enabled: false },
-        // Let Stripe auto-enable wallet methods (Apple Pay / Google Pay /
-        // card) configured on the account. Restricting to ["card"] caused
-        // the Apple Pay sheet to spin forever and decline because the
-        // session refused wallet payment methods.
-        automatic_payment_methods: { enabled: true, allow_redirects: "never" },
+        // Do not pass payment_method_types or automatic_payment_methods here:
+        // Checkout Sessions enable Apple Pay / card methods automatically
+        // from the Stripe account configuration, while this API rejects the
+        // PaymentIntent-only automatic_payment_methods parameter.
         metadata: { userId },
         subscription_data: {
           trial_period_days: 7,
