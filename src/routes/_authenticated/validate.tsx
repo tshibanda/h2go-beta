@@ -110,6 +110,7 @@ function ValidatePage() {
       const hash = await sha256Base64(b64);
       const res = await submit({ data: { imageBase64: dataUrl, imageHash: hash } });
       setResult(res);
+      setAdjustedMl(res.volume_ml || 250);
       setPhase(res.approved ? "approved" : "rejected");
       qc.invalidateQueries({ queryKey: ["dashboard"] });
     } catch (e) {
