@@ -426,6 +426,12 @@ function ProfilePage() {
           </Link>
         </div>
       </div>
+      {openingPortal && (
+        <LoadingScreen
+          title={t("p.premium")}
+          subtitle={locale === "fr" ? "Ouverture de votre espace abonnement…" : "Opening your subscription space…"}
+        />
+      )}
     </MobileShell>
   );
 }
