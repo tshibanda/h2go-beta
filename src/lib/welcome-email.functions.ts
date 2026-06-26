@@ -41,14 +41,15 @@ export const sendWelcomeEmailIfNeeded = createServerFn({ method: "POST" })
       "https://h2go-app.com";
 
     try {
-      // Call the internal send route with the user's bearer token.
-      const authHeader = `Bearer ${context.token}`;
-      const res = await fetch(`${origin}/lovable/email/transactional/send`, {
+      const incomingAuth = getRequest()?.headers.get("authorization") ?? "";
+      const origin2 = origin;
+      const res = await fetch(`${origin2}/lovable/email/transactional/send`, {
         method: "POST",
         headers: {
           "content-type": "application/json",
-          Authorization: authHeader,
+          Authorization: incomingAuth,
         },
+
         body: JSON.stringify({
           templateName: "welcome",
           recipientEmail: profile.email,
