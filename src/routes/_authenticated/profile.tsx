@@ -388,6 +388,8 @@ function ProfilePage() {
           <button
             type="button"
             onClick={openBilling}
+            onMouseEnter={() => void prefetchPortal()}
+            onTouchStart={() => void prefetchPortal()}
             disabled={openingPortal}
             className="mx-4 rounded-2xl p-4 flex items-center gap-3 bg-gradient-to-br from-[#1E3A8A] to-primary shadow-lg text-left w-[calc(100%-2rem)] disabled:opacity-70"
           >
