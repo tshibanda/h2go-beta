@@ -54,22 +54,39 @@ function ProfilePage() {
   const [uploadingAvatar, setUploadingAvatar] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [openingPortal, setOpeningPortal] = useState(false);
+  const portalUrlRef = useRef<string | null>(null);
+  const portalPromiseRef = useRef<Promise<string | null> | null>(null);
+  const openPortalFn = useServerFn(createPortalSession);
+
+  const prefetchPortal = () => {
+    if (portalUrlRef.current || portalPromiseRef.current) return portalPromiseRef.current;
+    portalPromiseRef.current = (async () => {
+      try {
+        const r = await openPortalFn({
+          data: { returnUrl: window.location.href, environment: getStripeEnvironment() },
+        });
+        if ("error" in r) return null;
+        portalUrlRef.current = r.url;
+        return r.url;
+      } catch {
+        return null;
+      } finally {
+        portalPromiseRef.current = null;
+      }
+    })();
+    return portalPromiseRef.current;
+  };
 
   async function openBilling() {
     if (openingPortal) return;
     setOpeningPortal(true);
     try {
-      const r = await createPortalSession({
-        data: {
-          returnUrl: window.location.href,
-          environment: getStripeEnvironment(),
-        },
-      });
-      if ("error" in r) {
-        toast.error(r.error);
+      const url = portalUrlRef.current ?? (await prefetchPortal());
+      if (!url) {
+        toast.error(t("common.error") || "Erreur");
         return;
       }
-      window.location.href = r.url;
+      window.location.href = url;
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Erreur");
     } finally {
