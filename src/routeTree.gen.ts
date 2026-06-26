@@ -9,6 +9,7 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as UnsubscribeRouteImport } from './routes/unsubscribe'
 import { Route as TermsRouteImport } from './routes/terms'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as PendingValidationRouteImport } from './routes/pending-validation'
@@ -33,6 +34,11 @@ import { Route as LovableEmailTransactionalPreviewRouteImport } from './routes/l
 import { Route as LovableEmailQueueProcessRouteImport } from './routes/lovable/email/queue/process'
 import { Route as ApiPublicPaymentsWebhookRouteImport } from './routes/api/public/payments/webhook'
 
+const UnsubscribeRoute = UnsubscribeRouteImport.update({
+  id: '/unsubscribe',
+  path: '/unsubscribe',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const TermsRoute = TermsRouteImport.update({
   id: '/terms',
   path: '/terms',
@@ -162,6 +168,7 @@ export interface FileRoutesByFullPath {
   '/pending-validation': typeof PendingValidationRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/terms': typeof TermsRoute
+  '/unsubscribe': typeof UnsubscribeRoute
   '/home': typeof AuthenticatedHomeRoute
   '/leaderboard': typeof AuthenticatedLeaderboardRoute
   '/premium': typeof AuthenticatedPremiumRoute
@@ -186,6 +193,7 @@ export interface FileRoutesByTo {
   '/pending-validation': typeof PendingValidationRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/terms': typeof TermsRoute
+  '/unsubscribe': typeof UnsubscribeRoute
   '/home': typeof AuthenticatedHomeRoute
   '/leaderboard': typeof AuthenticatedLeaderboardRoute
   '/premium': typeof AuthenticatedPremiumRoute
@@ -212,6 +220,7 @@ export interface FileRoutesById {
   '/pending-validation': typeof PendingValidationRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/terms': typeof TermsRoute
+  '/unsubscribe': typeof UnsubscribeRoute
   '/_authenticated/home': typeof AuthenticatedHomeRoute
   '/_authenticated/leaderboard': typeof AuthenticatedLeaderboardRoute
   '/_authenticated/premium': typeof AuthenticatedPremiumRoute
@@ -238,6 +247,7 @@ export interface FileRouteTypes {
     | '/pending-validation'
     | '/sitemap.xml'
     | '/terms'
+    | '/unsubscribe'
     | '/home'
     | '/leaderboard'
     | '/premium'
@@ -262,6 +272,7 @@ export interface FileRouteTypes {
     | '/pending-validation'
     | '/sitemap.xml'
     | '/terms'
+    | '/unsubscribe'
     | '/home'
     | '/leaderboard'
     | '/premium'
@@ -287,6 +298,7 @@ export interface FileRouteTypes {
     | '/pending-validation'
     | '/sitemap.xml'
     | '/terms'
+    | '/unsubscribe'
     | '/_authenticated/home'
     | '/_authenticated/leaderboard'
     | '/_authenticated/premium'
@@ -313,6 +325,7 @@ export interface RootRouteChildren {
   PendingValidationRoute: typeof PendingValidationRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   TermsRoute: typeof TermsRoute
+  UnsubscribeRoute: typeof UnsubscribeRoute
   CheckoutReturnRoute: typeof CheckoutReturnRoute
   EmailUnsubscribeRoute: typeof EmailUnsubscribeRoute
   LovableEmailSuppressionRoute: typeof LovableEmailSuppressionRoute
@@ -324,6 +337,13 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/unsubscribe': {
+      id: '/unsubscribe'
+      path: '/unsubscribe'
+      fullPath: '/unsubscribe'
+      preLoaderRoute: typeof UnsubscribeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/terms': {
       id: '/terms'
       path: '/terms'
@@ -521,6 +541,7 @@ const rootRouteChildren: RootRouteChildren = {
   PendingValidationRoute: PendingValidationRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   TermsRoute: TermsRoute,
+  UnsubscribeRoute: UnsubscribeRoute,
   CheckoutReturnRoute: CheckoutReturnRoute,
   EmailUnsubscribeRoute: EmailUnsubscribeRoute,
   LovableEmailSuppressionRoute: LovableEmailSuppressionRoute,
