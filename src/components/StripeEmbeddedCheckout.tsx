@@ -3,6 +3,7 @@ import { EmbeddedCheckoutProvider, EmbeddedCheckout } from "@stripe/react-stripe
 import { useServerFn } from "@tanstack/react-start";
 import { getStripe, getStripeEnvironment } from "@/lib/stripe";
 import { createCheckoutSession } from "@/lib/payments.functions";
+import { LoadingScreen } from "@/components/h2go/LoadingScreen";
 
 export function StripeEmbeddedCheckoutInline({
   priceId,
