@@ -64,11 +64,7 @@ export function StripeEmbeddedCheckoutInline({
   }
 
   if (!clientSecret) {
-    return (
-      <div className="bg-white rounded-2xl p-10 text-center text-sm text-muted-foreground">
-        Chargement du paiement…
-      </div>
-    );
+    return <LoadingScreen subtitle="Préparation du paiement sécurisé…" />;
   }
 
   return (
