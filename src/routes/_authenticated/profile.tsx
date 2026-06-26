@@ -54,22 +54,39 @@ function ProfilePage() {
   const [uploadingAvatar, setUploadingAvatar] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [openingPortal, setOpeningPortal] = useState(false);
+  const portalUrlRef = useRef<string | null>(null);
+  const portalPromiseRef = useRef<Promise<string | null> | null>(null);
+  const openPortalFn = useServerFn(createPortalSession);
+
+  const prefetchPortal = () => {
+    if (portalUrlRef.current || portalPromiseRef.current) return portalPromiseRef.current;
+    portalPromiseRef.current = (async () => {
+      try {
+        const r = await openPortalFn({
+          data: { returnUrl: window.location.href, environment: getStripeEnvironment() },
+        });
+        if ("error" in r) return null;
+        portalUrlRef.current = r.url;
+        return r.url;
+      } catch {
+        return null;
+      } finally {
+        portalPromiseRef.current = null;
+      }
+    })();
+    return portalPromiseRef.current;
+  };
 
   async function openBilling() {
     if (openingPortal) return;
     setOpeningPortal(true);
     try {
-      const r = await createPortalSession({
-        data: {
-          returnUrl: window.location.href,
-          environment: getStripeEnvironment(),
-        },
-      });
-      if ("error" in r) {
-        toast.error(r.error);
+      const url = portalUrlRef.current ?? (await prefetchPortal());
+      if (!url) {
+        toast.error("Erreur");
         return;
       }
-      window.location.href = r.url;
+      window.location.href = url;
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Erreur");
     } finally {
@@ -91,6 +108,15 @@ function ProfilePage() {
   useEffect(() => {
     resolveAvatarUrl(data?.profile?.avatar_url).then(setAvatarUrl);
   }, [data?.profile?.avatar_url]);
+
+  // Pre-warm the Stripe billing portal URL so the click feels instant.
+  const isPremiumEarly = ["active", "trialing"].includes(
+    data?.profile?.subscription_status ?? "free",
+  );
+  useEffect(() => {
+    if (isPremiumEarly) void prefetchPortal();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isPremiumEarly]);
 
 
   if (!data)
@@ -362,6 +388,8 @@ function ProfilePage() {
           <button
             type="button"
             onClick={openBilling}
+            onMouseEnter={() => void prefetchPortal()}
+            onTouchStart={() => void prefetchPortal()}
             disabled={openingPortal}
             className="mx-4 rounded-2xl p-4 flex items-center gap-3 bg-gradient-to-br from-[#1E3A8A] to-primary shadow-lg text-left w-[calc(100%-2rem)] disabled:opacity-70"
           >
