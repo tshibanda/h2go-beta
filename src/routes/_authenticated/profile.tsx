@@ -109,6 +109,15 @@ function ProfilePage() {
     resolveAvatarUrl(data?.profile?.avatar_url).then(setAvatarUrl);
   }, [data?.profile?.avatar_url]);
 
+  // Pre-warm the Stripe billing portal URL so the click feels instant.
+  const isPremiumEarly = ["active", "trialing"].includes(
+    data?.profile?.subscription_status ?? "free",
+  );
+  useEffect(() => {
+    if (isPremiumEarly) void prefetchPortal();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isPremiumEarly]);
+
 
   if (!data)
     return (
