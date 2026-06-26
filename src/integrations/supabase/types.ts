@@ -226,6 +226,7 @@ export type Database = {
           trial_ends_at: string | null
           updated_at: string
           weight_kg: number | null
+          welcome_email_sent_at: string | null
         }
         Insert: {
           age?: number | null
@@ -242,6 +243,7 @@ export type Database = {
           trial_ends_at?: string | null
           updated_at?: string
           weight_kg?: number | null
+          welcome_email_sent_at?: string | null
         }
         Update: {
           age?: number | null
@@ -258,6 +260,7 @@ export type Database = {
           trial_ends_at?: string | null
           updated_at?: string
           weight_kg?: number | null
+          welcome_email_sent_at?: string | null
         }
         Relationships: []
       }
