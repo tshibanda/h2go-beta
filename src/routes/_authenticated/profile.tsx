@@ -83,7 +83,7 @@ function ProfilePage() {
     try {
       const url = portalUrlRef.current ?? (await prefetchPortal());
       if (!url) {
-        toast.error(t("common.error") || "Erreur");
+        toast.error("Erreur");
         return;
       }
       window.location.href = url;
