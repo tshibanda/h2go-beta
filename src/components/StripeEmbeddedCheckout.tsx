@@ -3,6 +3,7 @@ import { EmbeddedCheckoutProvider, EmbeddedCheckout } from "@stripe/react-stripe
 import { useServerFn } from "@tanstack/react-start";
 import { getStripe, getStripeEnvironment } from "@/lib/stripe";
 import { createCheckoutSession } from "@/lib/payments.functions";
+import { LoadingScreen } from "@/components/h2go/LoadingScreen";
 
 export function StripeEmbeddedCheckoutInline({
   priceId,
@@ -63,11 +64,7 @@ export function StripeEmbeddedCheckoutInline({
   }
 
   if (!clientSecret) {
-    return (
-      <div className="bg-white rounded-2xl p-10 text-center text-sm text-muted-foreground">
-        Chargement du paiement…
-      </div>
-    );
+    return <LoadingScreen subtitle="Préparation du paiement sécurisé…" />;
   }
 
   return (

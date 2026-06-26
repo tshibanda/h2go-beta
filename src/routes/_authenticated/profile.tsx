@@ -15,6 +15,7 @@ import { toast } from "sonner";
 import { useEffect } from "react";
 import { maybePromptFirstLaunch, scheduleHydrationRemindersAtTimes, isNative } from "@/lib/notifications";
 import { useT } from "@/i18n";
+import { LoadingScreen } from "@/components/h2go/LoadingScreen";
 import { LEVEL_NAMES } from "@/i18n/translations";
 import { uploadAvatar, removeAvatar, resolveAvatarUrl } from "@/lib/avatar";
 
@@ -425,6 +426,12 @@ function ProfilePage() {
           </Link>
         </div>
       </div>
+      {openingPortal && (
+        <LoadingScreen
+          title={t("p.premium")}
+          subtitle={locale === "fr" ? "Ouverture de votre espace abonnement…" : "Opening your subscription space…"}
+        />
+      )}
     </MobileShell>
   );
 }
