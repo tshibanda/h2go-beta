@@ -51,6 +51,13 @@ function HomePage() {
     }
   }, []);
 
+  // Send welcome email on first arrival to /home (idempotent server-side).
+  const sendWelcome = useServerFn(sendWelcomeEmailIfNeeded);
+  useEffect(() => {
+    sendWelcome({ data: undefined as never }).catch(() => {});
+  }, [sendWelcome]);
+
+
   // Schedule next browser notification
   const reminders = data?.reminders ?? [];
   useEffect(() => {
