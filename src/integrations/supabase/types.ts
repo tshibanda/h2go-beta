@@ -212,12 +212,17 @@ export type Database = {
       }
       profiles: {
         Row: {
+          activity_level: string | null
           age: number | null
           avatar_url: string | null
+          climate_zone: string | null
           created_at: string
           daily_goal_ml: number
+          dynamic_goal_enabled: boolean
           email: string | null
           id: string
+          last_goal_compute_date: string | null
+          last_goal_weather_temp_c: number | null
           locale: string
           name: string | null
           onboarded: boolean
@@ -229,12 +234,17 @@ export type Database = {
           welcome_email_sent_at: string | null
         }
         Insert: {
+          activity_level?: string | null
           age?: number | null
           avatar_url?: string | null
+          climate_zone?: string | null
           created_at?: string
           daily_goal_ml?: number
+          dynamic_goal_enabled?: boolean
           email?: string | null
           id: string
+          last_goal_compute_date?: string | null
+          last_goal_weather_temp_c?: number | null
           locale?: string
           name?: string | null
           onboarded?: boolean
@@ -246,12 +256,17 @@ export type Database = {
           welcome_email_sent_at?: string | null
         }
         Update: {
+          activity_level?: string | null
           age?: number | null
           avatar_url?: string | null
+          climate_zone?: string | null
           created_at?: string
           daily_goal_ml?: number
+          dynamic_goal_enabled?: boolean
           email?: string | null
           id?: string
+          last_goal_compute_date?: string | null
+          last_goal_weather_temp_c?: number | null
           locale?: string
           name?: string | null
           onboarded?: boolean

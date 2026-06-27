@@ -287,7 +287,9 @@ function RootComponent() {
   return (
     <QueryClientProvider client={queryClient}>
       <LanguageProvider>
-        <Outlet />
+        <div className="motion-safe:transition-opacity">
+          <Outlet />
+        </div>
         <Toaster position="top-center" richColors />
       </LanguageProvider>
     </QueryClientProvider>

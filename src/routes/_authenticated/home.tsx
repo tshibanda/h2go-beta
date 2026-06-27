@@ -1,10 +1,18 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
-import { Bell, Flame, Zap, ChevronRight, Camera } from "lucide-react";
+import { Bell, Flame, Zap, ChevronRight, Camera, Thermometer } from "lucide-react";
 import { getDashboard } from "@/lib/h2go.functions";
 import { sendWelcomeEmailIfNeeded } from "@/lib/welcome-email.functions";
+import { setDailyGoal } from "@/lib/profile-prefs.functions";
+import {
+  computeGoal,
+  fetchTodayWeather,
+  requestPosition,
+  type ActivityLevel,
+  type ClimateZone,
+} from "@/lib/dynamic-goal";
 
 import { resolveAvatarUrl } from "@/lib/avatar";
 import { MobileShell } from "@/components/h2go/MobileShell";
@@ -44,12 +52,57 @@ function HomePage() {
     refetchOnWindowFocus: true,
   });
 
+  const qc = useQueryClient();
+  const saveGoalFn = useServerFn(setDailyGoal);
+  const [weatherBoost, setWeatherBoost] = useState<number>(0);
+  const [weatherTemp, setWeatherTemp] = useState<number | null>(null);
+
   // Request notification permission once
   useEffect(() => {
     if (typeof window !== "undefined" && "Notification" in window && Notification.permission === "default") {
       Notification.requestPermission().catch(() => {});
     }
   }, []);
+
+  // Dynamic daily goal — adapt to weight + activity + climate + weather.
+  // Runs once per day per user (server-stored last_goal_compute_date).
+  useEffect(() => {
+    if (!data?.profile) return;
+    const p = data.profile as typeof data.profile & {
+      activity_level?: string | null;
+      climate_zone?: string | null;
+      dynamic_goal_enabled?: boolean | null;
+      last_goal_compute_date?: string | null;
+    };
+    if (p.dynamic_goal_enabled === false) return;
+    const today = new Date().toISOString().slice(0, 10);
+    if (p.last_goal_compute_date === today) return;
+
+    void (async () => {
+      const pos = await requestPosition();
+      const weather = pos
+        ? await fetchTodayWeather(pos.lat, pos.lon)
+        : { tempMaxC: null, humidity: null };
+      const res = computeGoal({
+        weightKg: p.weight_kg ?? null,
+        activity: (p.activity_level as ActivityLevel) ?? "moderate",
+        climate: (p.climate_zone as ClimateZone) ?? "temperate",
+        tempMaxC: weather.tempMaxC,
+        humidity: weather.humidity,
+      });
+      setWeatherBoost(res.weatherBoostPct);
+      setWeatherTemp(weather.tempMaxC);
+      try {
+        await saveGoalFn({
+          data: { daily_goal_ml: res.goalMl, weather_temp_c: weather.tempMaxC },
+        });
+        qc.invalidateQueries({ queryKey: ["dashboard"] });
+      } catch {
+        // silent — keep current goal
+      }
+    })();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [data?.profile?.id]);
 
   // Send welcome email on first arrival to /home (idempotent server-side).
   const sendWelcome = useServerFn(sendWelcomeEmailIfNeeded);
@@ -212,6 +265,11 @@ function HomePage() {
             <div>
               <p className="text-[11px] text-muted-foreground">{t("home.dailyGoal")}</p>
               <p className="font-display text-xl font-bold">{(goal / 1000).toFixed(1)}L</p>
+              {weatherBoost > 0 && weatherTemp != null && (
+                <p className="text-[10px] text-secondary font-medium flex items-center gap-1 mt-0.5">
+                  <Thermometer size={10} /> {Math.round(weatherTemp)}°C · +{weatherBoost}%
+                </p>
+              )}
             </div>
             <div className="text-right">
               <p className="text-[11px] text-muted-foreground">{t("home.remainingShort")}</p>

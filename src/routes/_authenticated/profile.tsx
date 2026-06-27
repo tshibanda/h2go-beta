@@ -2,8 +2,9 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useRef, useState } from "react";
-import { Star, Crown, ChevronRight, LogOut, Languages, Camera, Trash2 } from "lucide-react";
+import { Star, Crown, ChevronRight, LogOut, Languages, Camera, Trash2, Bug, Mail, Activity, CloudSun } from "lucide-react";
 import { getDashboard, getTotals, saveReminders, updateAvatar } from "@/lib/h2go.functions";
+import { setProfilePreferences } from "@/lib/profile-prefs.functions";
 import { createPortalSession } from "@/lib/payments.functions";
 import { getStripeEnvironment } from "@/lib/stripe";
 import { MobileShell } from "@/components/h2go/MobileShell";
@@ -11,6 +12,7 @@ import { levelForXp } from "@/lib/gamification";
 import { supabase } from "@/integrations/supabase/client";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { Switch } from "@/components/ui/switch";
 import { toast } from "sonner";
 import { useEffect } from "react";
 import { maybePromptFirstLaunch, scheduleHydrationRemindersAtTimes, isNative } from "@/lib/notifications";
@@ -18,6 +20,7 @@ import { useT } from "@/i18n";
 import { LoadingScreen } from "@/components/h2go/LoadingScreen";
 import { LEVEL_NAMES } from "@/i18n/translations";
 import { uploadAvatar, removeAvatar, resolveAvatarUrl } from "@/lib/avatar";
+import { BadgeShareModal, type ShareBadge } from "@/components/h2go/BadgeShareModal";
 
 export const Route = createFileRoute("/_authenticated/profile")({
   head: () => ({
@@ -58,6 +61,8 @@ function ProfilePage() {
   const portalUrlRef = useRef<string | null>(null);
   const portalPromiseRef = useRef<Promise<string | null> | null>(null);
   const openPortalFn = useServerFn(createPortalSession);
+  const savePrefs = useServerFn(setProfilePreferences);
+  const [shareBadge, setShareBadge] = useState<ShareBadge | null>(null);
 
   const prefetchPortal = () => {
     if (portalUrlRef.current || portalPromiseRef.current) return portalPromiseRef.current;
@@ -293,16 +298,29 @@ function ProfilePage() {
                 label = a.title;
               }
               return (
-                <div key={a.id} className="flex flex-col items-center gap-1">
+                <button
+                  key={a.id}
+                  type="button"
+                  onClick={() =>
+                    setShareBadge({
+                      emoji: a.badge_emoji ?? "🏅",
+                      title: label,
+                      description: a.description ?? undefined,
+                      unlocked,
+                      userName: data.profile?.name ?? undefined,
+                    })
+                  }
+                  className="flex flex-col items-center gap-1 transition-transform active:scale-95 hover:scale-105"
+                >
                   <div
-                    className={`w-14 h-14 rounded-2xl flex items-center justify-center text-2xl border-2 ${unlocked ? "bg-primary-soft border-primary-soft" : "bg-muted border-transparent opacity-40"}`}
+                    className={`w-14 h-14 rounded-2xl flex items-center justify-center text-2xl border-2 transition-all ${unlocked ? "bg-primary-soft border-primary-soft" : "bg-muted border-transparent opacity-40"}`}
                   >
                     {a.badge_emoji}
                   </div>
                   <span className={`text-[9px] text-center ${unlocked ? "text-primary" : "text-muted-foreground"}`}>
                     {label}
                   </span>
-                </div>
+                </button>
               );
             })}
           </div>
@@ -360,6 +378,97 @@ function ProfilePage() {
           )}
           <p className="text-[10px] text-muted-foreground mt-2">{t("p.reminderHint")}</p>
         </div>
+
+        {/* Dynamic goal preferences */}
+        {(() => {
+          const p = data.profile as typeof data.profile & {
+            activity_level?: string | null;
+            climate_zone?: string | null;
+            dynamic_goal_enabled?: boolean | null;
+          } | null;
+          if (!p) return null;
+          const activity = (p.activity_level as "low" | "moderate" | "high") ?? "moderate";
+          const climate = (p.climate_zone as "temperate" | "hot" | "tropical" | "dry" | "cold") ?? "temperate";
+          const dyn = p.dynamic_goal_enabled !== false;
+          const fr = locale === "fr";
+          const climates: { key: typeof climate; label: string }[] = [
+            { key: "temperate", label: fr ? "Tempéré" : "Temperate" },
+            { key: "hot", label: fr ? "Chaud" : "Hot" },
+            { key: "tropical", label: fr ? "Tropical" : "Tropical" },
+            { key: "dry", label: fr ? "Sec" : "Dry" },
+            { key: "cold", label: fr ? "Froid" : "Cold" },
+          ];
+          const updatePref = async (patch: {
+            activity_level?: "low" | "moderate" | "high";
+            climate_zone?: typeof climate;
+            dynamic_goal_enabled?: boolean;
+          }) => {
+            try {
+              await savePrefs({ data: patch });
+              qc.invalidateQueries({ queryKey: ["dashboard"] });
+            } catch (e) {
+              toast.error(e instanceof Error ? e.message : "Échec");
+            }
+          };
+          return (
+            <div className="mx-4 rounded-2xl p-4 bg-card shadow-sm flex flex-col gap-3">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <CloudSun size={16} className="text-secondary" />
+                  <p className="font-display text-base font-semibold">
+                    {fr ? "Objectif adaptatif" : "Adaptive goal"}
+                  </p>
+                </div>
+                <Switch checked={dyn} onCheckedChange={(v) => void updatePref({ dynamic_goal_enabled: v })} />
+              </div>
+              <p className="text-[11px] text-muted-foreground">
+                {fr
+                  ? "Ajuste ton objectif quotidien selon ton poids, ton activité, ton climat et la météo du jour."
+                  : "Adjusts your daily goal from weight, activity, climate and today's weather."}
+              </p>
+              <div>
+                <div className="flex items-center gap-2 mb-2">
+                  <Activity size={14} className="text-muted-foreground" />
+                  <p className="text-xs font-medium text-muted-foreground">
+                    {fr ? "Activité" : "Activity"}
+                  </p>
+                </div>
+                <div className="grid grid-cols-3 gap-2">
+                  {(["low", "moderate", "high"] as const).map((a) => (
+                    <button
+                      key={a}
+                      type="button"
+                      onClick={() => void updatePref({ activity_level: a })}
+                      className={`h-9 rounded-xl text-xs font-semibold transition active:scale-95 ${activity === a ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground"}`}
+                    >
+                      {a === "low" && (fr ? "Faible" : "Low")}
+                      {a === "moderate" && (fr ? "Modérée" : "Moderate")}
+                      {a === "high" && (fr ? "Élevée" : "High")}
+                    </button>
+                  ))}
+                </div>
+              </div>
+              <div>
+                <p className="text-xs font-medium text-muted-foreground mb-2">
+                  {fr ? "Climat" : "Climate"}
+                </p>
+                <div className="flex flex-wrap gap-2">
+                  {climates.map((c) => (
+                    <button
+                      key={c.key}
+                      type="button"
+                      onClick={() => void updatePref({ climate_zone: c.key })}
+                      className={`px-3 h-8 rounded-full text-xs font-semibold transition active:scale-95 ${climate === c.key ? "bg-secondary text-white" : "bg-muted text-muted-foreground"}`}
+                    >
+                      {c.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+          );
+        })()}
+
 
         {/* Language */}
         <div className="mx-4 rounded-2xl p-4 bg-card shadow-sm">
@@ -420,6 +529,26 @@ function ProfilePage() {
           </Link>
         )}
 
+        {/* Support links */}
+        <div className="mx-4 grid grid-cols-2 gap-2">
+          <Link
+            to="/report-bug"
+            className="rounded-2xl p-3 bg-card shadow-sm flex items-center gap-2 text-sm font-medium text-foreground hover:bg-muted/60 transition active:scale-95"
+          >
+            <Bug size={16} className="text-destructive" />
+            {locale === "fr" ? "Signaler un bug" : "Report a bug"}
+          </Link>
+          <a
+            href={`mailto:support@h2go-app.com?subject=${encodeURIComponent(
+              locale === "fr" ? "Contact H2GO" : "H2GO contact",
+            )}`}
+            className="rounded-2xl p-3 bg-card shadow-sm flex items-center gap-2 text-sm font-medium text-foreground hover:bg-muted/60 transition active:scale-95"
+          >
+            <Mail size={16} className="text-primary" />
+            {locale === "fr" ? "Nous contacter" : "Contact us"}
+          </a>
+        </div>
+
         <div className="px-4 pt-2 pb-4 text-center">
           <Link to="/terms" className="text-xs text-muted-foreground hover:text-primary underline">
             {t("p.terms")}
@@ -432,6 +561,7 @@ function ProfilePage() {
           subtitle={locale === "fr" ? "Ouverture de votre espace abonnement…" : "Opening your subscription space…"}
         />
       )}
+      <BadgeShareModal badge={shareBadge} onClose={() => setShareBadge(null)} />
     </MobileShell>
   );
 }
