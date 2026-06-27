@@ -62,5 +62,11 @@
 	<string>H2GO utilise la caméra pour vérifier que tu bois bien de l'eau lors de tes rappels d'hydratation.</string>
 	<key>NSPhotoLibraryAddUsageDescription</key>
 	<string>H2GO peut enregistrer tes photos de vérification dans ta galerie.</string>
+	<key>NSHealthShareUsageDescription</key>
+	<string>H2GO lit tes séances d'activité pour adapter automatiquement tes rappels d'hydratation et ton objectif quotidien.</string>
+	<key>NSHealthUpdateUsageDescription</key>
+	<string>H2GO peut enregistrer ta consommation d'eau dans Santé.</string>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>H2GO utilise ta position pour récupérer la météo locale et adapter tes rappels et ton objectif d'hydratation.</string>
 </dict>
 </plist>
