@@ -2,8 +2,9 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useRef, useState } from "react";
-import { Star, Crown, ChevronRight, LogOut, Languages, Camera, Trash2 } from "lucide-react";
+import { Star, Crown, ChevronRight, LogOut, Languages, Camera, Trash2, Bug, Mail, Activity, CloudSun } from "lucide-react";
 import { getDashboard, getTotals, saveReminders, updateAvatar } from "@/lib/h2go.functions";
+import { setProfilePreferences } from "@/lib/profile-prefs.functions";
 import { createPortalSession } from "@/lib/payments.functions";
 import { getStripeEnvironment } from "@/lib/stripe";
 import { MobileShell } from "@/components/h2go/MobileShell";
@@ -11,6 +12,7 @@ import { levelForXp } from "@/lib/gamification";
 import { supabase } from "@/integrations/supabase/client";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { Switch } from "@/components/ui/switch";
 import { toast } from "sonner";
 import { useEffect } from "react";
 import { maybePromptFirstLaunch, scheduleHydrationRemindersAtTimes, isNative } from "@/lib/notifications";
@@ -18,6 +20,7 @@ import { useT } from "@/i18n";
 import { LoadingScreen } from "@/components/h2go/LoadingScreen";
 import { LEVEL_NAMES } from "@/i18n/translations";
 import { uploadAvatar, removeAvatar, resolveAvatarUrl } from "@/lib/avatar";
+import { BadgeShareModal, type ShareBadge } from "@/components/h2go/BadgeShareModal";
 
 export const Route = createFileRoute("/_authenticated/profile")({
   head: () => ({
