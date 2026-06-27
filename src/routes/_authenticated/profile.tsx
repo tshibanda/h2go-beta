@@ -379,6 +379,97 @@ function ProfilePage() {
           <p className="text-[10px] text-muted-foreground mt-2">{t("p.reminderHint")}</p>
         </div>
 
+        {/* Dynamic goal preferences */}
+        {(() => {
+          const p = data.profile as typeof data.profile & {
+            activity_level?: string | null;
+            climate_zone?: string | null;
+            dynamic_goal_enabled?: boolean | null;
+          } | null;
+          if (!p) return null;
+          const activity = (p.activity_level as "low" | "moderate" | "high") ?? "moderate";
+          const climate = (p.climate_zone as "temperate" | "hot" | "tropical" | "dry" | "cold") ?? "temperate";
+          const dyn = p.dynamic_goal_enabled !== false;
+          const fr = locale === "fr";
+          const climates: { key: typeof climate; label: string }[] = [
+            { key: "temperate", label: fr ? "Tempéré" : "Temperate" },
+            { key: "hot", label: fr ? "Chaud" : "Hot" },
+            { key: "tropical", label: fr ? "Tropical" : "Tropical" },
+            { key: "dry", label: fr ? "Sec" : "Dry" },
+            { key: "cold", label: fr ? "Froid" : "Cold" },
+          ];
+          const updatePref = async (patch: {
+            activity_level?: "low" | "moderate" | "high";
+            climate_zone?: typeof climate;
+            dynamic_goal_enabled?: boolean;
+          }) => {
+            try {
+              await savePrefs({ data: patch });
+              qc.invalidateQueries({ queryKey: ["dashboard"] });
+            } catch (e) {
+              toast.error(e instanceof Error ? e.message : "Échec");
+            }
+          };
+          return (
+            <div className="mx-4 rounded-2xl p-4 bg-card shadow-sm flex flex-col gap-3">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <CloudSun size={16} className="text-secondary" />
+                  <p className="font-display text-base font-semibold">
+                    {fr ? "Objectif adaptatif" : "Adaptive goal"}
+                  </p>
+                </div>
+                <Switch checked={dyn} onCheckedChange={(v) => void updatePref({ dynamic_goal_enabled: v })} />
+              </div>
+              <p className="text-[11px] text-muted-foreground">
+                {fr
+                  ? "Ajuste ton objectif quotidien selon ton poids, ton activité, ton climat et la météo du jour."
+                  : "Adjusts your daily goal from weight, activity, climate and today's weather."}
+              </p>
+              <div>
+                <div className="flex items-center gap-2 mb-2">
+                  <Activity size={14} className="text-muted-foreground" />
+                  <p className="text-xs font-medium text-muted-foreground">
+                    {fr ? "Activité" : "Activity"}
+                  </p>
+                </div>
+                <div className="grid grid-cols-3 gap-2">
+                  {(["low", "moderate", "high"] as const).map((a) => (
+                    <button
+                      key={a}
+                      type="button"
+                      onClick={() => void updatePref({ activity_level: a })}
+                      className={`h-9 rounded-xl text-xs font-semibold transition active:scale-95 ${activity === a ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground"}`}
+                    >
+                      {a === "low" && (fr ? "Faible" : "Low")}
+                      {a === "moderate" && (fr ? "Modérée" : "Moderate")}
+                      {a === "high" && (fr ? "Élevée" : "High")}
+                    </button>
+                  ))}
+                </div>
+              </div>
+              <div>
+                <p className="text-xs font-medium text-muted-foreground mb-2">
+                  {fr ? "Climat" : "Climate"}
+                </p>
+                <div className="flex flex-wrap gap-2">
+                  {climates.map((c) => (
+                    <button
+                      key={c.key}
+                      type="button"
+                      onClick={() => void updatePref({ climate_zone: c.key })}
+                      className={`px-3 h-8 rounded-full text-xs font-semibold transition active:scale-95 ${climate === c.key ? "bg-secondary text-white" : "bg-muted text-muted-foreground"}`}
+                    >
+                      {c.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+          );
+        })()}
+
+
         {/* Language */}
         <div className="mx-4 rounded-2xl p-4 bg-card shadow-sm">
           <div className="flex items-center gap-2 mb-3">
