@@ -303,7 +303,7 @@ function ProfilePage() {
                   type="button"
                   onClick={() =>
                     setShareBadge({
-                      emoji: a.badge_emoji,
+                      emoji: a.badge_emoji ?? "🏅",
                       title: label,
                       description: a.description ?? undefined,
                       unlocked,
