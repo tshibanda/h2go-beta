@@ -1,10 +1,18 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
-import { Bell, Flame, Zap, ChevronRight, Camera } from "lucide-react";
+import { Bell, Flame, Zap, ChevronRight, Camera, Thermometer } from "lucide-react";
 import { getDashboard } from "@/lib/h2go.functions";
 import { sendWelcomeEmailIfNeeded } from "@/lib/welcome-email.functions";
+import { setDailyGoal } from "@/lib/profile-prefs.functions";
+import {
+  computeGoal,
+  fetchTodayWeather,
+  requestPosition,
+  type ActivityLevel,
+  type ClimateZone,
+} from "@/lib/dynamic-goal";
 
 import { resolveAvatarUrl } from "@/lib/avatar";
 import { MobileShell } from "@/components/h2go/MobileShell";
