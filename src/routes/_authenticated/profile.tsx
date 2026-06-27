@@ -61,6 +61,8 @@ function ProfilePage() {
   const portalUrlRef = useRef<string | null>(null);
   const portalPromiseRef = useRef<Promise<string | null> | null>(null);
   const openPortalFn = useServerFn(createPortalSession);
+  const savePrefs = useServerFn(setProfilePreferences);
+  const [shareBadge, setShareBadge] = useState<ShareBadge | null>(null);
 
   const prefetchPortal = () => {
     if (portalUrlRef.current || portalPromiseRef.current) return portalPromiseRef.current;
