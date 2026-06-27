@@ -16,6 +16,7 @@ import { Switch } from "@/components/ui/switch";
 import { toast } from "sonner";
 import { useEffect } from "react";
 import { maybePromptFirstLaunch, scheduleHydrationRemindersAtTimes, isNative } from "@/lib/notifications";
+import { scheduleAdaptiveFromUserTimes } from "@/lib/adaptive-notifications";
 import { useT } from "@/i18n";
 import { LoadingScreen } from "@/components/h2go/LoadingScreen";
 import { LEVEL_NAMES } from "@/i18n/translations";
@@ -105,10 +106,13 @@ function ProfilePage() {
   }, []);
 
   // Re-schedule notifications when reminders or app language change, so titles/bodies match locale.
+  // Adaptive: ajoute des créneaux extra selon météo + activité (HealthKit si dispo).
   useEffect(() => {
     if (!isNative() || !data?.reminders?.length) return;
     const t = data.reminders.map((r) => (r.reminder_time as string).slice(0, 5));
-    void scheduleHydrationRemindersAtTimes(t, locale);
+    void scheduleAdaptiveFromUserTimes(t, locale).catch(() =>
+      scheduleHydrationRemindersAtTimes(t, locale),
+    );
   }, [data?.reminders, locale]);
 
   useEffect(() => {
@@ -153,7 +157,9 @@ function ProfilePage() {
       setEditReminders(false);
       qc.invalidateQueries({ queryKey: ["dashboard"] });
       if (isNative()) {
-        const res = await scheduleHydrationRemindersAtTimes(times, locale);
+        const res = await scheduleAdaptiveFromUserTimes(times, locale).catch(async () =>
+          scheduleHydrationRemindersAtTimes(times, locale),
+        );
         if (res.ok) toast.success(t("notif.scheduled").replace("{n}", String(res.count)));
       }
     } catch (e) {
