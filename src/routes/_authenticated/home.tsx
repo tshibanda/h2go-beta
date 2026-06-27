@@ -265,6 +265,11 @@ function HomePage() {
             <div>
               <p className="text-[11px] text-muted-foreground">{t("home.dailyGoal")}</p>
               <p className="font-display text-xl font-bold">{(goal / 1000).toFixed(1)}L</p>
+              {weatherBoost > 0 && weatherTemp != null && (
+                <p className="text-[10px] text-secondary font-medium flex items-center gap-1 mt-0.5">
+                  <Thermometer size={10} /> {Math.round(weatherTemp)}°C · +{weatherBoost}%
+                </p>
+              )}
             </div>
             <div className="text-right">
               <p className="text-[11px] text-muted-foreground">{t("home.remainingShort")}</p>
