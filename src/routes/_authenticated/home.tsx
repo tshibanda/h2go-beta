@@ -15,6 +15,7 @@ import {
 } from "@/lib/dynamic-goal";
 
 import { resolveAvatarUrl } from "@/lib/avatar";
+import { pushWidgetSnapshot } from "@/lib/ios-widget-bridge";
 import { MobileShell } from "@/components/h2go/MobileShell";
 import { Splash } from "@/components/h2go/Splash";
 import { WaterRing } from "@/components/h2go/WaterRing";
@@ -168,6 +169,21 @@ function HomePage() {
     .sort((a, b) => a.d.getTime() - b.d.getTime())[0];
   const nextMins = next ? Math.round((next.d.getTime() - now.getTime()) / 60000) : null;
   const name = data.profile?.name ?? "friend";
+
+  // Push snapshot vers le Widget iOS (no-op si pas iOS / App Group non configuré)
+  useEffect(() => {
+    let nextISO: string | null = null;
+    try {
+      nextISO = localStorage.getItem("h2go.nextReminder");
+    } catch {
+      /* noop */
+    }
+    void pushWidgetSnapshot({
+      intakeMl: data.todayMl,
+      goalMl: goal,
+      nextReminderISO: nextISO ?? (next ? next.d.toISOString() : null),
+    });
+  }, [data.todayMl, goal, next]);
   const initials = (() => {
     const src = (data.profile?.name?.trim()) || (data.profile?.email ? data.profile.email.split("@")[0] : "");
     if (!src) return "?";
