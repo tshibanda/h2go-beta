@@ -52,12 +52,57 @@ function HomePage() {
     refetchOnWindowFocus: true,
   });
 
+  const qc = useQueryClient();
+  const saveGoalFn = useServerFn(setDailyGoal);
+  const [weatherBoost, setWeatherBoost] = useState<number>(0);
+  const [weatherTemp, setWeatherTemp] = useState<number | null>(null);
+
   // Request notification permission once
   useEffect(() => {
     if (typeof window !== "undefined" && "Notification" in window && Notification.permission === "default") {
       Notification.requestPermission().catch(() => {});
     }
   }, []);
+
+  // Dynamic daily goal — adapt to weight + activity + climate + weather.
+  // Runs once per day per user (server-stored last_goal_compute_date).
+  useEffect(() => {
+    if (!data?.profile) return;
+    const p = data.profile as typeof data.profile & {
+      activity_level?: string | null;
+      climate_zone?: string | null;
+      dynamic_goal_enabled?: boolean | null;
+      last_goal_compute_date?: string | null;
+    };
+    if (p.dynamic_goal_enabled === false) return;
+    const today = new Date().toISOString().slice(0, 10);
+    if (p.last_goal_compute_date === today) return;
+
+    void (async () => {
+      const pos = await requestPosition();
+      const weather = pos
+        ? await fetchTodayWeather(pos.lat, pos.lon)
+        : { tempMaxC: null, humidity: null };
+      const res = computeGoal({
+        weightKg: p.weight_kg ?? null,
+        activity: (p.activity_level as ActivityLevel) ?? "moderate",
+        climate: (p.climate_zone as ClimateZone) ?? "temperate",
+        tempMaxC: weather.tempMaxC,
+        humidity: weather.humidity,
+      });
+      setWeatherBoost(res.weatherBoostPct);
+      setWeatherTemp(weather.tempMaxC);
+      try {
+        await saveGoalFn({
+          data: { daily_goal_ml: res.goalMl, weather_temp_c: weather.tempMaxC },
+        });
+        qc.invalidateQueries({ queryKey: ["dashboard"] });
+      } catch {
+        // silent — keep current goal
+      }
+    })();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [data?.profile?.id]);
 
   // Send welcome email on first arrival to /home (idempotent server-side).
   const sendWelcome = useServerFn(sendWelcomeEmailIfNeeded);
