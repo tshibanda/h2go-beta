@@ -529,6 +529,26 @@ function ProfilePage() {
           </Link>
         )}
 
+        {/* Support links */}
+        <div className="mx-4 grid grid-cols-2 gap-2">
+          <Link
+            to="/report-bug"
+            className="rounded-2xl p-3 bg-card shadow-sm flex items-center gap-2 text-sm font-medium text-foreground hover:bg-muted/60 transition active:scale-95"
+          >
+            <Bug size={16} className="text-destructive" />
+            {locale === "fr" ? "Signaler un bug" : "Report a bug"}
+          </Link>
+          <a
+            href={`mailto:support@h2go-app.com?subject=${encodeURIComponent(
+              locale === "fr" ? "Contact H2GO" : "H2GO contact",
+            )}`}
+            className="rounded-2xl p-3 bg-card shadow-sm flex items-center gap-2 text-sm font-medium text-foreground hover:bg-muted/60 transition active:scale-95"
+          >
+            <Mail size={16} className="text-primary" />
+            {locale === "fr" ? "Nous contacter" : "Contact us"}
+          </a>
+        </div>
+
         <div className="px-4 pt-2 pb-4 text-center">
           <Link to="/terms" className="text-xs text-muted-foreground hover:text-primary underline">
             {t("p.terms")}
@@ -541,6 +561,7 @@ function ProfilePage() {
           subtitle={locale === "fr" ? "Ouverture de votre espace abonnement…" : "Opening your subscription space…"}
         />
       )}
+      <BadgeShareModal badge={shareBadge} onClose={() => setShareBadge(null)} />
     </MobileShell>
   );
 }
