@@ -194,9 +194,66 @@ export async function scheduleAdaptiveHydrationReminders(
   }
 
   const res = await scheduleHydrationRemindersAtTimes(times, locale);
+  rememberNextReminder(times);
 
-  // Mémorise le prochain rappel pour le widget iOS
+  return {
+    ok: res.ok,
+    count: res.count,
+    times,
+    reason: res.reason,
+    signals: { weather, activity, extraSlots },
+  };
+}
+
+/**
+ * Variante : on garde les créneaux configurés par l'utilisateur ET on ajoute
+ * des créneaux supplémentaires aux heures chaudes selon météo + activité.
+ */
+export async function scheduleAdaptiveFromUserTimes(
+  baseTimes: string[],
+  locale: "en" | "fr" = "fr",
+  endHour = 22,
+): Promise<AdaptiveResult> {
+  const coords = await getBrowserCoords();
+  const weather = coords
+    ? await fetchWeather(coords)
+    : ({ tempMaxC: null, humidityMean: null } as WeatherSignals);
+  const activity = await fetchActivity();
+
+  // Combien d'extras ?
+  let extra = 0;
+  const t = weather.tempMaxC ?? 0;
+  if (t >= 32) extra += 3;
+  else if (t >= 28) extra += 2;
+  else if (t >= 24) extra += 1;
+  if ((weather.humidityMean ?? 0) >= 70) extra += 1;
+  if (activity.exerciseMinutesToday >= 60) extra += 2;
+  else if (activity.exerciseMinutesToday >= 30) extra += 1;
+
+  const slots = new Set<string>(baseTimes.map((s) => s.slice(0, 5)));
+  let added = 0;
+  for (let h = 12; h <= Math.min(endHour, 17) && added < extra; h++) {
+    const candidate = `${String(h).padStart(2, "0")}:30`;
+    if (!slots.has(candidate)) {
+      slots.add(candidate);
+      added++;
+    }
+  }
+  const times = Array.from(slots).sort();
+  const res = await scheduleHydrationRemindersAtTimes(times, locale);
+  rememberNextReminder(times);
+  return {
+    ok: res.ok,
+    count: res.count,
+    times,
+    reason: res.reason,
+    signals: { weather, activity, extraSlots: added },
+  };
+}
+
+function rememberNextReminder(times: string[]) {
   try {
+    if (typeof window === "undefined") return;
     const now = new Date();
     const next = times
       .map((t) => {
@@ -207,18 +264,8 @@ export async function scheduleAdaptiveHydrationReminders(
         return d;
       })
       .sort((a, b) => a.getTime() - b.getTime())[0];
-    if (next && typeof window !== "undefined") {
-      localStorage.setItem("h2go.nextReminder", next.toISOString());
-    }
+    if (next) localStorage.setItem("h2go.nextReminder", next.toISOString());
   } catch {
     /* noop */
   }
-
-  return {
-    ok: res.ok,
-    count: res.count,
-    times,
-    reason: res.reason,
-    signals: { weather, activity, extraSlots },
-  };
 }
