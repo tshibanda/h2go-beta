@@ -144,6 +144,24 @@ function HomePage() {
     resolveAvatarUrl(data?.profile?.avatar_url).then(setAvatarUrl);
   }, [data?.profile?.avatar_url]);
 
+  // Push snapshot vers le Widget iOS (no-op si pas iOS / App Group non configuré)
+  const todayMlForWidget = data?.todayMl ?? 0;
+  const goalForWidget = data?.profile?.daily_goal_ml ?? 2500;
+  useEffect(() => {
+    if (!data) return;
+    let nextISO: string | null = null;
+    try {
+      nextISO = localStorage.getItem("h2go.nextReminder");
+    } catch {
+      /* noop */
+    }
+    void pushWidgetSnapshot({
+      intakeMl: todayMlForWidget,
+      goalMl: goalForWidget,
+      nextReminderISO: nextISO,
+    });
+  }, [data, todayMlForWidget, goalForWidget]);
+
   if (isLoading || !data) {
     return (
       <MobileShell>
@@ -170,20 +188,6 @@ function HomePage() {
   const nextMins = next ? Math.round((next.d.getTime() - now.getTime()) / 60000) : null;
   const name = data.profile?.name ?? "friend";
 
-  // Push snapshot vers le Widget iOS (no-op si pas iOS / App Group non configuré)
-  useEffect(() => {
-    let nextISO: string | null = null;
-    try {
-      nextISO = localStorage.getItem("h2go.nextReminder");
-    } catch {
-      /* noop */
-    }
-    void pushWidgetSnapshot({
-      intakeMl: data.todayMl,
-      goalMl: goal,
-      nextReminderISO: nextISO ?? (next ? next.d.toISOString() : null),
-    });
-  }, [data.todayMl, goal, next]);
   const initials = (() => {
     const src = (data.profile?.name?.trim()) || (data.profile?.email ? data.profile.email.split("@")[0] : "");
     if (!src) return "?";
