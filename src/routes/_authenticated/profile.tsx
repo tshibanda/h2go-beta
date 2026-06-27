@@ -298,16 +298,29 @@ function ProfilePage() {
                 label = a.title;
               }
               return (
-                <div key={a.id} className="flex flex-col items-center gap-1">
+                <button
+                  key={a.id}
+                  type="button"
+                  onClick={() =>
+                    setShareBadge({
+                      emoji: a.badge_emoji,
+                      title: label,
+                      description: a.description ?? undefined,
+                      unlocked,
+                      userName: data.profile?.name ?? undefined,
+                    })
+                  }
+                  className="flex flex-col items-center gap-1 transition-transform active:scale-95 hover:scale-105"
+                >
                   <div
-                    className={`w-14 h-14 rounded-2xl flex items-center justify-center text-2xl border-2 ${unlocked ? "bg-primary-soft border-primary-soft" : "bg-muted border-transparent opacity-40"}`}
+                    className={`w-14 h-14 rounded-2xl flex items-center justify-center text-2xl border-2 transition-all ${unlocked ? "bg-primary-soft border-primary-soft" : "bg-muted border-transparent opacity-40"}`}
                   >
                     {a.badge_emoji}
                   </div>
                   <span className={`text-[9px] text-center ${unlocked ? "text-primary" : "text-muted-foreground"}`}>
                     {label}
                   </span>
-                </div>
+                </button>
               );
             })}
           </div>
