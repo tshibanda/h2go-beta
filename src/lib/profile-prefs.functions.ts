@@ -19,7 +19,12 @@ export const setProfilePreferences = createServerFn({ method: "POST" })
   )
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
-    const update: Record<string, unknown> = {};
+    const update: {
+      weight_kg?: number;
+      activity_level?: string;
+      climate_zone?: string;
+      dynamic_goal_enabled?: boolean;
+    } = {};
     if (data.weight_kg !== undefined) update.weight_kg = data.weight_kg;
     if (data.activity_level !== undefined) update.activity_level = data.activity_level;
     if (data.climate_zone !== undefined) update.climate_zone = data.climate_zone;

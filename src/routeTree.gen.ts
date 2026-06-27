@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as UnsubscribeRouteImport } from './routes/unsubscribe'
 import { Route as TermsRouteImport } from './routes/terms'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
+import { Route as ReportBugRouteImport } from './routes/report-bug'
 import { Route as PendingValidationRouteImport } from './routes/pending-validation'
 import { Route as OnboardingRouteImport } from './routes/onboarding'
 import { Route as CalculatorRouteImport } from './routes/calculator'
@@ -47,6 +48,11 @@ const TermsRoute = TermsRouteImport.update({
 const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
   id: '/sitemap.xml',
   path: '/sitemap.xml',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ReportBugRoute = ReportBugRouteImport.update({
+  id: '/report-bug',
+  path: '/report-bug',
   getParentRoute: () => rootRouteImport,
 } as any)
 const PendingValidationRoute = PendingValidationRouteImport.update({
@@ -166,6 +172,7 @@ export interface FileRoutesByFullPath {
   '/calculator': typeof CalculatorRoute
   '/onboarding': typeof OnboardingRoute
   '/pending-validation': typeof PendingValidationRoute
+  '/report-bug': typeof ReportBugRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/terms': typeof TermsRoute
   '/unsubscribe': typeof UnsubscribeRoute
@@ -191,6 +198,7 @@ export interface FileRoutesByTo {
   '/calculator': typeof CalculatorRoute
   '/onboarding': typeof OnboardingRoute
   '/pending-validation': typeof PendingValidationRoute
+  '/report-bug': typeof ReportBugRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/terms': typeof TermsRoute
   '/unsubscribe': typeof UnsubscribeRoute
@@ -218,6 +226,7 @@ export interface FileRoutesById {
   '/calculator': typeof CalculatorRoute
   '/onboarding': typeof OnboardingRoute
   '/pending-validation': typeof PendingValidationRoute
+  '/report-bug': typeof ReportBugRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/terms': typeof TermsRoute
   '/unsubscribe': typeof UnsubscribeRoute
@@ -245,6 +254,7 @@ export interface FileRouteTypes {
     | '/calculator'
     | '/onboarding'
     | '/pending-validation'
+    | '/report-bug'
     | '/sitemap.xml'
     | '/terms'
     | '/unsubscribe'
@@ -270,6 +280,7 @@ export interface FileRouteTypes {
     | '/calculator'
     | '/onboarding'
     | '/pending-validation'
+    | '/report-bug'
     | '/sitemap.xml'
     | '/terms'
     | '/unsubscribe'
@@ -296,6 +307,7 @@ export interface FileRouteTypes {
     | '/calculator'
     | '/onboarding'
     | '/pending-validation'
+    | '/report-bug'
     | '/sitemap.xml'
     | '/terms'
     | '/unsubscribe'
@@ -323,6 +335,7 @@ export interface RootRouteChildren {
   CalculatorRoute: typeof CalculatorRoute
   OnboardingRoute: typeof OnboardingRoute
   PendingValidationRoute: typeof PendingValidationRoute
+  ReportBugRoute: typeof ReportBugRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   TermsRoute: typeof TermsRoute
   UnsubscribeRoute: typeof UnsubscribeRoute
@@ -356,6 +369,13 @@ declare module '@tanstack/react-router' {
       path: '/sitemap.xml'
       fullPath: '/sitemap.xml'
       preLoaderRoute: typeof SitemapDotxmlRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/report-bug': {
+      id: '/report-bug'
+      path: '/report-bug'
+      fullPath: '/report-bug'
+      preLoaderRoute: typeof ReportBugRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/pending-validation': {
@@ -539,6 +559,7 @@ const rootRouteChildren: RootRouteChildren = {
   CalculatorRoute: CalculatorRoute,
   OnboardingRoute: OnboardingRoute,
   PendingValidationRoute: PendingValidationRoute,
+  ReportBugRoute: ReportBugRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   TermsRoute: TermsRoute,
   UnsubscribeRoute: UnsubscribeRoute,
