@@ -2,7 +2,18 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useRef, useState } from "react";
-import { Star, Crown, ChevronRight, LogOut, Languages, Camera, Trash2, Bug, Mail, Activity, CloudSun } from "lucide-react";
+import { Star, Crown, ChevronRight, LogOut, Languages, Camera, Trash2, Bug, Mail, Activity, CloudSun, ShieldAlert } from "lucide-react";
+import { deleteAccount } from "@/lib/account.functions";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { getDashboard, getTotals, saveReminders, updateAvatar } from "@/lib/h2go.functions";
 import { setProfilePreferences } from "@/lib/profile-prefs.functions";
 import { createPortalSession } from "@/lib/payments.functions";
