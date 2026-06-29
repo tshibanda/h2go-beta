@@ -58,11 +58,20 @@ function HomePage() {
   const [weatherBoost, setWeatherBoost] = useState<number>(0);
   const [weatherTemp, setWeatherTemp] = useState<number | null>(null);
 
-  // Request notification permission once
+  // Request notification permission when user lands on /home
   useEffect(() => {
-    if (typeof window !== "undefined" && "Notification" in window && Notification.permission === "default") {
-      Notification.requestPermission().catch(() => {});
-    }
+    (async () => {
+      try {
+        const { isNative, maybePromptFirstLaunch } = await import("@/lib/notifications");
+        if (isNative()) {
+          await maybePromptFirstLaunch();
+        } else if (typeof window !== "undefined" && "Notification" in window && Notification.permission === "default") {
+          await Notification.requestPermission().catch(() => {});
+        }
+      } catch {
+        /* noop */
+      }
+    })();
   }, []);
 
   // Dynamic daily goal — adapt to weight + activity + climate + weather.
