@@ -182,6 +182,31 @@ function ProfilePage() {
     navigate({ to: "/" });
   }
 
+  const callDelete = useServerFn(deleteAccount);
+  const [deleteOpen, setDeleteOpen] = useState(false);
+  const [deleting, setDeleting] = useState(false);
+  const [confirmText, setConfirmText] = useState("");
+  async function handleDeleteAccount() {
+    setDeleting(true);
+    try {
+      const res = await callDelete();
+      if ("error" in res) throw new Error(res.error);
+      toast.success(
+        locale === "fr" ? "Compte supprimé" : "Account deleted",
+      );
+      try { await supabase.auth.signOut(); } catch { /* noop */ }
+      navigate({ to: "/" });
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Delete failed");
+    } finally {
+      setDeleting(false);
+      setDeleteOpen(false);
+      setConfirmText("");
+    }
+  }
+
+
+
   async function onPickAvatar(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
     if (!file) return;
