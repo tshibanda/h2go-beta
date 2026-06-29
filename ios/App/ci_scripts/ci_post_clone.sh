@@ -12,7 +12,7 @@ echo "npm version: $(npm -v)"
 cd "$CI_PRIMARY_REPOSITORY_PATH"
 
 echo "Installing npm dependencies..."
-npm ci
+npm ci --legacy-peer-deps
 
 echo "Syncing Capacitor iOS..."
 npx cap sync ios
