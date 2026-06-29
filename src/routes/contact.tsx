@@ -41,16 +41,29 @@ function ContactPage() {
     const url = `mailto:${SUPPORT_EMAIL}?subject=${encodeURIComponent(
       mailSubject,
     )}&body=${encodeURIComponent(body)}`;
-    // Use a real anchor click — more reliable than window.location in WebViews
-    const a = document.createElement("a");
-    a.href = url;
-    a.rel = "noopener";
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
+    // Try multiple strategies for max WebView/browser compatibility (iOS Capacitor, Safari, Android)
+    let opened = false;
+    try {
+      const win = window.open(url, "_blank");
+      opened = !!win;
+    } catch {
+      // ignored
+    }
+    if (!opened) {
+      try {
+        window.location.href = url;
+        opened = true;
+      } catch {
+        // ignored
+      }
+    }
     setTimeout(() => {
-      toast.message(fr ? "Si rien ne s'ouvre, copie notre email ci-dessous." : "If nothing opens, copy our email below.");
-    }, 800);
+      toast.message(
+        fr
+          ? "Si ton app mail ne s'ouvre pas, copie notre adresse ci-dessus."
+          : "If your mail app doesn't open, copy our address above.",
+      );
+    }, 1200);
   }
 
   async function copyEmail() {
