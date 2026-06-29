@@ -81,8 +81,9 @@ function ProfilePage() {
     portalPromiseRef.current = (async () => {
       try {
         const r = await openPortalFn({
-          data: { returnUrl: window.location.href, environment: getStripeEnvironment() },
+          data: { returnUrl: `${window.location.origin}/profile`, environment: getStripeEnvironment() },
         });
+
         if ("error" in r) return null;
         portalUrlRef.current = r.url;
         return r.url;
