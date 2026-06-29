@@ -98,10 +98,10 @@ export default {
     try {
       const handler = await getServerEntry();
       const response = await handler.fetch(request, env, ctx);
-      return await normalizeCatastrophicSsrResponse(response);
+      return await normalizeCatastrophicSsrResponse(request, response);
     } catch (error) {
       console.error(error);
-      return new Response(renderErrorPage(), {
+      return new Response(renderErrorPage(request.headers.get("accept-language")), {
         status: 500,
         headers: { "content-type": "text/html; charset=utf-8" },
       });
