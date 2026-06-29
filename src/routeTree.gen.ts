@@ -15,6 +15,7 @@ import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as ReportBugRouteImport } from './routes/report-bug'
 import { Route as PendingValidationRouteImport } from './routes/pending-validation'
 import { Route as OnboardingRouteImport } from './routes/onboarding'
+import { Route as ContactRouteImport } from './routes/contact'
 import { Route as CalculatorRouteImport } from './routes/calculator'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AppleAppSiteAssociationRouteImport } from './routes/apple-app-site-association'
@@ -63,6 +64,11 @@ const PendingValidationRoute = PendingValidationRouteImport.update({
 const OnboardingRoute = OnboardingRouteImport.update({
   id: '/onboarding',
   path: '/onboarding',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ContactRoute = ContactRouteImport.update({
+  id: '/contact',
+  path: '/contact',
   getParentRoute: () => rootRouteImport,
 } as any)
 const CalculatorRoute = CalculatorRouteImport.update({
@@ -170,6 +176,7 @@ export interface FileRoutesByFullPath {
   '/apple-app-site-association': typeof AppleAppSiteAssociationRoute
   '/auth': typeof AuthRoute
   '/calculator': typeof CalculatorRoute
+  '/contact': typeof ContactRoute
   '/onboarding': typeof OnboardingRoute
   '/pending-validation': typeof PendingValidationRoute
   '/report-bug': typeof ReportBugRoute
@@ -196,6 +203,7 @@ export interface FileRoutesByTo {
   '/apple-app-site-association': typeof AppleAppSiteAssociationRoute
   '/auth': typeof AuthRoute
   '/calculator': typeof CalculatorRoute
+  '/contact': typeof ContactRoute
   '/onboarding': typeof OnboardingRoute
   '/pending-validation': typeof PendingValidationRoute
   '/report-bug': typeof ReportBugRoute
@@ -224,6 +232,7 @@ export interface FileRoutesById {
   '/apple-app-site-association': typeof AppleAppSiteAssociationRoute
   '/auth': typeof AuthRoute
   '/calculator': typeof CalculatorRoute
+  '/contact': typeof ContactRoute
   '/onboarding': typeof OnboardingRoute
   '/pending-validation': typeof PendingValidationRoute
   '/report-bug': typeof ReportBugRoute
@@ -252,6 +261,7 @@ export interface FileRouteTypes {
     | '/apple-app-site-association'
     | '/auth'
     | '/calculator'
+    | '/contact'
     | '/onboarding'
     | '/pending-validation'
     | '/report-bug'
@@ -278,6 +288,7 @@ export interface FileRouteTypes {
     | '/apple-app-site-association'
     | '/auth'
     | '/calculator'
+    | '/contact'
     | '/onboarding'
     | '/pending-validation'
     | '/report-bug'
@@ -305,6 +316,7 @@ export interface FileRouteTypes {
     | '/apple-app-site-association'
     | '/auth'
     | '/calculator'
+    | '/contact'
     | '/onboarding'
     | '/pending-validation'
     | '/report-bug'
@@ -333,6 +345,7 @@ export interface RootRouteChildren {
   AppleAppSiteAssociationRoute: typeof AppleAppSiteAssociationRoute
   AuthRoute: typeof AuthRoute
   CalculatorRoute: typeof CalculatorRoute
+  ContactRoute: typeof ContactRoute
   OnboardingRoute: typeof OnboardingRoute
   PendingValidationRoute: typeof PendingValidationRoute
   ReportBugRoute: typeof ReportBugRoute
@@ -390,6 +403,13 @@ declare module '@tanstack/react-router' {
       path: '/onboarding'
       fullPath: '/onboarding'
       preLoaderRoute: typeof OnboardingRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/contact': {
+      id: '/contact'
+      path: '/contact'
+      fullPath: '/contact'
+      preLoaderRoute: typeof ContactRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/calculator': {
@@ -557,6 +577,7 @@ const rootRouteChildren: RootRouteChildren = {
   AppleAppSiteAssociationRoute: AppleAppSiteAssociationRoute,
   AuthRoute: AuthRoute,
   CalculatorRoute: CalculatorRoute,
+  ContactRoute: ContactRoute,
   OnboardingRoute: OnboardingRoute,
   PendingValidationRoute: PendingValidationRoute,
   ReportBugRoute: ReportBugRoute,

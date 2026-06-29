@@ -544,15 +544,13 @@ function ProfilePage() {
             <Bug size={16} className="text-destructive" />
             {locale === "fr" ? "Signaler un bug" : "Report a bug"}
           </Link>
-          <a
-            href={`mailto:support@h2go-app.com?subject=${encodeURIComponent(
-              locale === "fr" ? "Contact H2GO" : "H2GO contact",
-            )}`}
+          <Link
+            to="/contact"
             className="rounded-2xl p-3 bg-card shadow-sm flex items-center gap-2 text-sm font-medium text-foreground hover:bg-muted/60 transition active:scale-95"
           >
             <Mail size={16} className="text-primary" />
             {locale === "fr" ? "Nous contacter" : "Contact us"}
-          </a>
+          </Link>
         </div>
 
         <div className="px-4 pt-2 pb-4 text-center">
