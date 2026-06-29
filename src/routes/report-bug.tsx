@@ -62,9 +62,7 @@ function ReportBugPage() {
       <main className="max-w-xl mx-auto px-5 pt-10 pb-16 flex flex-col gap-6">
         <header className="flex flex-col items-center text-center gap-3">
           <Splash mood="thinking" size={80} />
-          <h1 className="font-display text-3xl font-bold leading-tight">
-            {fr ? "Signaler un bug" : "Report a bug"}
-          </h1>
+          <h1 className="font-display text-3xl font-bold leading-tight">{fr ? "Signaler un bug" : "Report a bug"}</h1>
           <p className="text-white/85 text-sm">
             {fr
               ? "Décris le problème rencontré, on s'en occupe rapidement."
@@ -142,19 +140,15 @@ function ReportBugPage() {
             </div>
           </div>
 
-          <Button
-            type="submit"
-            className="h-12 rounded-2xl bg-white text-primary font-bold hover:bg-white/90"
-          >
-            <Bug size={16} /> <Send size={16} />{" "}
-            {fr ? "Envoyer par email" : "Send by email"}
+          <Button type="submit" className="h-12 rounded-2xl bg-white text-primary font-bold hover:bg-white/90">
+            <Bug size={16} /> <Send size={16} /> {fr ? "Envoyer par email" : "Send by email"}
           </Button>
 
-          <p className="text-[11px] text-white/65 text-center">
+          {/*<p className="text-[11px] text-white/65 text-center">
             {fr
               ? `Ouvre ton client mail vers ${SUPPORT_EMAIL}`
               : `Opens your mail client to ${SUPPORT_EMAIL}`}
-          </p>
+          </p>*/}
         </form>
 
         <div className="text-center">
