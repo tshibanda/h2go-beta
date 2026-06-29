@@ -94,9 +94,12 @@ export const deleteAccount = createServerFn({ method: "POST" })
     ] as const;
     for (const t of tables) {
       try {
-        await supabaseAdmin.from(t).delete().eq("user_id", userId);
+        // Cast: union of tables breaks the typed eq() signature; runtime is fine.
+        await (supabaseAdmin.from(t) as unknown as { delete: () => { eq: (c: string, v: string) => Promise<unknown> } })
+          .delete()
+          .eq("user_id", userId);
       } catch {
-        /* noop: some tables key on id instead of user_id */
+        /* noop: some tables may key on id instead of user_id */
       }
     }
     try {
