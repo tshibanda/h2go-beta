@@ -329,7 +329,7 @@
 				INFOPLIST_FILE = H2GOWidget/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = H2GOWidget;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
-				IPHONEOS_DEPLOYMENT_TARGET = 18.5;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -370,7 +370,7 @@
 				INFOPLIST_FILE = H2GOWidget/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = H2GOWidget;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
-				IPHONEOS_DEPLOYMENT_TARGET = 18.5;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
