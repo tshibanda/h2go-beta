@@ -5,10 +5,11 @@ Extension dans Xcode** une seule fois — Capacitor ne le fait pas tout seul.
 
 ## Étapes (Xcode, ~5 min)
 
-1. Ouvre `ios/App/App.xcworkspace` dans Xcode.
+1. Ouvre `ios/App/App.xcodeproj` dans Xcode.
 2. `File > New > Target… > Widget Extension`.
    - Product Name : **H2GOWidget**
    - Decoche "Include Configuration Intent".
+   - Ne coche pas "Include Live Activity" ni "Include Control Widget".
    - Embed in : **App**.
 3. Supprime le fichier `H2GOWidget.swift` généré, glisse à la place
    le fichier `ios/App/H2GOWidget/H2GOWidget.swift` (déjà présent dans ce dossier).
@@ -22,6 +23,21 @@ Extension dans Xcode** une seule fois — Capacitor ne le fait pas tout seul.
    ```
 6. Build & run sur un iPhone (iOS 16+). Ajoute le widget H2GO depuis l'écran
    d'accueil / verrouillage.
+
+## Si Xcode affiche `Missing package product 'CapApp-SPM'`
+
+1. Ferme Xcode.
+2. À la racine du projet :
+   ```bash
+   bun install
+   npx cap sync ios
+   ```
+3. Rouvre `ios/App/App.xcodeproj`.
+4. Dans Xcode : `File > Packages > Reset Package Caches`, puis
+   `File > Packages > Resolve Package Versions`.
+
+Le package `CapApp-SPM` doit rester lié uniquement à la cible **App**, pas à
+la cible **H2GOWidgetExtension**.
 
 ## Données partagées
 
