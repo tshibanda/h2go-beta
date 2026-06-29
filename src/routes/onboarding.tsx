@@ -104,6 +104,15 @@ function Onboarding() {
         },
       });
       toast.success(t("ob.toastReady"));
+      // Demande de permission notifications après onboarding
+      try {
+        const { isNative, maybePromptFirstLaunch } = await import("@/lib/notifications");
+        if (isNative()) {
+          await maybePromptFirstLaunch();
+        } else if (typeof window !== "undefined" && "Notification" in window && Notification.permission === "default") {
+          await Notification.requestPermission().catch(() => {});
+        }
+      } catch { /* noop */ }
       // After onboarding, check subscription and redirect accordingly
       const { data: { user } } = await supabase.auth.getUser();
       if (user) {
