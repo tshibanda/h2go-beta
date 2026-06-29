@@ -2,6 +2,14 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
+	<key>NSCameraUsageDescription</key>
+	<string>H2GO utilise l'appareil photo pour scanner ou prendre une photo de profil.</string>
+	<key>NSPhotoLibraryAddUsageDescription</key>
+	<string>H2GO a besoin d'enregistrer des images dans votre photothèque.</string>
+	<key>NSHealthShareUsageDescription</key>
+	<string>H2GO utilise vos données de santé pour suivre votre hydratation.</string>
+	<key>NSHealthUpdateUsageDescription</key>
+	<string>H2GO souhaite enregistrer vos données d'hydratation dans Santé.</string>
 	<key>CFBundleURLTypes</key>
 	<array>
 	  <dict>
