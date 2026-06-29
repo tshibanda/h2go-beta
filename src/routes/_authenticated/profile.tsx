@@ -589,12 +589,63 @@ function ProfilePage() {
           </Link>
         </div>
 
+        <div className="px-4 pt-4">
+          <button
+            type="button"
+            onClick={() => setDeleteOpen(true)}
+            className="w-full rounded-2xl p-3 bg-destructive/10 border border-destructive/30 flex items-center justify-center gap-2 text-sm font-semibold text-destructive hover:bg-destructive/15 transition active:scale-95"
+          >
+            <ShieldAlert size={16} />
+            {locale === "fr" ? "Supprimer mon compte" : "Delete my account"}
+          </button>
+        </div>
+
         <div className="px-4 pt-2 pb-4 text-center">
           <Link to="/terms" className="text-xs text-muted-foreground hover:text-primary underline">
             {t("p.terms")}
           </Link>
         </div>
       </div>
+      <AlertDialog open={deleteOpen} onOpenChange={(o) => { if (!deleting) { setDeleteOpen(o); if (!o) setConfirmText(""); } }}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle className="font-display">
+              {locale === "fr" ? "Supprimer définitivement votre compte ?" : "Permanently delete your account?"}
+            </AlertDialogTitle>
+            <AlertDialogDescription>
+              {locale === "fr"
+                ? "Cette action est irréversible. Toutes vos données (profil, hydratation, badges, statistiques) seront supprimées et votre abonnement Premium sera résilié immédiatement, sans remboursement au prorata."
+                : "This action is irreversible. All your data (profile, hydration, badges, stats) will be deleted and your Premium subscription will be canceled immediately, without proration refund."}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <div className="mt-2">
+            <label className="text-xs text-muted-foreground">
+              {locale === "fr" ? "Tapez SUPPRIMER pour confirmer" : "Type DELETE to confirm"}
+            </label>
+            <Input
+              autoFocus
+              value={confirmText}
+              onChange={(e) => setConfirmText(e.target.value)}
+              placeholder={locale === "fr" ? "SUPPRIMER" : "DELETE"}
+              className="mt-1"
+            />
+          </div>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={deleting}>
+              {locale === "fr" ? "Annuler" : "Cancel"}
+            </AlertDialogCancel>
+            <AlertDialogAction
+              disabled={deleting || (confirmText.trim().toUpperCase() !== (locale === "fr" ? "SUPPRIMER" : "DELETE"))}
+              onClick={(e) => { e.preventDefault(); void handleDeleteAccount(); }}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              {deleting
+                ? (locale === "fr" ? "Suppression…" : "Deleting…")
+                : (locale === "fr" ? "Supprimer définitivement" : "Delete forever")}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
       {openingPortal && (
         <LoadingScreen
           title={t("p.premium")}
