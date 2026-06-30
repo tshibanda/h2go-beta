@@ -120,7 +120,13 @@ function ValidatePage() {
   }
 
   return (
-    <div className="fixed inset-0 z-50 bg-[#0A0F1E] flex flex-col text-white">
+    <div
+      className="fixed inset-0 z-50 bg-[#0A0F1E] flex flex-col text-white"
+      style={{
+        paddingTop: "env(safe-area-inset-top)",
+        paddingBottom: "env(safe-area-inset-bottom)",
+      }}
+    >
       <SplashDefs />
       {phase === "camera" && (
         <>

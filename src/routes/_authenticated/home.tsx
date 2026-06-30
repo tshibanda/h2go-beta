@@ -2,7 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
-import { Bell, Flame, Zap, ChevronRight, Camera, Thermometer } from "lucide-react";
+import { Bell, Flame, Zap, ChevronRight, Camera, Thermometer, Pencil } from "lucide-react";
 import { getDashboard } from "@/lib/h2go.functions";
 import { sendWelcomeEmailIfNeeded } from "@/lib/welcome-email.functions";
 import { setDailyGoal } from "@/lib/profile-prefs.functions";
@@ -23,6 +23,10 @@ import { levelForXp, treeStageForLogs } from "@/lib/gamification";
 import { useT } from "@/i18n";
 import { LEVEL_NAMES, FACT_FR } from "@/i18n/translations";
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { toast } from "sonner";
 
 export const Route = createFileRoute("/_authenticated/home")({
   head: () => ({
@@ -57,6 +61,9 @@ function HomePage() {
   const saveGoalFn = useServerFn(setDailyGoal);
   const [weatherBoost, setWeatherBoost] = useState<number>(0);
   const [weatherTemp, setWeatherTemp] = useState<number | null>(null);
+  const [goalEditOpen, setGoalEditOpen] = useState(false);
+  const [goalDraft, setGoalDraft] = useState<string>("");
+  const [savingGoal, setSavingGoal] = useState(false);
 
   // Request notification permission when user lands on /home
   useEffect(() => {
@@ -293,7 +300,20 @@ function HomePage() {
           <div className="flex items-center justify-between mb-3">
             <div>
               <p className="text-[11px] text-muted-foreground">{t("home.dailyGoal")}</p>
-              <p className="font-display text-xl font-bold">{(goal / 1000).toFixed(1)}L</p>
+              <div className="flex items-center gap-1.5">
+                <p className="font-display text-xl font-bold">{(goal / 1000).toFixed(1)}L</p>
+                <button
+                  type="button"
+                  aria-label={t("home.editGoal")}
+                  onClick={() => {
+                    setGoalDraft(String(goal));
+                    setGoalEditOpen(true);
+                  }}
+                  className="w-6 h-6 rounded-full bg-primary-soft text-primary flex items-center justify-center active:scale-95 transition"
+                >
+                  <Pencil size={12} />
+                </button>
+              </div>
               {weatherBoost > 0 && weatherTemp != null && (
                 <p className="text-[10px] text-secondary font-medium flex items-center gap-1 mt-0.5">
                   <Thermometer size={10} /> {Math.round(weatherTemp)}°C · +{weatherBoost}%
@@ -406,6 +426,73 @@ function HomePage() {
           </div>
         </Link>
       </div>
+
+      <Dialog open={goalEditOpen} onOpenChange={setGoalEditOpen}>
+        <DialogContent className="max-w-sm rounded-3xl">
+          <DialogHeader>
+            <DialogTitle>{t("home.editGoalTitle")}</DialogTitle>
+            <DialogDescription>{t("home.editGoalDesc")}</DialogDescription>
+          </DialogHeader>
+          <div className="flex flex-col gap-3 py-2">
+            <div className="flex items-center gap-2">
+              <Input
+                type="number"
+                inputMode="numeric"
+                min={500}
+                max={6000}
+                step={50}
+                value={goalDraft}
+                onChange={(e) => setGoalDraft(e.target.value)}
+                className="text-lg font-semibold"
+              />
+              <span className="text-sm text-muted-foreground">ml</span>
+            </div>
+            <div className="flex gap-2 flex-wrap">
+              {[1500, 2000, 2500, 3000, 3500].map((preset) => (
+                <button
+                  key={preset}
+                  type="button"
+                  onClick={() => setGoalDraft(String(preset))}
+                  className={`px-3 py-1 rounded-full text-xs font-semibold border ${
+                    Number(goalDraft) === preset
+                      ? "bg-primary text-white border-primary"
+                      : "bg-card text-primary border-primary/30"
+                  }`}
+                >
+                  {preset} ml
+                </button>
+              ))}
+            </div>
+          </div>
+          <DialogFooter className="flex-row gap-2 sm:justify-end">
+            <Button variant="outline" onClick={() => setGoalEditOpen(false)} disabled={savingGoal}>
+              {t("home.cancel")}
+            </Button>
+            <Button
+              disabled={savingGoal}
+              onClick={async () => {
+                const n = Math.round(Number(goalDraft));
+                if (!Number.isFinite(n) || n < 500 || n > 6000) {
+                  toast.error("500 – 6000 ml");
+                  return;
+                }
+                setSavingGoal(true);
+                try {
+                  await saveGoalFn({ data: { daily_goal_ml: n, weather_temp_c: weatherTemp } });
+                  await qc.invalidateQueries({ queryKey: ["dashboard"] });
+                  setGoalEditOpen(false);
+                } catch (e) {
+                  toast.error(e instanceof Error ? e.message : "Error");
+                } finally {
+                  setSavingGoal(false);
+                }
+              }}
+            >
+              {savingGoal ? "…" : t("home.save")}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </MobileShell>
   );
 }
