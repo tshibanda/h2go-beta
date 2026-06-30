@@ -426,6 +426,73 @@ function HomePage() {
           </div>
         </Link>
       </div>
+
+      <Dialog open={goalEditOpen} onOpenChange={setGoalEditOpen}>
+        <DialogContent className="max-w-sm rounded-3xl">
+          <DialogHeader>
+            <DialogTitle>{t("home.editGoalTitle")}</DialogTitle>
+            <DialogDescription>{t("home.editGoalDesc")}</DialogDescription>
+          </DialogHeader>
+          <div className="flex flex-col gap-3 py-2">
+            <div className="flex items-center gap-2">
+              <Input
+                type="number"
+                inputMode="numeric"
+                min={500}
+                max={6000}
+                step={50}
+                value={goalDraft}
+                onChange={(e) => setGoalDraft(e.target.value)}
+                className="text-lg font-semibold"
+              />
+              <span className="text-sm text-muted-foreground">ml</span>
+            </div>
+            <div className="flex gap-2 flex-wrap">
+              {[1500, 2000, 2500, 3000, 3500].map((preset) => (
+                <button
+                  key={preset}
+                  type="button"
+                  onClick={() => setGoalDraft(String(preset))}
+                  className={`px-3 py-1 rounded-full text-xs font-semibold border ${
+                    Number(goalDraft) === preset
+                      ? "bg-primary text-white border-primary"
+                      : "bg-card text-primary border-primary/30"
+                  }`}
+                >
+                  {preset} ml
+                </button>
+              ))}
+            </div>
+          </div>
+          <DialogFooter className="flex-row gap-2 sm:justify-end">
+            <Button variant="outline" onClick={() => setGoalEditOpen(false)} disabled={savingGoal}>
+              {t("home.cancel")}
+            </Button>
+            <Button
+              disabled={savingGoal}
+              onClick={async () => {
+                const n = Math.round(Number(goalDraft));
+                if (!Number.isFinite(n) || n < 500 || n > 6000) {
+                  toast.error("500 – 6000 ml");
+                  return;
+                }
+                setSavingGoal(true);
+                try {
+                  await saveGoalFn({ data: { daily_goal_ml: n, weather_temp_c: weatherTemp } });
+                  await qc.invalidateQueries({ queryKey: ["dashboard"] });
+                  setGoalEditOpen(false);
+                } catch (e) {
+                  toast.error(e instanceof Error ? e.message : "Error");
+                } finally {
+                  setSavingGoal(false);
+                }
+              }}
+            >
+              {savingGoal ? "…" : t("home.save")}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </MobileShell>
   );
 }
