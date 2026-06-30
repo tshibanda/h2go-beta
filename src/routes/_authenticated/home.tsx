@@ -2,7 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
-import { Bell, Flame, Zap, ChevronRight, Camera, Thermometer } from "lucide-react";
+import { Bell, Flame, Zap, ChevronRight, Camera, Thermometer, Pencil } from "lucide-react";
 import { getDashboard } from "@/lib/h2go.functions";
 import { sendWelcomeEmailIfNeeded } from "@/lib/welcome-email.functions";
 import { setDailyGoal } from "@/lib/profile-prefs.functions";
