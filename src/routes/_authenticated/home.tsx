@@ -300,7 +300,20 @@ function HomePage() {
           <div className="flex items-center justify-between mb-3">
             <div>
               <p className="text-[11px] text-muted-foreground">{t("home.dailyGoal")}</p>
-              <p className="font-display text-xl font-bold">{(goal / 1000).toFixed(1)}L</p>
+              <div className="flex items-center gap-1.5">
+                <p className="font-display text-xl font-bold">{(goal / 1000).toFixed(1)}L</p>
+                <button
+                  type="button"
+                  aria-label={t("home.editGoal")}
+                  onClick={() => {
+                    setGoalDraft(String(goal));
+                    setGoalEditOpen(true);
+                  }}
+                  className="w-6 h-6 rounded-full bg-primary-soft text-primary flex items-center justify-center active:scale-95 transition"
+                >
+                  <Pencil size={12} />
+                </button>
+              </div>
               {weatherBoost > 0 && weatherTemp != null && (
                 <p className="text-[10px] text-secondary font-medium flex items-center gap-1 mt-0.5">
                   <Thermometer size={10} /> {Math.round(weatherTemp)}°C · +{weatherBoost}%
