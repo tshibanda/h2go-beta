@@ -23,6 +23,10 @@ import { levelForXp, treeStageForLogs } from "@/lib/gamification";
 import { useT } from "@/i18n";
 import { LEVEL_NAMES, FACT_FR } from "@/i18n/translations";
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { toast } from "sonner";
 
 export const Route = createFileRoute("/_authenticated/home")({
   head: () => ({
