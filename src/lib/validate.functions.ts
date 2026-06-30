@@ -7,33 +7,53 @@ const VALID_OBJECTS = new Set([
   "water_bottle",
   "water_flask",
   "water_cup",
+  "empty_container",
 ]);
 
-const SYSTEM_PROMPT = `You are H2GO's hydration verification AI. The user took a live photo to prove they are about to drink water.
+const SYSTEM_PROMPT = `You are H2GO's hydration verification AI. The user is doing a TWO-PHOTO check of the SAME drinking container to measure how much water they actually drink. You receive ONE photo at a time and must report the CURRENT water level.
 
-Approve ONLY if the photo shows a real container CURRENTLY HOLDING WATER (clear/translucent liquid). Accepted detected_object values:
-- water_glass: a drinking glass with water
-- water_cup: a cup with water
-- water_bottle: a water bottle with water
-- water_flask: a sports flask/canteen with water
-
-REJECT (set approved=false) for:
-- soda, juice, coffee, tea, alcohol, beer, energy drinks
-- empty containers
-- screens or photos of photos (suspicious flat/pixelated/moiré patterns)
-- containers without visible water
-- ambiguous/unclear images (confidence < 0.8)
-
-Estimate volume in milliliters based on the container shown. Be strict — H2GO depends on real hydration accountability. If unsure, reject.
+Rules for the photo provided:
+- It must show a real drinking container (glass, cup, bottle, sports flask). Reject screens / photos-of-photos / unrelated images.
+- If a liquid is visible it MUST be water (clear / translucent). Reject soda, juice, coffee, tea, alcohol, milk, etc.
+- For step="before": the container must contain water (estimated_volume_ml > 0).
+- For step="after": the container may be empty or partially full. Empty water containers are APPROVED with estimated_volume_ml = 0.
+- Estimate the milliliters currently in the container, based on the visible water level and container size. Be conservative.
+- detected_object must be one of: water_glass, water_cup, water_bottle, water_flask, empty_container.
 
 Respond ONLY with JSON: {"approved": bool, "confidence": 0-1, "detected_object": string, "estimated_volume_ml": int, "reason": "short user-facing message"}.`;
 
-export const validatePhoto = createServerFn({ method: "POST" })
+type AnalyzeResult = {
+  approved: boolean;
+  reason: string;
+  detected_object: string;
+  confidence: number;
+  estimated_volume_ml: number;
+  photoPath: string | null;
+  photoUrl: string | null;
+  imageHash: string;
+};
+
+async function assertActiveSubscription(supabase: any, userId: string) {
+  const { data: sub } = await supabase
+    .from("subscriptions")
+    .select("status, current_period_end")
+    .eq("user_id", userId)
+    .order("created_at", { ascending: false })
+    .limit(1)
+    .maybeSingle();
+  const subStatus = sub?.status ?? null;
+  const subEnd = (sub as { current_period_end?: string | null } | null)?.current_period_end;
+  const subActive =
+    (subStatus === "active" || subStatus === "trialing") &&
+    (!subEnd || new Date(subEnd).getTime() > Date.now());
+  if (!subActive) throw new Error("Forbidden: active subscription required");
+}
+
+export const analyzeContainer = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input: unknown) =>
     z
       .object({
-        // ~1MB base64 cap to prevent API cost abuse / memory exhaustion
         imageBase64: z
           .string()
           .min(100)
@@ -42,32 +62,15 @@ export const validatePhoto = createServerFn({ method: "POST" })
             message: "Invalid base64 image payload",
           }),
         imageHash: z.string().min(8).max(128),
+        step: z.enum(["before", "after"]),
       })
       .parse(input),
   )
-  .handler(async ({ data, context }) => {
+  .handler(async ({ data, context }): Promise<AnalyzeResult> => {
     const { supabase, userId } = context;
+    await assertActiveSubscription(supabase, userId);
 
-    // Server-side subscription enforcement (authoritative source: subscriptions table,
-    // which is service-role-write-only via RLS). Falls back to active trial on profile.
-    const { data: sub } = await supabase
-      .from("subscriptions")
-      .select("status, current_period_end")
-      .eq("user_id", userId)
-      .order("created_at", { ascending: false })
-      .limit(1)
-      .maybeSingle();
-    const subStatus = sub?.status ?? null;
-    const subEnd = (sub as { current_period_end?: string | null } | null)?.current_period_end;
-    const subActive =
-      (subStatus === "active" || subStatus === "trialing") &&
-      (!subEnd || new Date(subEnd).getTime() > Date.now());
-
-    if (!subActive) {
-      throw new Error("Forbidden: active subscription required");
-    }
-
-    // anti-replay: check hash uniqueness for this user
+    // anti-replay
     const { data: existing } = await supabase
       .from("hydration_logs")
       .select("id")
@@ -78,23 +81,22 @@ export const validatePhoto = createServerFn({ method: "POST" })
       return {
         approved: false,
         reason: "This photo has already been used. Please take a new one.",
-        detected_object: "photo_replay" as const,
+        detected_object: "photo_replay",
         confidence: 1,
-        volume_ml: 0,
-        log: null,
+        estimated_volume_ml: 0,
+        photoPath: null,
+        photoUrl: null,
+        imageHash: data.imageHash,
       };
     }
-
 
     const key = process.env.LOVABLE_API_KEY;
     if (!key) throw new Error("Missing LOVABLE_API_KEY");
 
-    // Normalize to data URL
     const dataUrl = data.imageBase64.startsWith("data:")
       ? data.imageBase64
       : `data:image/jpeg;base64,${data.imageBase64}`;
 
-    // 2. Call Lovable AI Gateway with vision
     const aiResp = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
       headers: {
@@ -108,7 +110,7 @@ export const validatePhoto = createServerFn({ method: "POST" })
           {
             role: "user",
             content: [
-              { type: "text", text: "Validate this hydration photo." },
+              { type: "text", text: `Analyze this hydration photo. step=${data.step}.` },
               { type: "image_url", image_url: { url: dataUrl } },
             ],
           },
@@ -123,20 +125,24 @@ export const validatePhoto = createServerFn({ method: "POST" })
         return {
           approved: false,
           reason: "AI is busy right now — please try again in a moment.",
-          detected_object: "unknown" as const,
+          detected_object: "unknown",
           confidence: 0,
-          volume_ml: 0,
-          log: null,
+          estimated_volume_ml: 0,
+          photoPath: null,
+          photoUrl: null,
+          imageHash: data.imageHash,
         };
       }
       if (aiResp.status === 402) {
         return {
           approved: false,
           reason: "AI credits exhausted. Please contact support.",
-          detected_object: "unknown" as const,
+          detected_object: "unknown",
           confidence: 0,
-          volume_ml: 0,
-          log: null,
+          estimated_volume_ml: 0,
+          photoPath: null,
+          photoUrl: null,
+          imageHash: data.imageHash,
         };
       }
       throw new Error(`AI gateway error: ${aiResp.status} ${text}`);
@@ -160,103 +166,139 @@ export const validatePhoto = createServerFn({ method: "POST" })
     const detected = (parsed.detected_object ?? "unknown").toLowerCase();
     const confidence = Math.max(0, Math.min(1, Number(parsed.confidence) || 0));
     const approved =
-      !!parsed.approved && confidence >= 0.8 && VALID_OBJECTS.has(detected);
-    const volume = Math.max(50, Math.min(1500, Math.round(Number(parsed.estimated_volume_ml) || 250)));
+      !!parsed.approved && confidence >= 0.7 && VALID_OBJECTS.has(detected);
+    const volume = Math.max(0, Math.min(2000, Math.round(Number(parsed.estimated_volume_ml) || 0)));
 
-    // 3. Upload photo to storage (load admin inside handler)
+    let photoPath: string | null = null;
+    let photoUrl: string | null = null;
+    if (approved) {
+      const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+      const buffer = Buffer.from(
+        data.imageBase64.replace(/^data:image\/\w+;base64,/, ""),
+        "base64",
+      );
+      photoPath = `${userId}/${Date.now()}-${data.step}-${data.imageHash.slice(0, 10)}.jpg`;
+      await supabaseAdmin.storage
+        .from("hydration-photos")
+        .upload(photoPath, buffer, { contentType: "image/jpeg", upsert: false });
+      const { data: signed } = await supabaseAdmin.storage
+        .from("hydration-photos")
+        .createSignedUrl(photoPath, 60 * 60 * 24 * 30);
+      photoUrl = signed?.signedUrl ?? null;
+    }
+
+    return {
+      approved,
+      reason: parsed.reason ?? (approved ? "OK" : "Not a valid water container."),
+      detected_object: detected,
+      confidence,
+      estimated_volume_ml: volume,
+      photoPath,
+      photoUrl,
+      imageHash: data.imageHash,
+    };
+  });
+
+export const finalizeTwoStepSip = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: unknown) =>
+    z
+      .object({
+        beforeMl: z.number().int().min(1).max(2000),
+        afterMl: z.number().int().min(0).max(2000),
+        beforeHash: z.string().min(8).max(128),
+        afterHash: z.string().min(8).max(128),
+        afterPhotoPath: z.string().min(1).max(500),
+      })
+      .parse(input),
+  )
+  .handler(async ({ data, context }) => {
+    const { supabase, userId } = context;
+    await assertActiveSubscription(supabase, userId);
+
+    if (data.beforeHash === data.afterHash) {
+      throw new Error("Before and after photos must differ");
+    }
+
+    const consumed = Math.max(0, data.beforeMl - data.afterMl);
+    if (consumed < 20) {
+      return {
+        ok: false as const,
+        reason: "We couldn't detect any water consumed between the two photos.",
+        consumed_ml: consumed,
+        log: null,
+      };
+    }
+    const volume = Math.min(2000, consumed);
+
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const buffer = Buffer.from(
-      data.imageBase64.replace(/^data:image\/\w+;base64,/, ""),
-      "base64",
-    );
-    const photoPath = `${userId}/${Date.now()}-${data.imageHash.slice(0, 10)}.jpg`;
-    await supabaseAdmin.storage
-      .from("hydration-photos")
-      .upload(photoPath, buffer, { contentType: "image/jpeg", upsert: false });
-
-    let photo_url: string | null = null;
     const { data: signed } = await supabaseAdmin.storage
       .from("hydration-photos")
-      .createSignedUrl(photoPath, 60 * 60 * 24 * 30);
-    photo_url = signed?.signedUrl ?? null;
+      .createSignedUrl(data.afterPhotoPath, 60 * 60 * 24 * 30);
+    const photo_url = signed?.signedUrl ?? null;
 
-    // 4. Insert log
     const { data: log, error: logErr } = await supabase
       .from("hydration_logs")
       .insert({
         user_id: userId,
-        volume_ml: approved ? volume : 0,
+        volume_ml: volume,
         photo_url,
-        validated: approved,
-        validation_score: confidence,
-        detected_object: detected as never,
-        image_hash: data.imageHash,
+        validated: true,
+        validation_score: 1,
+        detected_object: "two_step" as never,
+        image_hash: data.afterHash,
       })
       .select()
       .single();
     if (logErr) throw logErr;
 
-    // 5. If approved, award XP & update streak
-    if (approved) {
-      const today = new Date().toISOString().slice(0, 10);
-      const { data: streak } = await supabase
+    // Streak
+    const today = new Date().toISOString().slice(0, 10);
+    const { data: streak } = await supabase
+      .from("streaks")
+      .select("current_streak,best_streak,last_log_date")
+      .eq("user_id", userId)
+      .maybeSingle();
+
+    let current = streak?.current_streak ?? 0;
+    let best = streak?.best_streak ?? 0;
+    const last = streak?.last_log_date as string | null;
+    if (last !== today) {
+      const yesterday = new Date(Date.now() - 86400000).toISOString().slice(0, 10);
+      current = last === yesterday ? current + 1 : 1;
+      best = Math.max(best, current);
+      await supabase
         .from("streaks")
-        .select("current_streak,best_streak,last_log_date")
-        .eq("user_id", userId)
-        .maybeSingle();
-
-      let current = streak?.current_streak ?? 0;
-      let best = streak?.best_streak ?? 0;
-      const last = streak?.last_log_date as string | null;
-      if (last !== today) {
-        const yesterday = new Date(Date.now() - 86400000).toISOString().slice(0, 10);
-        current = last === yesterday ? current + 1 : 1;
-        best = Math.max(best, current);
-        await supabase
-          .from("streaks")
-          .update({ current_streak: current, best_streak: best, last_log_date: today })
-          .eq("user_id", userId);
-      }
-
-      // XP
-      const { data: xpRow } = await supabase
-        .from("xp")
-        .select("current_xp,level")
-        .eq("user_id", userId)
-        .maybeSingle();
-      let newXp = (xpRow?.current_xp ?? 0) + 10;
-
-      // daily goal bonus
-      const { data: profile } = await supabase
-        .from("profiles")
-        .select("daily_goal_ml")
-        .eq("id", userId)
-        .maybeSingle();
-      const goal = profile?.daily_goal_ml ?? 2500;
-
-      const { data: todayLogs } = await supabase
-        .from("hydration_logs")
-        .select("volume_ml")
-        .eq("user_id", userId)
-        .eq("validated", true)
-        .gte("created_at", `${today}T00:00:00Z`);
-      const todayTotal = (todayLogs ?? []).reduce((a, r) => a + (r.volume_ml ?? 0), 0);
-      const prevTotal = todayTotal - volume;
-      if (prevTotal < goal && todayTotal >= goal) newXp += 50;
-
-      const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-      await supabaseAdmin
-        .from("xp")
-        .update({ current_xp: newXp })
+        .update({ current_streak: current, best_streak: best, last_log_date: today })
         .eq("user_id", userId);
     }
 
-    return {
-      approved,
-      reason: parsed.reason ?? (approved ? "Nice sip!" : "Not water."),
-      detected_object: detected,
-      confidence,
-      volume_ml: approved ? volume : 0,
-      log,
-    };
+    // XP
+    const { data: xpRow } = await supabase
+      .from("xp")
+      .select("current_xp,level")
+      .eq("user_id", userId)
+      .maybeSingle();
+    let newXp = (xpRow?.current_xp ?? 0) + 10;
+
+    const { data: profile } = await supabase
+      .from("profiles")
+      .select("daily_goal_ml")
+      .eq("id", userId)
+      .maybeSingle();
+    const goal = profile?.daily_goal_ml ?? 2500;
+
+    const { data: todayLogs } = await supabase
+      .from("hydration_logs")
+      .select("volume_ml")
+      .eq("user_id", userId)
+      .eq("validated", true)
+      .gte("created_at", `${today}T00:00:00Z`);
+    const todayTotal = (todayLogs ?? []).reduce((a, r) => a + (r.volume_ml ?? 0), 0);
+    const prevTotal = todayTotal - volume;
+    if (prevTotal < goal && todayTotal >= goal) newXp += 50;
+
+    await supabaseAdmin.from("xp").update({ current_xp: newXp }).eq("user_id", userId);
+
+    return { ok: true as const, consumed_ml: volume, log };
   });
