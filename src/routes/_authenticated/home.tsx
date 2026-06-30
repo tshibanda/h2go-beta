@@ -61,6 +61,9 @@ function HomePage() {
   const saveGoalFn = useServerFn(setDailyGoal);
   const [weatherBoost, setWeatherBoost] = useState<number>(0);
   const [weatherTemp, setWeatherTemp] = useState<number | null>(null);
+  const [goalEditOpen, setGoalEditOpen] = useState(false);
+  const [goalDraft, setGoalDraft] = useState<string>("");
+  const [savingGoal, setSavingGoal] = useState(false);
 
   // Request notification permission when user lands on /home
   useEffect(() => {
