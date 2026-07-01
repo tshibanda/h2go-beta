@@ -12,6 +12,96 @@ const STORAGE_KEY = "h2go.reminderConfig";
 const PROMPTED_KEY = "h2go.notifPromptedV1";
 const CHANNEL_ID = "hydration_alarm_v4";
 const NOTIF_ID_BASE = 7000;
+const SECOND_PHOTO_NOTIF_ID = 7500;
+let webSecondPhotoTimer: ReturnType<typeof setTimeout> | null = null;
+
+/**
+ * Schedule a one-off reminder to take the 2nd validation photo.
+ * Fires after `delaySec` seconds (default 120 = 2 minutes).
+ * Uses native LocalNotifications on device; falls back to web Notification API otherwise.
+ */
+export async function scheduleSecondPhotoReminder(
+  delaySec = 120,
+  locale: "en" | "fr" = "en",
+): Promise<void> {
+  const title =
+    locale === "fr" ? "N'oublie pas ta 2e photo 💧" : "Don't forget your 2nd photo 💧";
+  const body =
+    locale === "fr"
+      ? "Prends la photo APRÈS pour valider ta gorgée."
+      : "Snap the after-photo to validate your sip.";
+
+  if (!isNative()) {
+    if (typeof window === "undefined") return;
+    if (webSecondPhotoTimer) clearTimeout(webSecondPhotoTimer);
+    webSecondPhotoTimer = setTimeout(() => {
+      try {
+        if ("Notification" in window && Notification.permission === "granted") {
+          new Notification(title, { body });
+        }
+      } catch {
+        /* noop */
+      }
+    }, Math.max(1, delaySec) * 1000);
+    return;
+  }
+
+  try {
+    await LocalNotifications.createChannel({
+      id: CHANNEL_ID,
+      name: "Hydration reminders",
+      description: "Reminders to drink water",
+      importance: 5,
+      visibility: 1,
+      sound: "drink",
+      vibration: true,
+    });
+  } catch {
+    /* noop */
+  }
+
+  try {
+    await LocalNotifications.schedule({
+      notifications: [
+        {
+          id: SECOND_PHOTO_NOTIF_ID,
+          title,
+          body,
+          channelId: CHANNEL_ID,
+          sound: "drink.caf",
+          schedule: {
+            at: new Date(Date.now() + Math.max(1, delaySec) * 1000),
+            allowWhileIdle: true,
+          },
+          smallIcon: "ic_stat_icon_config_sample",
+          priority: 2,
+          importance: 5,
+          visibility: 1,
+          autoCancel: true,
+          iosInterruptionLevel: "timeSensitive",
+          extra: { interruptionLevel: "timeSensitive" },
+        } as unknown as never,
+      ],
+    });
+  } catch {
+    /* noop */
+  }
+}
+
+export async function cancelSecondPhotoReminder(): Promise<void> {
+  if (webSecondPhotoTimer) {
+    clearTimeout(webSecondPhotoTimer);
+    webSecondPhotoTimer = null;
+  }
+  if (!isNative()) return;
+  try {
+    await LocalNotifications.cancel({
+      notifications: [{ id: SECOND_PHOTO_NOTIF_ID }],
+    });
+  } catch {
+    /* noop */
+  }
+}
 
 export const DEFAULT_CONFIG: ReminderConfig = {
   intervalHours: 2,
