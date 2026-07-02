@@ -100,17 +100,32 @@ function ProfilePage() {
     if (openingPortal) return;
     setOpeningPortal(true);
     try {
+      // Native (iOS/Android): subscription is a StoreKit / Play Billing purchase.
+      // Apple/Google require us to send users to their native subscription
+      // management UI — we cannot open the Stripe portal for a StoreKit purchase.
+      const { isNativePayments, manageSubscriptionUrl } = await import("@/lib/revenuecat");
+      const provider = (data?.profile as { subscription_provider?: string } | null)?.subscription_provider;
+      if (isNativePayments() || provider === "revenuecat") {
+        const url = manageSubscriptionUrl();
+        try {
+          const { Browser } = await import("@capacitor/browser");
+          await Browser.open({ url, presentationStyle: "popover" });
+        } catch {
+          window.open(url, "_blank");
+        }
+        setOpeningPortal(false);
+        return;
+      }
       const url = portalUrlRef.current ?? (await prefetchPortal());
       if (!url) {
         toast.error(locale === "fr" ? "Erreur" : "Error");
         setOpeningPortal(false);
         return;
       }
-      // On native, open in in-app browser so returning keeps the app alive.
+      // On native web view (Capacitor), open in in-app browser so returning keeps the app alive.
       if (isNative()) {
         const { Browser } = await import("@capacitor/browser");
         await Browser.open({ url, presentationStyle: "popover" });
-        // Refresh subscription state after the portal closes.
         const sub = await Browser.addListener("browserFinished", () => {
           qc.invalidateQueries({ queryKey: ["dashboard"] });
           portalUrlRef.current = null;

@@ -1,4 +1,5 @@
 import { createFileRoute, Outlet, redirect } from "@tanstack/react-router";
+import { useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 
 export const Route = createFileRoute("/_authenticated")({
@@ -53,5 +54,16 @@ export const Route = createFileRoute("/_authenticated")({
 
     return { user: data.user, hasAccess };
   },
-  component: () => <Outlet />,
+  component: AuthenticatedLayout,
 });
+
+function AuthenticatedLayout() {
+  const { user } = Route.useRouteContext();
+  // Configure RevenueCat on native platforms with the current Supabase user id
+  // so purchases are linked to the correct H2GO account.
+  useEffect(() => {
+    if (!user?.id) return;
+    void import("@/lib/revenuecat").then((m) => m.configureRevenueCat(user.id)).catch(() => {});
+  }, [user?.id]);
+  return <Outlet />;
+}

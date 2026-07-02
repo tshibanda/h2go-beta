@@ -11,6 +11,8 @@ import { getDashboard } from "@/lib/h2go.functions";
 import { supabase } from "@/integrations/supabase/client";
 import { StripeEmbeddedCheckoutInline } from "@/components/StripeEmbeddedCheckout";
 import { isPaymentsConfigured } from "@/lib/stripe";
+import { isNativePayments } from "@/lib/revenuecat";
+import { NativePaywall } from "@/components/h2go/NativePaywall";
 
 export const Route = createFileRoute("/_authenticated/premium")({
   head: () => ({ meta: [{ title: "Premium — H2GO" }] }),
@@ -49,7 +51,27 @@ function PremiumPage() {
 
   const features = [t("pay.f1"), t("pay.f2"), t("pay.f3"), t("pay.f4"), t("pay.f5"), t("pay.f6")];
 
-  const content = (
+  const useNative = isNativePayments();
+
+  const content = useNative ? (
+    <div className="flex flex-col gap-4 pb-6">
+      <div className="px-5 pt-4 flex items-center justify-between">
+        {hasAccess ? (
+          <Link to="/profile" className="text-muted-foreground text-sm">{t("common.back")}</Link>
+        ) : (
+          <span className="text-[11px] uppercase tracking-wider text-destructive font-bold">
+            🔒 {t("pay.locked.title")}
+          </span>
+        )}
+        {!hasAccess && (
+          <button onClick={signOut} className="flex items-center gap-1 text-xs text-muted-foreground">
+            <LogOut size={14} /> {t("pay.signOut")}
+          </button>
+        )}
+      </div>
+      <NativePaywall onSuccess={() => navigate({ to: "/home" })} />
+    </div>
+  ) : (
     <div className="flex flex-col gap-4 pb-6">
       <div className="px-5 pt-4 flex items-center justify-between">
         {hasAccess ? (

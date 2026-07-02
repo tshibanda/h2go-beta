@@ -24,7 +24,11 @@ const config: CapacitorConfig = {
       'm.stripe.com',
       'm.stripe.network',
       '*.stripe.com',
-      '*.stripe.network'
+      '*.stripe.network',
+      'api.revenuecat.com',
+      '*.revenuecat.com',
+      'apps.apple.com',
+      'play.google.com'
     ]
   },
   plugins: {
