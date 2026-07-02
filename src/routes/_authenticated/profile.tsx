@@ -77,6 +77,9 @@ function ProfilePage() {
   const [shareBadge, setShareBadge] = useState<ShareBadge | null>(null);
 
   const prefetchPortal = () => {
+    // Never call Stripe on native: subscriptions must be managed via
+    // RevenueCat / StoreKit for App Store compliance.
+    if (isNative()) return null;
     if (portalUrlRef.current || portalPromiseRef.current) return portalPromiseRef.current;
     portalPromiseRef.current = (async () => {
       try {
@@ -100,13 +103,12 @@ function ProfilePage() {
     if (openingPortal) return;
     setOpeningPortal(true);
     try {
-      // Native (iOS/Android): subscription is a StoreKit / Play Billing purchase.
-      // Apple/Google require us to send users to their native subscription
-      // management UI — we cannot open the Stripe portal for a StoreKit purchase.
-      const { isNativePayments, manageSubscriptionUrl, presentCustomerCenter } = await import("@/lib/revenuecat");
-      const provider = (data?.profile as { subscription_provider?: string } | null)?.subscription_provider;
-      if (isNativePayments() || provider === "revenuecat") {
-        // Preferred: RevenueCat Customer Center (in-app subscription management).
+      // Native (iOS/Android): App Store / Play Store require subscription
+      // management to happen through StoreKit / Play Billing. We route through
+      // RevenueCat's Customer Center (in-app) and fall back to the platform
+      // subscription page. Stripe portal is never opened on native.
+      const { manageSubscriptionUrl, presentCustomerCenter } = await import("@/lib/revenuecat");
+      if (isNative()) {
         const shown = await presentCustomerCenter();
         if (!shown) {
           const url = manageSubscriptionUrl();
@@ -120,22 +122,20 @@ function ProfilePage() {
         setOpeningPortal(false);
         return;
       }
+      // Web (desktop browser): fall back to Stripe billing portal for users
+      // who subscribed via h2go-app.com in Safari desktop.
+      const provider = (data?.profile as { subscription_provider?: string } | null)?.subscription_provider;
+      if (provider === "revenuecat") {
+        // Web viewer with a native-purchased subscription: send them to Apple/Google.
+        const url = manageSubscriptionUrl();
+        window.open(url, "_blank");
+        setOpeningPortal(false);
+        return;
+      }
       const url = portalUrlRef.current ?? (await prefetchPortal());
       if (!url) {
         toast.error(locale === "fr" ? "Erreur" : "Error");
         setOpeningPortal(false);
-        return;
-      }
-      // On native web view (Capacitor), open in in-app browser so returning keeps the app alive.
-      if (isNative()) {
-        const { Browser } = await import("@capacitor/browser");
-        await Browser.open({ url, presentationStyle: "popover" });
-        const sub = await Browser.addListener("browserFinished", () => {
-          qc.invalidateQueries({ queryKey: ["dashboard"] });
-          portalUrlRef.current = null;
-          setOpeningPortal(false);
-          sub.remove();
-        });
         return;
       }
       window.location.href = url;
@@ -163,12 +163,13 @@ function ProfilePage() {
     resolveAvatarUrl(data?.profile?.avatar_url).then(setAvatarUrl);
   }, [data?.profile?.avatar_url]);
 
-  // Pre-warm the Stripe billing portal URL so the click feels instant.
+  // Pre-warm the Stripe billing portal URL so the click feels instant on web.
+  // On native, subscription management goes through RevenueCat — no prefetch.
   const isPremiumEarly = ["active", "trialing"].includes(
     data?.profile?.subscription_status ?? "free",
   );
   useEffect(() => {
-    if (isPremiumEarly) void prefetchPortal();
+    if (isPremiumEarly && !isNative()) void prefetchPortal();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isPremiumEarly]);
 
