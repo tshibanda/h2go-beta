@@ -123,8 +123,11 @@ export async function hasActiveEntitlement(): Promise<boolean> {
 export function manageSubscriptionUrl(): string {
   const platform = Capacitor.getPlatform();
   if (platform === "android") return "https://play.google.com/store/account/subscriptions";
+  // iOS: itms-apps:// opens the native App Store subscription management screen directly.
+  if (platform === "ios") return "itms-apps://apps.apple.com/account/subscriptions";
   return "https://apps.apple.com/account/subscriptions";
 }
+
 
 /**
  * Present the RevenueCat-hosted Paywall (configured in the RC dashboard).
