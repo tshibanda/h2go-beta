@@ -333,12 +333,18 @@ export type Database = {
           created_at: string
           current_period_end: string | null
           current_period_start: string | null
+          entitlement: string | null
           environment: string
+          original_transaction_id: string | null
           past_due_since: string | null
           price_id: string | null
           product_id: string | null
+          product_identifier: string | null
+          provider: string
+          revenuecat_user_id: string | null
           reward_granted: boolean
           status: Database["public"]["Enums"]["subscription_status"]
+          store: string | null
           stripe_customer_id: string | null
           stripe_subscription_id: string | null
           updated_at: string
@@ -349,12 +355,18 @@ export type Database = {
           created_at?: string
           current_period_end?: string | null
           current_period_start?: string | null
+          entitlement?: string | null
           environment?: string
+          original_transaction_id?: string | null
           past_due_since?: string | null
           price_id?: string | null
           product_id?: string | null
+          product_identifier?: string | null
+          provider?: string
+          revenuecat_user_id?: string | null
           reward_granted?: boolean
           status?: Database["public"]["Enums"]["subscription_status"]
+          store?: string | null
           stripe_customer_id?: string | null
           stripe_subscription_id?: string | null
           updated_at?: string
@@ -365,12 +377,18 @@ export type Database = {
           created_at?: string
           current_period_end?: string | null
           current_period_start?: string | null
+          entitlement?: string | null
           environment?: string
+          original_transaction_id?: string | null
           past_due_since?: string | null
           price_id?: string | null
           product_id?: string | null
+          product_identifier?: string | null
+          provider?: string
+          revenuecat_user_id?: string | null
           reward_granted?: boolean
           status?: Database["public"]["Enums"]["subscription_status"]
+          store?: string | null
           stripe_customer_id?: string | null
           stripe_subscription_id?: string | null
           updated_at?: string
