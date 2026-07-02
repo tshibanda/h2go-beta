@@ -318,7 +318,7 @@ function RootComponent() {
   return (
     <QueryClientProvider client={queryClient}>
       <LanguageProvider>
-        <div className="motion-safe:transition-opacity">
+        <div className="motion-safe:transition-opacity animate-fade-in">
           <Outlet />
         </div>
         <Toaster position="top-center" richColors />
