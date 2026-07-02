@@ -193,7 +193,9 @@ function ProfilePage() {
   }
   async function signOut() {
     await supabase.auth.signOut();
-    navigate({ to: "/" });
+    const { purgeLocalUserData } = await import("@/lib/session-cleanup");
+    await purgeLocalUserData();
+    window.location.href = "/";
   }
 
   const callDelete = useServerFn(deleteAccount);
