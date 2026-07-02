@@ -48,6 +48,7 @@
         "@radix-ui/react-tooltip": "^1.2.8",
         "@react-email/components": "^1.0.12",
         "@revenuecat/purchases-capacitor": "^13.2.0",
+        "@revenuecat/purchases-capacitor-ui": "^13.2.0",
         "@stripe/react-stripe-js": "6.2.0",
         "@stripe/stripe-js": "9.2.0",
         "@supabase/supabase-js": "^2.108.2",
@@ -637,6 +638,8 @@
     "@react-email/text": ["@react-email/text@0.1.6", "https://europe-west4-npm.pkg.dev/lovable-core-prod/sandbox-npm-cache/@react-email/text/-/text-0.1.6.tgz", { "peerDependencies": { "react": "^18.0 || ^19.0 || ^19.0.0-rc" } }, "sha512-TYqkioRS45wTR5il3dYk/SbUjjEdhSwh9BtRNB99qNH1pXAwA45H7rAuxehiu8iJQJH0IyIr+6n62gBz9ezmsw=="],
 
     "@revenuecat/purchases-capacitor": ["@revenuecat/purchases-capacitor@13.2.0", "https://europe-west4-npm.pkg.dev/lovable-core-prod/sandbox-npm-cache/@revenuecat/purchases-capacitor/-/purchases-capacitor-13.2.0.tgz", { "dependencies": { "@revenuecat/purchases-typescript-internal-esm": "18.15.1" }, "peerDependencies": { "@capacitor/core": ">=8.0.0" } }, "sha512-vRIEMkL3oqfdRWDU6FusGHV+iYyVPLMC7nVPyISw1iWmaa1gaETnLJumzmeQIrODTF2dYD20JFmWf1/hpNBUmQ=="],
+
+    "@revenuecat/purchases-capacitor-ui": ["@revenuecat/purchases-capacitor-ui@13.2.0", "https://europe-west4-npm.pkg.dev/lovable-core-prod/sandbox-npm-cache/@revenuecat/purchases-capacitor-ui/-/purchases-capacitor-ui-13.2.0.tgz", { "dependencies": { "@capacitor/core": "^8.0.0", "@revenuecat/purchases-typescript-internal-esm": "18.15.1" }, "peerDependencies": { "@revenuecat/purchases-capacitor": "13.2.0" } }, "sha512-6pkXp7YSCAJYASSB0Vh3iD9/kgKPNkkpxaEO9SjT1MPd2X2fuPHH/NeBSJ1uvdss+0WNyWPd1tUDlO0pseOHwQ=="],
 
     "@revenuecat/purchases-typescript-internal-esm": ["@revenuecat/purchases-typescript-internal-esm@18.15.1", "https://europe-west4-npm.pkg.dev/lovable-core-prod/sandbox-npm-cache/@revenuecat/purchases-typescript-internal-esm/-/purchases-typescript-internal-esm-18.15.1.tgz", {}, "sha512-hIjrJ5B1nJQWEdn3B7SBvY9iwVrjS+AwJOO2BpWvN+hlb9ovUfqpnLtSDpSRQNGSroTa2VtesKjjDdsfeyXo5A=="],
 
