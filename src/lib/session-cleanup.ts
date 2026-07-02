@@ -24,6 +24,15 @@ export async function purgeLocalUserData(): Promise<void> {
     /* noop */
   }
 
+  // 1b) RevenueCat logOut — reverts app_user_id to anonymous so the next
+  // user isn't linked to the previous account's entitlements.
+  try {
+    const { logOutRevenueCat } = await import("./revenuecat");
+    await logOutRevenueCat();
+  } catch {
+    /* noop */
+  }
+
   // 2) Web timers used as notification fallbacks.
   try {
     const { cancelSecondPhotoReminder } = await import("./notifications");
