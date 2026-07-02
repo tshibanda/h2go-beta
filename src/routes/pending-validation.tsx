@@ -45,6 +45,8 @@ function PendingPage() {
 
   async function checkAgain() {
     await supabase.auth.signOut();
+    const { purgeLocalUserData } = await import("@/lib/session-cleanup");
+    await purgeLocalUserData();
     navigate({ to: "/auth" });
   }
 

@@ -34,7 +34,9 @@ function PremiumPage() {
 
   async function signOut() {
     await supabase.auth.signOut();
-    navigate({ to: "/auth" });
+    const { purgeLocalUserData } = await import("@/lib/session-cleanup");
+    await purgeLocalUserData();
+    window.location.href = "/auth";
   }
 
   function start(priceId: string) {

@@ -1,15 +1,18 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Outlet, Link, createRootRouteWithContext, useRouter, HeadContent, Scripts } from "@tanstack/react-router";
-import { useEffect, type ReactNode } from "react";
+import { useEffect, useRef, type ReactNode } from "react";
 import { Toaster } from "@/components/ui/sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { LanguageProvider } from "@/i18n";
 import { App as CapacitorApp } from "@capacitor/app";
 import { Capacitor } from "@capacitor/core";
 import { Browser } from "@capacitor/browser";
+import { persistQueryClient } from "@tanstack/react-query-persist-client";
+import { createSyncStoragePersister } from "@tanstack/query-sync-storage-persister";
 
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
+import { registerAppServiceWorker } from "../pwa/register";
 
 function NotFoundComponent() {
   return (
@@ -141,6 +144,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
         rel: "stylesheet",
         href: appCss,
       },
+      { rel: "manifest", href: "/manifest.webmanifest" },
       { rel: "icon", type: "image/png", href: "/__l5e/assets-v1/356fdb7f-e6ea-4074-98d4-bc9db5017158/logo-h2go.png" },
       { rel: "apple-touch-icon", href: "/__l5e/assets-v1/356fdb7f-e6ea-4074-98d4-bc9db5017158/logo-h2go.png" },
     ],
@@ -314,6 +318,38 @@ function RootComponent() {
     });
     return () => sub.subscription.unsubscribe();
   }, [router, queryClient]);
+
+  // Persist the React Query cache to localStorage so the app can render the
+  // last-known dashboard/tree/stats when the device goes offline. Cleared on
+  // sign-out by purgeLocalUserData() (session-cleanup.ts).
+  const persistedRef = useRef(false);
+  useEffect(() => {
+    if (persistedRef.current) return;
+    if (typeof window === "undefined") return;
+    persistedRef.current = true;
+    try {
+      const persister = createSyncStoragePersister({
+        storage: window.localStorage,
+        key: "H2GO_QUERY_CACHE",
+        throttleTime: 1000,
+      });
+      persistQueryClient({
+        queryClient,
+        persister,
+        maxAge: 1000 * 60 * 60 * 24 * 7, // 7 days
+        buster: "h2go-v1",
+      });
+    } catch {
+      /* noop — offline cache is best-effort */
+    }
+  }, [queryClient]);
+
+  // Register the app-shell service worker so the web app can boot offline.
+  // The wrapper refuses to register in dev, iframes, and Lovable preview hosts.
+  useEffect(() => {
+    if (Capacitor.isNativePlatform()) return; // native shell is already offline
+    registerAppServiceWorker();
+  }, []);
 
   return (
     <QueryClientProvider client={queryClient}>
