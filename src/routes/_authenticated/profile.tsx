@@ -77,6 +77,9 @@ function ProfilePage() {
   const [shareBadge, setShareBadge] = useState<ShareBadge | null>(null);
 
   const prefetchPortal = () => {
+    // Never call Stripe on native: subscriptions must be managed via
+    // RevenueCat / StoreKit for App Store compliance.
+    if (isNative()) return null;
     if (portalUrlRef.current || portalPromiseRef.current) return portalPromiseRef.current;
     portalPromiseRef.current = (async () => {
       try {
