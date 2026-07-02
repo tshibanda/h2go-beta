@@ -1,0 +1,17 @@
+{
+  "name": "H2GO — Premium Hydration Coaching",
+  "short_name": "H2GO",
+  "description": "AI-verified hydration coach with streaks, XP, and a growing water tree.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#1E3A8A",
+  "theme_color": "#3B82F6",
+  "lang": "en",
+  "icons": [
+    { "src": "/__l5e/assets-v1/356fdb7f-e6ea-4074-98d4-bc9db5017158/logo-h2go.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "/__l5e/assets-v1/356fdb7f-e6ea-4074-98d4-bc9db5017158/logo-h2go.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "/__l5e/assets-v1/356fdb7f-e6ea-4074-98d4-bc9db5017158/logo-h2go.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}
