@@ -33,6 +33,37 @@ function NotFoundComponent() {
   );
 }
 
+function detectLocale(): "fr" | "en" {
+  try {
+    if (typeof window === "undefined") return "en";
+    const manual = window.localStorage.getItem("h2go.locale.manual") === "true";
+    const stored = window.localStorage.getItem("h2go.locale");
+    if (manual && (stored === "fr" || stored === "en")) return stored;
+    const langs = [
+      ...(window.navigator?.languages ?? []),
+      window.navigator?.language ?? "",
+    ].map((l) => l.toLowerCase());
+    return langs.some((l) => l.startsWith("fr")) ? "fr" : "en";
+  } catch {
+    return "en";
+  }
+}
+
+const ERR_STRINGS = {
+  fr: {
+    title: "Cette page n'a pas pu se charger",
+    body: "Une erreur est survenue de notre côté. Vous pouvez réessayer ou revenir à l'accueil.",
+    retry: "Réessayer",
+    home: "Retour à l'accueil",
+  },
+  en: {
+    title: "This page didn't load",
+    body: "Something went wrong on our end. You can try refreshing or head back home.",
+    retry: "Try again",
+    home: "Go home",
+  },
+} as const;
+
 function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
   console.error(error);
   const router = useRouter();
@@ -40,13 +71,13 @@ function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
     reportLovableError(error, { boundary: "tanstack_root_error_component" });
   }, [error]);
 
+  const strings = ERR_STRINGS[detectLocale()];
+
   return (
-    <div className="flex min-h-screen items-center justify-center bg-background px-4">
-      <div className="max-w-md text-center">
-        <h1 className="text-xl font-semibold tracking-tight text-foreground">This page didn't load</h1>
-        <p className="mt-2 text-sm text-muted-foreground">
-          Something went wrong on our end. You can try refreshing or head back home.
-        </p>
+    <div className="flex min-h-screen items-center justify-center bg-background px-4 pt-safe pb-safe">
+      <div className="max-w-md text-center animate-fade-in">
+        <h1 className="text-xl font-semibold tracking-tight text-foreground">{strings.title}</h1>
+        <p className="mt-2 text-sm text-muted-foreground">{strings.body}</p>
         <div className="mt-6 flex flex-wrap justify-center gap-2">
           <button
             onClick={() => {
@@ -55,13 +86,13 @@ function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
             }}
             className="inline-flex items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
           >
-            Try again
+            {strings.retry}
           </button>
           <a
             href="/"
             className="inline-flex items-center justify-center rounded-md border border-input bg-background px-4 py-2 text-sm font-medium text-foreground transition-colors hover:bg-accent"
           >
-            Go home
+            {strings.home}
           </a>
         </div>
       </div>
