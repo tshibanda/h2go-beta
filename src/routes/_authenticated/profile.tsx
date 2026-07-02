@@ -211,7 +211,11 @@ function ProfilePage() {
         locale === "fr" ? "Compte supprimé" : "Account deleted",
       );
       try { await supabase.auth.signOut(); } catch { /* noop */ }
-      navigate({ to: "/" });
+      try {
+        const { purgeLocalUserData } = await import("@/lib/session-cleanup");
+        await purgeLocalUserData();
+      } catch { /* noop */ }
+      window.location.href = "/";
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "Delete failed");
     } finally {
