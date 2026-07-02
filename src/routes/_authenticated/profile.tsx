@@ -103,20 +103,23 @@ function ProfilePage() {
     if (openingPortal) return;
     setOpeningPortal(true);
     try {
-      // Native (iOS/Android): App Store / Play Store require subscription
-      // management to happen through StoreKit / Play Billing. We route through
-      // RevenueCat's Customer Center (in-app) and fall back to the platform
-      // subscription page. Stripe portal is never opened on native.
       const { manageSubscriptionUrl, presentCustomerCenter } = await import("@/lib/revenuecat");
       if (isNative()) {
-        const shown = await presentCustomerCenter();
-        if (!shown) {
-          const url = manageSubscriptionUrl();
+        // iOS/Android: send the user directly to the native OS subscription
+        // management screen (App Store / Play Store) as required by Apple.
+        const url = manageSubscriptionUrl();
+        try {
+          // itms-apps:// on iOS opens the native Settings > Subscriptions flow.
+          // Use App.openUrl so the OS handles the custom scheme natively.
+          const { App } = await import("@capacitor/app");
+          await App.openUrl({ url });
+        } catch {
           try {
             const { Browser } = await import("@capacitor/browser");
-            await Browser.open({ url, presentationStyle: "popover" });
+            await Browser.open({ url });
           } catch {
-            window.open(url, "_blank");
+            // Last-resort fallback: RevenueCat Customer Center in-app.
+            await presentCustomerCenter();
           }
         }
         setOpeningPortal(false);
@@ -144,6 +147,7 @@ function ProfilePage() {
       setOpeningPortal(false);
     }
   }
+
 
   useEffect(() => {
     void maybePromptFirstLaunch();
