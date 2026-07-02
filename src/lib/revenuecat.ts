@@ -5,9 +5,9 @@
 import { Capacitor } from "@capacitor/core";
 
 // Product identifiers as configured in App Store Connect / Play Console.
-export const PRODUCT_MONTHLY = "premium_monthly_v1";
-export const PRODUCT_YEARLY = "premium_yearly_v1";
-export const ENTITLEMENT_ID = "premium";
+export const PRODUCT_MONTHLY = "monthly";
+export const PRODUCT_YEARLY = "yearly";
+export const ENTITLEMENT_ID = "H2GO Pro";
 
 export function isNativePayments(): boolean {
   return Capacitor.isNativePlatform();
