@@ -109,19 +109,18 @@ function ProfilePage() {
         // management screen (App Store / Play Store) as required by Apple.
         const url = manageSubscriptionUrl();
         try {
-          // itms-apps:// on iOS opens the native Settings > Subscriptions flow.
-          // Use App.openUrl so the OS handles the custom scheme natively.
-          const { App } = await import("@capacitor/app");
-          await App.openUrl({ url });
+          // itms-apps:// on iOS is handled by the OS and opens the native
+          // App Store / Settings subscriptions screen directly.
+          window.location.href = url;
         } catch {
           try {
             const { Browser } = await import("@capacitor/browser");
             await Browser.open({ url });
           } catch {
-            // Last-resort fallback: RevenueCat Customer Center in-app.
             await presentCustomerCenter();
           }
         }
+
         setOpeningPortal(false);
         return;
       }
