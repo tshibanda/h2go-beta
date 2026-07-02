@@ -7,7 +7,7 @@ import { Capacitor } from "@capacitor/core";
 // Product identifiers as configured in App Store Connect / Play Console.
 export const PRODUCT_MONTHLY = "monthly";
 export const PRODUCT_YEARLY = "yearly";
-export const ENTITLEMENT_ID = "H2GO Pro";
+export const ENTITLEMENT_ID = "H2GO Premium";
 
 export function isNativePayments(): boolean {
   return Capacitor.isNativePlatform();
@@ -143,7 +143,7 @@ export async function presentPaywall(): Promise<string> {
 }
 
 /**
- * Present the paywall only if the user does NOT have the H2GO Pro entitlement.
+ * Present the paywall only if the user does NOT have the H2GO Premium entitlement.
  */
 export async function presentPaywallIfNeeded(): Promise<string> {
   if (!isNativePayments()) return "NOT_PRESENTED";
