@@ -8,9 +8,10 @@ export function LoadingScreen({
   subtitle?: string;
 }) {
   return (
-    <div className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-gradient-to-br from-[#1E3A8A] via-primary to-secondary text-white">
+    <div className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-gradient-to-br from-[#1E3A8A] via-primary to-secondary text-white pt-safe pb-safe animate-fade-in">
       <SplashDefs />
       <div className="flex flex-col items-center gap-5 px-6 text-center">
+
         <div className="animate-bounce">
           <Splash mood="excited" size={100} />
         </div>

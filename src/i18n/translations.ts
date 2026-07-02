@@ -181,6 +181,12 @@ export const TRANSLATIONS = {
     // Common
     "common.loading": "Loading…",
     "common.back": "← Back",
+    "err.pageTitle": "This page didn't load",
+    "err.pageBody": "Something went wrong on our end. You can try refreshing or head back home.",
+    "err.tryAgain": "Try again",
+    "err.goHome": "Go home",
+    "billing.opening": "Opening subscription management…",
+    "billing.openingSub": "Redirecting you to your secure H2GO Premium billing page.",
 
     // Stats
     "stats.title": "Statistics 📊",
@@ -488,6 +494,12 @@ export const TRANSLATIONS = {
 
     "common.loading": "Chargement…",
     "common.back": "← Retour",
+    "err.pageTitle": "Cette page n'a pas pu se charger",
+    "err.pageBody": "Une erreur est survenue de notre côté. Vous pouvez réessayer ou revenir à l'accueil.",
+    "err.tryAgain": "Réessayer",
+    "err.goHome": "Retour à l'accueil",
+    "billing.opening": "Ouverture de la gestion d'abonnement…",
+    "billing.openingSub": "Redirection vers votre page de facturation H2GO Premium sécurisée.",
 
     "stats.title": "Statistiques 📊",
     "stats.tab.day": "Aujourd'hui",

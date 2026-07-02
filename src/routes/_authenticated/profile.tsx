@@ -102,13 +102,26 @@ function ProfilePage() {
     try {
       const url = portalUrlRef.current ?? (await prefetchPortal());
       if (!url) {
-        toast.error("Erreur");
+        toast.error(locale === "fr" ? "Erreur" : "Error");
+        setOpeningPortal(false);
+        return;
+      }
+      // On native, open in in-app browser so returning keeps the app alive.
+      if (isNative()) {
+        const { Browser } = await import("@capacitor/browser");
+        await Browser.open({ url, presentationStyle: "popover" });
+        // Refresh subscription state after the portal closes.
+        const sub = await Browser.addListener("browserFinished", () => {
+          qc.invalidateQueries({ queryKey: ["dashboard"] });
+          portalUrlRef.current = null;
+          setOpeningPortal(false);
+          sub.remove();
+        });
         return;
       }
       window.location.href = url;
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Erreur");
-    } finally {
+      toast.error(err instanceof Error ? err.message : (locale === "fr" ? "Erreur" : "Error"));
       setOpeningPortal(false);
     }
   }
@@ -242,7 +255,11 @@ function ProfilePage() {
 
   return (
     <MobileShell>
+      {openingPortal && (
+        <LoadingScreen title={t("billing.opening")} subtitle={t("billing.openingSub")} />
+      )}
       <div className="flex flex-col gap-4 pb-6">
+
         <div className="flex items-center justify-between px-5 pt-4">
           <h1 className="font-display text-2xl font-bold">{t("p.title")}</h1>
           <button onClick={signOut} className="w-9 h-9 rounded-full bg-muted flex items-center justify-center">
