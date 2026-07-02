@@ -34,7 +34,7 @@ export function NativePaywall({ onSuccess }: { onSuccess?: () => void }) {
           const active = await hasActiveEntitlement();
           if (active) {
             await sync({ data: { active: true, store: "app_store" } }).catch(() => null);
-            toast.success(locale === "fr" ? "Bienvenue dans H2GO Pro !" : "Welcome to H2GO Pro!");
+            toast.success(locale === "fr" ? "Bienvenue dans H2GO Premium !" : "Welcome to H2GO Premium!");
             qc.invalidateQueries({ queryKey: ["dashboard"] });
             onSuccess?.();
             return;

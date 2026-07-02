@@ -143,7 +143,7 @@ export async function presentPaywall(): Promise<string> {
 }
 
 /**
- * Present the paywall only if the user does NOT have the H2GO Pro entitlement.
+ * Present the paywall only if the user does NOT have the H2GO Premium entitlement.
  */
 export async function presentPaywallIfNeeded(): Promise<string> {
   if (!isNativePayments()) return "NOT_PRESENTED";
