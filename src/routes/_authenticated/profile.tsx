@@ -102,13 +102,26 @@ function ProfilePage() {
     try {
       const url = portalUrlRef.current ?? (await prefetchPortal());
       if (!url) {
-        toast.error("Erreur");
+        toast.error(locale === "fr" ? "Erreur" : "Error");
+        setOpeningPortal(false);
+        return;
+      }
+      // On native, open in in-app browser so returning keeps the app alive.
+      if (isNative()) {
+        const { Browser } = await import("@capacitor/browser");
+        await Browser.open({ url, presentationStyle: "popover" });
+        // Refresh subscription state after the portal closes.
+        const sub = await Browser.addListener("browserFinished", () => {
+          qc.invalidateQueries({ queryKey: ["dashboard"] });
+          portalUrlRef.current = null;
+          setOpeningPortal(false);
+          sub.remove();
+        });
         return;
       }
       window.location.href = url;
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Erreur");
-    } finally {
+      toast.error(err instanceof Error ? err.message : (locale === "fr" ? "Erreur" : "Error"));
       setOpeningPortal(false);
     }
   }
