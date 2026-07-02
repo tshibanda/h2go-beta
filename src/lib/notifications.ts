@@ -170,16 +170,33 @@ export async function requestNotificationPermission(): Promise<boolean> {
   }
 }
 
+function detectStoredLocale(): "en" | "fr" {
+  if (typeof window === "undefined") return "en";
+  try {
+    const manual = window.localStorage.getItem("h2go.locale.manual") === "true";
+    const stored = window.localStorage.getItem("h2go.locale");
+    if (manual && (stored === "fr" || stored === "en")) return stored;
+    const langs = [
+      ...(window.navigator?.languages ?? []),
+      window.navigator?.language ?? "",
+    ].map((l) => l.toLowerCase());
+    return langs.some((l) => l.startsWith("fr")) ? "fr" : "en";
+  } catch {
+    return "en";
+  }
+}
+
 export async function maybePromptFirstLaunch(): Promise<void> {
   if (!isNative() || typeof window === "undefined") return;
 
+  const locale = detectStoredLocale();
   const alreadyPrompted = !!localStorage.getItem(PROMPTED_KEY);
 
   if (!alreadyPrompted) {
     localStorage.setItem(PROMPTED_KEY, "1");
     const granted = await requestNotificationPermission();
     if (granted) {
-      await scheduleHydrationReminders(loadConfig(), "en");
+      await scheduleHydrationReminders(loadConfig(), locale);
     }
     return;
   }
@@ -187,7 +204,7 @@ export async function maybePromptFirstLaunch(): Promise<void> {
   try {
     const status = await LocalNotifications.checkPermissions();
     if (status.display === "granted") {
-      await scheduleHydrationReminders(loadConfig(), "en");
+      await scheduleHydrationReminders(loadConfig(), locale);
     }
   } catch {
     /* noop */
