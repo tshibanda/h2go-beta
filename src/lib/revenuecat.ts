@@ -5,9 +5,9 @@
 import { Capacitor } from "@capacitor/core";
 
 // Product identifiers as configured in App Store Connect / Play Console.
-export const PRODUCT_MONTHLY = "premium_monthly_v1";
-export const PRODUCT_YEARLY = "premium_yearly_v1";
-export const ENTITLEMENT_ID = "premium";
+export const PRODUCT_MONTHLY = "monthly";
+export const PRODUCT_YEARLY = "yearly";
+export const ENTITLEMENT_ID = "H2GO Pro";
 
 export function isNativePayments(): boolean {
   return Capacitor.isNativePlatform();
@@ -124,4 +124,68 @@ export function manageSubscriptionUrl(): string {
   const platform = Capacitor.getPlatform();
   if (platform === "android") return "https://play.google.com/store/account/subscriptions";
   return "https://apps.apple.com/account/subscriptions";
+}
+
+/**
+ * Present the RevenueCat-hosted Paywall (configured in the RC dashboard).
+ * Returns the paywall result string ("PURCHASED" | "RESTORED" | "CANCELLED" | "ERROR" | "NOT_PRESENTED").
+ */
+export async function presentPaywall(): Promise<string> {
+  if (!isNativePayments()) return "NOT_PRESENTED";
+  try {
+    const { RevenueCatUI, PAYWALL_RESULT } = await import("@revenuecat/purchases-capacitor-ui");
+    const { result } = await RevenueCatUI.presentPaywall();
+    return result ?? PAYWALL_RESULT.NOT_PRESENTED;
+  } catch (e) {
+    console.warn("[revenuecat] presentPaywall failed", e);
+    return "ERROR";
+  }
+}
+
+/**
+ * Present the paywall only if the user does NOT have the H2GO Pro entitlement.
+ */
+export async function presentPaywallIfNeeded(): Promise<string> {
+  if (!isNativePayments()) return "NOT_PRESENTED";
+  try {
+    const { RevenueCatUI, PAYWALL_RESULT } = await import("@revenuecat/purchases-capacitor-ui");
+    const { result } = await RevenueCatUI.presentPaywallIfNeeded({
+      requiredEntitlementIdentifier: ENTITLEMENT_ID,
+    });
+    return result ?? PAYWALL_RESULT.NOT_PRESENTED;
+  } catch (e) {
+    console.warn("[revenuecat] presentPaywallIfNeeded failed", e);
+    return "ERROR";
+  }
+}
+
+/**
+ * Present the RevenueCat Customer Center (subscription management, restore, refunds…).
+ */
+export async function presentCustomerCenter(): Promise<boolean> {
+  if (!isNativePayments()) return false;
+  try {
+    const { RevenueCatUI } = await import("@revenuecat/purchases-capacitor-ui");
+    await RevenueCatUI.presentCustomerCenter();
+    return true;
+  } catch (e) {
+    console.warn("[revenuecat] presentCustomerCenter failed", e);
+    return false;
+  }
+}
+
+/**
+ * Subscribe to CustomerInfo updates. Fires whenever entitlements change
+ * (renewal, cancellation, restore, etc.).
+ */
+export async function addCustomerInfoListener(cb: (active: boolean) => void): Promise<() => void> {
+  if (!isNativePayments()) return () => {};
+  const Purchases = await loadPurchases();
+  const handle = await (Purchases as any).addCustomerInfoUpdateListener?.((info: any) => {
+    const entitlements = info?.entitlements?.active ?? {};
+    cb(!!entitlements[ENTITLEMENT_ID]);
+  });
+  return () => {
+    try { (Purchases as any).removeCustomerInfoUpdateListener?.(handle); } catch {}
+  };
 }
