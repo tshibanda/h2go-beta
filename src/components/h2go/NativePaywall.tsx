@@ -28,11 +28,24 @@ export function NativePaywall({ onSuccess }: { onSuccess?: () => void }) {
   useEffect(() => {
     (async () => {
       try {
+        // Preferred flow: present the RC-hosted Paywall configured in the dashboard.
+        const result = await presentPaywall();
+        if (result === "PURCHASED" || result === "RESTORED") {
+          const active = await hasActiveEntitlement();
+          if (active) {
+            await sync({ data: { active: true, store: "app_store" } }).catch(() => null);
+            toast.success(locale === "fr" ? "Bienvenue dans H2GO Pro !" : "Welcome to H2GO Pro!");
+            qc.invalidateQueries({ queryKey: ["dashboard"] });
+            onSuccess?.();
+            return;
+          }
+        }
+        // Fallback custom UI if paywall not configured / not presented / cancelled.
         const off = await getOfferings();
         setMonthly(off.monthly);
         setYearly(off.yearly);
       } catch (e) {
-        console.warn("[paywall] getOfferings failed", e);
+        console.warn("[paywall] init failed", e);
         toast.error(locale === "fr" ? "Impossible de charger les offres" : "Failed to load offers");
       } finally {
         setLoading(false);
