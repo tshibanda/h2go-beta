@@ -255,7 +255,11 @@ function ProfilePage() {
 
   return (
     <MobileShell>
+      {openingPortal && (
+        <LoadingScreen title={t("billing.opening")} subtitle={t("billing.openingSub")} />
+      )}
       <div className="flex flex-col gap-4 pb-6">
+
         <div className="flex items-center justify-between px-5 pt-4">
           <h1 className="font-display text-2xl font-bold">{t("p.title")}</h1>
           <button onClick={signOut} className="w-9 h-9 rounded-full bg-muted flex items-center justify-center">
