@@ -1,87 +1,95 @@
-# Plan d'évolution H2GO
 
-Je livre les 4 chantiers dans l'ordre que tu as choisi. Certaines parties iOS natives nécessiteront un build Xcode de ton côté (je le signalerai).
+# Migration Paiements : RevenueCat (natif) + Stripe (web)
 
----
+## Ce que tu obtiens
 
-## 1) Transitions & fluidité UI
+- **iPhone/iPad + Android natif** → paiement via le composant natif Apple/Google (StoreKit / Play Billing) piloté par RevenueCat. Zéro friction, Face ID / Touch ID.
+- **h2go-app.com dans Safari desktop / Chrome / mobile web** → Stripe Embedded Checkout (inchangé).
+- **Une seule table `subscriptions`** dans la base : le gating premium fonctionne de la même manière quel que soit le canal d'achat.
 
-- **Transitions de routes** : wrapper `<AnimatePresence mode="wait">` autour du `<Outlet/>` dans `__root.tsx` (et `_authenticated/route.tsx`) avec `framer-motion` — fade+slide léger (200ms).
-- **Micro-interactions** : ajout de classes `transition-all`, `hover-scale`, `active:scale-95` sur les boutons principaux (Home, Validate, Profile, Premium, Tree).
-- **Animation d'entrée** des cartes (stats, badges, leaderboard) avec `motion.div` staggered (40ms entre items).
-- **Splash/Mascotte** : easing plus doux + `motion.div` pour les expressions du Splash.
-- **Toasts/Modals** déjà animés via Radix — homogénéiser les durées (200ms ease-out).
+## Étapes que TU dois faire (je ne peux pas les faire à ta place)
 
-Pas d'impact métier, uniquement présentation.
+### 1. App Store Connect (obligatoire pour iOS)
+- Créer 2 produits **Auto-Renewable Subscription** dans un même Subscription Group « H2GO Premium » :
+  - `premium_monthly_v1` (mensuel)
+  - `premium_yearly_v1` (annuel)
+- Remplir : prix, description localisée FR/EN, capture d'écran de review, politique de confidentialité, EULA.
+- Signer l'accord **Paid Applications** (Business → Agreements).
 
----
+### 2. Google Play Console (pour Android plus tard)
+- Créer les mêmes IDs produits en abonnements.
 
-## 2) Objectif d'hydratation dynamique
+### 3. RevenueCat (app.revenuecat.com)
+- Créer projet « H2GO ».
+- Ajouter app iOS avec bundle `com.h2go.app` + App Store Shared Secret.
+- Ajouter app Android (quand prête).
+- Créer **Entitlement** `premium`.
+- Créer **Offering** `default` avec 2 packages : `$rc_monthly` et `$rc_annual` liés aux produits App Store Connect / Play.
+- Récupérer :
+  - **Apple public SDK key** (`appl_...`)
+  - **Google public SDK key** (`goog_...`)
+  - **Webhook auth header** (à définir : je te génère une valeur aléatoire)
+  - **REST API key secret** (`sk_...`) pour lookups serveur
 
-**Source des données** : Open-Meteo (gratuit, sans clé) + géoloc navigateur (`navigator.geolocation`), fallback IP-based ou ville renseignée dans le profil.
+Je te demanderai ces valeurs via le formulaire sécurisé quand j'aurai tout branché.
 
-**Formule** : base `poids × 35 ml`, puis multiplicateurs :
-- activité (low ×0.95, moderate ×1.0, high ×1.10)
-- minutes d'exercice quotidiennes (+500 ml / 30 min) — déjà dans `/calculator`
-- météo du jour : si T° max ≥ 28°C ×1.10, ≥ 32°C ×1.20 ; humidité ≥ 70 % +5 %
-- climat (zone tropicale/sec si renseignée) +5 %
+## Ce que je vais faire côté code
 
-**Implémentation** :
-- Migration : ajout colonnes `profiles.weight_kg`, `activity_level`, `exercise_minutes`, `climate_zone`, `daily_goal_ml_override` (nullable), `daily_goal_computed_at`.
-- Server fn `computeDailyGoal` qui prend coords + profil et renvoie `goal_ml`, exposée via `useServerFn`.
-- Hook `useDailyGoal()` côté client : calcule au mount de `/home`, met en cache TanStack Query (clé du jour) et stocke dans `profiles.daily_goal_ml`.
-- UI : section "Profil > Objectif" pour saisir poids/activité/zone climatique ; sur `/home`, petit badge "Objectif adapté à la météo : 28°C → +10%".
+### Dépendances
+- `bun add @revenuecat/purchases-capacitor` (SDK natif iOS/Android)
+- `npx cap sync ios` après install
+- Ajout de la capability **In-App Purchase** dans `ios/App/App.entitlements`
 
----
+### Fichiers nouveaux
+- `src/lib/revenuecat.ts` — init du SDK au boot (`Purchases.configure`), helpers `getOfferings()`, `purchasePackage()`, `restorePurchases()`, `getCustomerInfo()`.
+- `src/lib/payment-router.ts` — décide RC vs Stripe selon `Capacitor.isNativePlatform()`.
+- `src/components/h2go/NativePaywall.tsx` — écran natif style Apple avec les 2 offres (mensuel / annuel), CTA « S'abonner », restore purchases, mentions légales EULA + politique de confidentialité (exigé par Apple review).
+- `src/routes/api/public/revenuecat/webhook.ts` — endpoint webhook RC → écrit dans `subscriptions` (INITIAL_PURCHASE, RENEWAL, CANCELLATION, EXPIRATION, BILLING_ISSUE, PRODUCT_CHANGE). Vérifie le header `Authorization` avec le secret `REVENUECAT_WEBHOOK_SECRET`.
+- `src/lib/revenuecat-sync.functions.ts` — server fn qui, au premier login natif, appelle l'API REST RC pour identifier l'utilisateur (`Purchases.logIn(userId)`) et hydrater `subscriptions`.
 
-## 3) Profil : Report a bug + Nous contacter (mailto)
+### Fichiers modifiés
+- `src/routes/_authenticated/premium.tsx` : `if (native) → <NativePaywall />, else → <StripeEmbeddedCheckout />`.
+- `src/routes/_authenticated/profile.tsx` :
+  - Sur natif → bouton « Gérer mon abonnement » ouvre `https://apps.apple.com/account/subscriptions` (iOS) ou l'équivalent Play (Android). C'est **imposé par Apple**, on n'a pas le droit d'ouvrir Stripe portal pour un achat StoreKit.
+  - Sur web → comportement Stripe portal actuel conservé.
+- `src/lib/premium-guard.ts` (ou équivalent existant) : lit `subscriptions` sans se soucier du provider.
 
-- En bas de `_authenticated/profile.tsx`, deux liens stylés (icônes `Bug`, `Mail`) :
-  - **Report a bug** → nouvelle route `/report-bug` avec formulaire (titre, description, étapes, capture facultative). Submit → `mailto:support@h2go-app.com` enrichi (sujet, corps pré-rempli avec contexte : version app, OS, user id).
-  - **Nous contacter** → `mailto:support@h2go-app.com?subject=...` direct.
-- Page `/report-bug` respecte la charte (gradient bleu/teal, Fredoka, Splash).
+### Migration DB
+Ajout de colonnes à `subscriptions` :
+- `provider text not null default 'stripe'` (`stripe` | `revenuecat`)
+- `revenuecat_user_id text`
+- `store text` (`app_store` | `play_store` | `stripe`)
+- `original_transaction_id text`
+- Index sur `(user_id, provider)`.
 
----
+Grants + RLS conservés à l'identique.
 
-## 4) Notifications intelligentes + Widget iOS + Partage badges
-
-### 4a) Notifications adaptatives
-
-- Étendre `src/lib/notifications.ts` :
-  - Récupération météo (Open-Meteo) à la planification quotidienne.
-  - Si T° ≥ 28°C : +2 créneaux supplémentaires (toutes les 1.5h au lieu de 2h).
-  - Heure de la journée : densité plus élevée entre 11h-15h (heures chaudes).
-  - HealthKit (activité physique) : nécessite plugin Capacitor `@perfood/capacitor-healthkit`. J'installe et j'ajoute un hook quotidien qui interroge les pas/calories ; si > seuil, ajoute un rappel post-effort. **Build Xcode requis pour activer la capability HealthKit**.
-- Re-planification automatique tous les matins (background fetch iOS via `BackgroundTasks` Capacitor plugin).
-
-### 4b) Widget iOS (écran d'accueil + Lock Screen)
-
-C'est **du Swift natif** (WidgetKit) : je scaffolde une extension `H2GOWidget` dans `ios/App/` :
-- `H2GOWidget.swift` : timeline provider, 3 tailles (small/medium + accessoryCircular pour lock screen).
-- Affiche % de progression du jour + heure prochain rappel.
-- Données partagées via App Group `group.com.h2goapp.shared` ; côté JS, j'écris `progress.json` à chaque sip via `@capacitor-community/file-opener` ou un plugin custom léger.
-- **Action utilisateur requise** : ouvrir Xcode → File > New > Target > Widget Extension → coller mes fichiers + activer App Group. Je documente précisément.
-
-### 4c) Partage de badges sur les réseaux sociaux
-
-- Au clic sur un badge dans `/profile` ou `/leaderboard`, ouvrir une modal avec :
-  - **Génération d'image** côté client via `<canvas>` 1080×1920 (story format) : fond gradient H2GO, mascotte Splash, nom du badge, pseudo, date. Pas besoin d'IA — pur Canvas avec polices Fredoka/Poppins (déjà chargées).
-  - Bouton "Partager" : `navigator.share({ files: [pngBlob] })` (Web Share API, supporté iOS Safari + Capacitor Share).
-  - Bouton "Télécharger" : fallback download.
-
----
+### Secrets à ajouter
+- `REVENUECAT_PUBLIC_APPLE_KEY` (côté client via `VITE_REVENUECAT_APPLE_KEY` — publique, safe dans le bundle)
+- `REVENUECAT_PUBLIC_GOOGLE_KEY` (idem, `VITE_REVENUECAT_GOOGLE_KEY`)
+- `REVENUECAT_SECRET_API_KEY` (serveur uniquement, pour REST)
+- `REVENUECAT_WEBHOOK_SECRET` (généré, à recopier dans RC dashboard)
 
 ## Détails techniques
 
-- **Packages à installer** : `framer-motion` (transitions), `@perfood/capacitor-healthkit` (HealthKit), `@capacitor/share` (déjà ?), à confirmer.
-- **Migrations Supabase** : 1 migration pour les colonnes profil (poids/activité/climat/objectif calculé).
-- **Server fns** : `computeDailyGoal.functions.ts`, ajout dans `payments.functions.ts` style.
-- **Pas de nouveaux secrets** (Open-Meteo gratuit sans clé).
+- **Identification utilisateur** : `Purchases.logIn(supabaseUserId)` juste après le sign-in, `Purchases.logOut()` au sign-out. Ça lie l'App Store transaction au bon compte H2GO côté RC.
+- **Restore purchases** obligatoire (bouton dans le paywall + dans profil) — sinon rejet Apple review.
+- **Sandbox testing** : compte Sandbox Tester dans App Store Connect → se connecter dans Réglages iOS → l'app détecte automatiquement Sandbox.
+- **Stripe web reste 100% identique** : `createCheckoutSession`, webhook `/api/public/payments/webhook`, portal, rien à toucher.
+- **Cas particulier** : un utilisateur premium via iOS qui se connecte sur Safari desktop → on lit `subscriptions.provider = 'revenuecat'` et on affiche « Ton abonnement est géré depuis ton iPhone » (pas de bouton Stripe portal).
 
-## Découpage de livraison
+## Ordre d'exécution
 
-Je livre **dans ce message** : chantiers 1, 2, 3 entièrement + 4c (partage badges Canvas) — tout web/JS, fonctionne immédiatement.
+1. Migration DB + code (je fais tout).
+2. Je te demande les 3 clés RC (public Apple, secret REST, webhook secret).
+3. Tu configures App Store Connect + RC dashboard.
+4. Tu rebuild dans Xcode, tu testes en Sandbox.
+5. Publish web → Stripe reste live.
 
-Dans un **second message** : 4a (notifications intelligentes météo) + 4b (widget iOS scaffolding Swift). Ces deux-là demandent un build Xcode de ton côté.
+## Ce que je NE fais PAS
 
-OK pour ce découpage ?
+- Créer ton compte RevenueCat ou tes produits App Store Connect (impossible sans tes credentials Apple Developer).
+- Signer l'accord Paid Applications à ta place.
+- Toucher au flow Stripe web existant (il reste tel quel).
+
+Confirme et je démarre par la migration DB + install du SDK.
