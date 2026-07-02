@@ -7,6 +7,8 @@ import {
   getOfferings,
   purchasePackage,
   restorePurchases,
+  presentPaywall,
+  hasActiveEntitlement,
   type RCPackage,
 } from "@/lib/revenuecat";
 import { syncRevenueCatEntitlement } from "@/lib/revenuecat-sync.functions";
