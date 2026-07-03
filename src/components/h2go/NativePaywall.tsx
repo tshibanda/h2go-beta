@@ -26,31 +26,28 @@ export function NativePaywall({ onSuccess }: { onSuccess?: () => void }) {
   const [restoring, setRestoring] = useState(false);
 
   useEffect(() => {
+    let cancelled = false;
     (async () => {
       try {
-        // Preferred flow: present the RC-hosted Paywall configured in the dashboard.
-        const result = await presentPaywall();
-        if (result === "PURCHASED" || result === "RESTORED") {
-          const active = await hasActiveEntitlement();
-          if (active) {
-            await sync({ data: { active: true, store: "app_store" } }).catch(() => null);
-            toast.success(locale === "fr" ? "Bienvenue dans H2GO Premium !" : "Welcome to H2GO Premium!");
-            qc.invalidateQueries({ queryKey: ["dashboard"] });
-            onSuccess?.();
-            return;
-          }
-        }
-        // Fallback custom UI if paywall not configured / not presented / cancelled.
+        // Load offerings directly and render the custom UI. We intentionally do NOT
+        // await presentPaywall() here: if no RC-hosted paywall is configured in the
+        // dashboard the promise can stall, leaving the screen stuck on a spinner.
         const off = await getOfferings();
+        if (cancelled) return;
         setMonthly(off.monthly);
         setYearly(off.yearly);
       } catch (e) {
         console.warn("[paywall] init failed", e);
-        toast.error(locale === "fr" ? "Impossible de charger les offres" : "Failed to load offers");
+        if (!cancelled) {
+          toast.error(locale === "fr" ? "Impossible de charger les offres" : "Failed to load offers");
+        }
       } finally {
-        setLoading(false);
+        if (!cancelled) setLoading(false);
       }
     })();
+    return () => {
+      cancelled = true;
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
