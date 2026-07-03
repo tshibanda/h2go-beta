@@ -16,7 +16,7 @@ import { syncRevenueCatEntitlement } from "@/lib/revenuecat-sync.functions";
 import { useServerFn } from "@tanstack/react-start";
 import { useQueryClient } from "@tanstack/react-query";
 
-export function NativePaywall({ onSuccess }: { onSuccess?: () => void }) {
+export function NativePaywall({ onSuccess, userId }: { onSuccess?: () => void; userId?: string }) {
   const { t, locale } = useT();
   const qc = useQueryClient();
   const sync = useServerFn(syncRevenueCatEntitlement);
@@ -48,9 +48,9 @@ export function NativePaywall({ onSuccess }: { onSuccess?: () => void }) {
         }
         // Make sure the SDK is configured before asking for offerings — otherwise
         // getOfferings() can hang forever inside the native bridge.
-        const { data } = await supabase.auth.getUser();
-        if (data.user?.id) {
-          await withTimeout(configureRevenueCat(data.user.id), 8000, "configure");
+        const resolvedUserId = userId ?? (await supabase.auth.getUser()).data.user?.id;
+        if (resolvedUserId) {
+          await withTimeout(configureRevenueCat(resolvedUserId), 8000, "configure");
         }
         const off = await withTimeout(getOfferings(), 10000, "getOfferings");
         if (cancelled) return;
@@ -81,7 +81,7 @@ export function NativePaywall({ onSuccess }: { onSuccess?: () => void }) {
     return () => {
       cancelled = true;
     };
-  }, [loadAttempt, locale]);
+  }, [loadAttempt, locale, userId]);
 
   async function buy(pkg: RCPackage | null) {
     if (!pkg) return;
