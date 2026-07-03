@@ -63,7 +63,7 @@ export function NativePaywall({ onSuccess, userId }: { onSuccess?: () => void; u
         const result = await openRevenueCatPaywall();
         if (cancelled || result === "opened") return;
 
-        const off = await withTimeout(getOfferings(), 14000, "getOfferings");
+        const off = await withTimeout(getOfferings(), 22000, "getOfferings");
         if (cancelled) return;
         setMonthly(off.monthly);
         setYearly(off.yearly);
@@ -82,8 +82,8 @@ export function NativePaywall({ onSuccess, userId }: { onSuccess?: () => void; u
               ? "Configuration RevenueCat incomplète : ajoutez la clé publique Apple du SDK dans les variables d'environnement."
               : "RevenueCat setup is incomplete: add the Apple public SDK key to the environment variables."
             : locale === "fr"
-              ? "Impossible de charger les offres RevenueCat/App Store. Réessayez."
-              : "Failed to load RevenueCat/App Store offers. Please retry.");
+              ? `Impossible de charger les offres RevenueCat/App Store. Réessayez.\n[DEBUG] ${message}`
+              : `Failed to load RevenueCat/App Store offers. Please retry.\n[DEBUG] ${message}`);
         }
       } finally {
         if (!cancelled) setLoading(false);
