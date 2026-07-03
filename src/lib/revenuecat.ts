@@ -135,7 +135,7 @@ export async function getOfferings(): Promise<{ monthly: RCPackage | null; yearl
     const subscriptionPeriod = String(product?.subscriptionPeriod ?? "").toUpperCase();
     if (subscriptionPeriod === "P1M") return "monthly";
     if (subscriptionPeriod === "P1Y") return "yearly";
-    const type = String(pkg?.packageType ?? "").toUpperCase();
+    const type = String(pkgOrProduct?.packageType ?? "").toUpperCase();
     if (type === "MONTHLY") return "monthly";
     if (type === "ANNUAL" || type === "YEARLY") return "yearly";
     const pid = String(product?.identifier ?? pkgOrProduct?.productIdentifier ?? "").toLowerCase();
