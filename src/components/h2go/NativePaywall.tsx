@@ -26,6 +26,7 @@ export function NativePaywall({ onSuccess }: { onSuccess?: () => void }) {
   const [pending, setPending] = useState<string | null>(null);
   const [restoring, setRestoring] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
+  const [loadAttempt, setLoadAttempt] = useState(0);
 
   useEffect(() => {
     let cancelled = false;
@@ -37,6 +38,10 @@ export function NativePaywall({ onSuccess }: { onSuccess?: () => void }) {
 
     (async () => {
       try {
+        setLoading(true);
+        setErrorMsg(null);
+        setMonthly(null);
+        setYearly(null);
         if (!isNativePayments()) {
           if (!cancelled) setErrorMsg(locale === "fr" ? "Achats natifs disponibles uniquement sur l'app iOS/Android." : "Native purchases only available on iOS/Android app.");
           return;
@@ -45,9 +50,7 @@ export function NativePaywall({ onSuccess }: { onSuccess?: () => void }) {
         // getOfferings() can hang forever inside the native bridge.
         const { data } = await supabase.auth.getUser();
         if (data.user?.id) {
-          await withTimeout(configureRevenueCat(data.user.id), 8000, "configure").catch((e) => {
-            console.warn("[paywall] configure failed", e);
-          });
+          await withTimeout(configureRevenueCat(data.user.id), 8000, "configure");
         }
         const off = await withTimeout(getOfferings(), 10000, "getOfferings");
         if (cancelled) return;
@@ -61,7 +64,15 @@ export function NativePaywall({ onSuccess }: { onSuccess?: () => void }) {
       } catch (e) {
         console.warn("[paywall] init failed", e);
         if (!cancelled) {
-          setErrorMsg(locale === "fr" ? "Impossible de charger les offres. Réessayez." : "Failed to load offers. Please retry.");
+          const message = String(e instanceof Error ? e.message : e);
+          const missingKey = message.toLowerCase().includes("missing revenuecat");
+          setErrorMsg(missingKey
+            ? locale === "fr"
+              ? "Configuration RevenueCat incomplète : ajoutez la clé publique Apple du SDK dans les variables d'environnement."
+              : "RevenueCat setup is incomplete: add the Apple public SDK key to the environment variables."
+            : locale === "fr"
+              ? "Impossible de charger les offres RevenueCat/App Store. Réessayez."
+              : "Failed to load RevenueCat/App Store offers. Please retry.");
         }
       } finally {
         if (!cancelled) setLoading(false);
@@ -70,8 +81,7 @@ export function NativePaywall({ onSuccess }: { onSuccess?: () => void }) {
     return () => {
       cancelled = true;
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [loadAttempt, locale]);
 
   async function buy(pkg: RCPackage | null) {
     if (!pkg) return;
@@ -146,7 +156,7 @@ export function NativePaywall({ onSuccess }: { onSuccess?: () => void }) {
       ) : errorMsg && !monthly && !yearly ? (
         <div className="mx-4 rounded-2xl p-4 bg-card border border-border text-center">
           <p className="text-sm text-muted-foreground mb-3">{errorMsg}</p>
-          <Button onClick={() => window.location.reload()} className="rounded-xl">
+          <Button onClick={() => setLoadAttempt((n) => n + 1)} className="rounded-xl">
             {locale === "fr" ? "Réessayer" : "Retry"}
           </Button>
         </div>
