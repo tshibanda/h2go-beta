@@ -332,6 +332,26 @@ export async function restorePurchases(): Promise<{ active: boolean }> {
   return { active: hasPremiumEntitlement((res as any).customerInfo) };
 }
 
+/**
+ * Force RevenueCat to re-sync with the App Store after a purchase made
+ * outside of RevenueCat's own purchase methods (e.g. via SubscriptionStoreView,
+ * which talks to StoreKit 2 directly). RevenueCat's transaction observer
+ * normally picks these up automatically, but this is a safety net for
+ * entitlement checks that happen immediately after.
+ */
+export async function syncPurchases(): Promise<{ active: boolean }> {
+  if (!isNativePayments() || !configured) return { active: false };
+  const Purchases = await loadPurchases();
+  try {
+    const res = await (Purchases as any).syncPurchases?.();
+    const info = (res as any)?.customerInfo ?? (await Purchases.getCustomerInfo()).customerInfo;
+    return { active: hasPremiumEntitlement(info) };
+  } catch (e) {
+    console.warn("[revenuecat] syncPurchases failed", e);
+    return { active: await hasActiveEntitlement() };
+  }
+}
+
 export async function hasActiveEntitlement(): Promise<boolean> {
   if (!isNativePayments() || !configured) return false;
   const Purchases = await loadPurchases();

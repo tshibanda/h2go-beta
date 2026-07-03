@@ -11,12 +11,19 @@ import {
   presentPaywall,
   hasActiveEntitlement,
   isNativePayments,
+  syncPurchases,
   type RCPackage,
 } from "@/lib/revenuecat";
 import { supabase } from "@/integrations/supabase/client";
 import { syncRevenueCatEntitlement } from "@/lib/revenuecat-sync.functions";
 import { useServerFn } from "@tanstack/react-start";
 import { useQueryClient } from "@tanstack/react-query";
+import { Capacitor } from "@capacitor/core";
+import { SubscriptionStore } from "@/native/subscription-store";
+
+// Subscription Group ID from App Store Connect → Features → In-App Purchases
+// → Subscription Groups → [your group] (numeric reference ID, not the product ID).
+const SUBSCRIPTION_GROUP_ID = "22204878";
 
 export function NativePaywall({ onSuccess, userId }: { onSuccess?: () => void; userId?: string }) {
   const { t, locale } = useT();
@@ -97,6 +104,33 @@ export function NativePaywall({ onSuccess, userId }: { onSuccess?: () => void; u
   async function openRevenueCatPaywall(): Promise<"opened" | "fallback"> {
     setOpeningNativePaywall(true);
     try {
+      // On iOS 17+, prefer Apple's native SubscriptionStoreView — it auto-displays
+      // title, duration, price and policy links, satisfying Guideline 3.1.2(c)
+      // without relying on the RevenueCat-hosted paywall's own configuration.
+      if (Capacitor.getPlatform() === "ios") {
+        try {
+          const { available } = await SubscriptionStore.isAvailable();
+          if (available) {
+            const { result } = await SubscriptionStore.present({ groupID: SUBSCRIPTION_GROUP_ID });
+            if (!["cancelled", "failed", "unverified"].includes(result)) {
+              // RevenueCat's transaction observer should pick this up automatically;
+              // syncPurchases() is a safety net so the UI reflects it immediately.
+              const { active } = await syncPurchases();
+              if (active) {
+                await sync({ data: { active: true, store: "app_store" } }).catch(() => null);
+                toast.success(locale === "fr" ? "Bienvenue dans H2GO Premium !" : "Welcome to H2GO Premium!");
+                qc.invalidateQueries({ queryKey: ["dashboard"] });
+                onSuccess?.();
+              }
+            }
+            return "opened";
+          }
+        } catch (e) {
+          console.warn("[paywall] SubscriptionStoreView failed, falling back", e);
+          // fall through to the RevenueCat-hosted paywall below
+        }
+      }
+
       const result = await presentPaywall();
       if (result === "ERROR" || result === "NOT_PRESENTED") return "fallback";
       const active = await hasActiveEntitlement().catch(() => false);
