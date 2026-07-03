@@ -9,6 +9,9 @@ export const PRODUCT_MONTHLY = "com.h2go.app.monthly";
 export const PRODUCT_YEARLY = "com.h2go.app.yearly";
 export const ENTITLEMENT_ID = "H2GO Premium";
 const ENTITLEMENT_ALIASES = [ENTITLEMENT_ID, "premium", "h2go_premium", "h2go-premium"];
+// RevenueCat public SDK keys are safe in the client bundle. Keeping the iOS key
+// here prevents native builds from silently shipping without the Vite env value.
+const H2GO_REVENUECAT_APPLE_PUBLIC_KEY = "appl_flAvSykHSAgPzJytulTjFGzDBeV";
 
 export function isNativePayments(): boolean {
   return Capacitor.isNativePlatform();
@@ -16,6 +19,7 @@ export function isNativePayments(): boolean {
 
 let configured = false;
 let currentAppUserId: string | null = null;
+let configurePromise: Promise<void> | null = null;
 
 async function loadRevenueCat() {
   const mod = await import("@revenuecat/purchases-capacitor");
@@ -34,7 +38,7 @@ async function apiKeyForPlatform(): Promise<string | null> {
       import.meta.env.VITE_REVENUECAT_APPLE_KEY ??
       import.meta.env.VITE_REVENUECAT_IOS_KEY ??
       import.meta.env.VITE_REVENUECAT_PUBLIC_APPLE_KEY ??
-      null
+      H2GO_REVENUECAT_APPLE_PUBLIC_KEY
     );
   }
   if (platform === "android") {
@@ -57,11 +61,24 @@ export async function getRevenueCatConfigStatus(): Promise<{ configured: boolean
 
 export async function configureRevenueCat(userId: string): Promise<void> {
   if (!isNativePayments()) return;
+  if (configurePromise) {
+    await configurePromise;
+    if (currentAppUserId === userId) return;
+  }
+
   const apiKey = await apiKeyForPlatform();
   if (!apiKey) {
     throw new Error(`Missing RevenueCat public SDK key for ${Capacitor.getPlatform()}`);
   }
   const Purchases = await loadPurchases();
+
+  const finishUserBinding = async () => {
+    if (currentAppUserId !== userId) {
+      await Purchases.logIn({ appUserID: userId });
+      currentAppUserId = userId;
+    }
+  };
+
   try {
     const nativeState = await (Purchases as any).isConfigured?.();
     if (nativeState?.isConfigured && !configured) configured = true;
@@ -70,18 +87,28 @@ export async function configureRevenueCat(userId: string): Promise<void> {
     // still protects the usual path.
   }
   if (!configured) {
-    if (import.meta.env.DEV) {
-      try { await (Purchases as any).setLogLevel?.({ level: "DEBUG" }); } catch {}
+    configurePromise = (async () => {
+      if (import.meta.env.DEV) {
+        try { await (Purchases as any).setLogLevel?.({ level: "DEBUG" }); } catch {}
+      }
+      const configuration: Record<string, unknown> = { apiKey, appUserID: userId };
+      if (Capacitor.getPlatform() === "ios") {
+        // StoreKit 1 avoids requiring a RevenueCat App Store Connect In-App
+        // Purchase Key just to load/purchase existing App Store products.
+        configuration.storeKitVersion = "STOREKIT_1";
+      }
+      await Purchases.configure(configuration as any);
+      configured = true;
+      currentAppUserId = userId;
+    })();
+    try {
+      await configurePromise;
+    } finally {
+      configurePromise = null;
     }
-    await Purchases.configure({ apiKey, appUserID: userId });
-    configured = true;
-    currentAppUserId = userId;
     return;
   }
-  if (currentAppUserId !== userId) {
-    await Purchases.logIn({ appUserID: userId });
-    currentAppUserId = userId;
-  }
+  await finishUserBinding();
 }
 
 export async function logOutRevenueCat(): Promise<void> {
@@ -106,102 +133,141 @@ export type RCPackage = {
   source: "offering" | "product";
 };
 
+function withTimeout<T>(promise: Promise<T>, ms: number, label: string): Promise<T> {
+  return new Promise((resolve, reject) => {
+    const timer = window.setTimeout(() => reject(new Error(`${label} timeout`)), ms);
+    promise.then(
+      (value) => {
+        window.clearTimeout(timer);
+        resolve(value);
+      },
+      (error) => {
+        window.clearTimeout(timer);
+        reject(error);
+      },
+    );
+  });
+}
+
+function productIdentifierOf(input: any): string {
+  const product = input?.product ?? input;
+  return String(product?.identifier ?? product?.productIdentifier ?? input?.productIdentifier ?? "");
+}
+
+function pickPeriod(pkgOrProduct: any): "monthly" | "yearly" | null {
+  const product = pkgOrProduct?.product ?? pkgOrProduct;
+  const pid = productIdentifierOf(pkgOrProduct).toLowerCase();
+  if (pid === PRODUCT_MONTHLY.toLowerCase()) return "monthly";
+  if (pid === PRODUCT_YEARLY.toLowerCase()) return "yearly";
+
+  const subscriptionPeriod = String(product?.subscriptionPeriod ?? "").toUpperCase();
+  if (subscriptionPeriod === "P1M") return "monthly";
+  if (subscriptionPeriod === "P1Y") return "yearly";
+
+  const type = String(pkgOrProduct?.packageType ?? "").toUpperCase();
+  if (type === "MONTHLY") return "monthly";
+  if (type === "ANNUAL" || type === "YEARLY") return "yearly";
+
+  if (pid.includes("month")) return "monthly";
+  if (pid.includes("year") || pid.includes("annual")) return "yearly";
+
+  const id = String(pkgOrProduct?.identifier ?? "").toLowerCase();
+  if (id.includes("month")) return "monthly";
+  if (id.includes("year") || id.includes("annual")) return "yearly";
+  return null;
+}
+
+function packageToPlan(pkg: any, period: "monthly" | "yearly"): RCPackage {
+  const product = pkg?.product ?? {};
+  return {
+    identifier: String(pkg?.identifier ?? productIdentifierOf(pkg) ?? period),
+    productIdentifier: productIdentifierOf(pkg),
+    priceString: product?.priceString ?? product?.price_string ?? "",
+    title: product?.title ?? "",
+    period,
+    raw: pkg,
+    source: "offering",
+  };
+}
+
+function productToPlan(product: any, period: "monthly" | "yearly"): RCPackage {
+  return {
+    identifier: productIdentifierOf(product) || period,
+    productIdentifier: productIdentifierOf(product),
+    priceString: product?.priceString ?? product?.price_string ?? "",
+    title: product?.title ?? "",
+    period,
+    raw: product,
+    source: "product",
+  };
+}
+
 export async function getOfferings(): Promise<{ monthly: RCPackage | null; yearly: RCPackage | null }> {
   if (!isNativePayments()) return { monthly: null, yearly: null };
   const { Purchases, PRODUCT_CATEGORY } = await loadRevenueCat();
 
-  const toRCFromPackage = (pkg: any, period: "monthly" | "yearly"): RCPackage => ({
-    identifier: pkg.identifier,
-    productIdentifier: pkg.product?.identifier ?? pkg.product?.productIdentifier ?? "",
-    priceString: pkg.product?.priceString ?? pkg.product?.price_string ?? "",
-    title: pkg.product?.title ?? "",
-    period,
-    raw: pkg,
-    source: "offering",
-  });
-
-  const toRCFromProduct = (product: any, period: "monthly" | "yearly"): RCPackage => ({
-    identifier: product.identifier,
-    productIdentifier: product.identifier ?? product.productIdentifier ?? "",
-    priceString: product.priceString ?? product.price_string ?? "",
-    title: product.title ?? "",
-    period,
-    raw: product,
-    source: "product",
-  });
-
-  const pickPeriod = (pkgOrProduct: any): "monthly" | "yearly" | null => {
-    const product = pkgOrProduct?.product ?? pkgOrProduct;
-    const subscriptionPeriod = String(product?.subscriptionPeriod ?? "").toUpperCase();
-    if (subscriptionPeriod === "P1M") return "monthly";
-    if (subscriptionPeriod === "P1Y") return "yearly";
-    const type = String(pkgOrProduct?.packageType ?? "").toUpperCase();
-    if (type === "MONTHLY") return "monthly";
-    if (type === "ANNUAL" || type === "YEARLY") return "yearly";
-    const pid = String(product?.identifier ?? pkgOrProduct?.productIdentifier ?? "").toLowerCase();
-    if (pid === PRODUCT_MONTHLY.toLowerCase()) return "monthly";
-    if (pid === PRODUCT_YEARLY.toLowerCase()) return "yearly";
-    if (pid.includes("month")) return "monthly";
-    if (pid.includes("year") || pid.includes("annual")) return "yearly";
-    const id = String(pkgOrProduct?.identifier ?? "").toLowerCase();
-    if (id.includes("month")) return "monthly";
-    if (id.includes("year") || id.includes("annual")) return "yearly";
-    return null;
-  };
-
   let monthly: RCPackage | null = null;
   let yearly: RCPackage | null = null;
 
-  try {
-    const res = await Purchases.getOfferings();
+  // Prefer the RevenueCat Offering configured in the dashboard; this preserves
+  // RevenueCat paywall/package metadata and still lets us purchase via StoreKit.
+  if (!monthly || !yearly) {
+    try {
+      const res = await withTimeout(Purchases.getOfferings(), 7000, "getOfferings");
     // Prefer `current`, fall back to the first available offering if the user
     // hasn't marked one as current in the RC dashboard.
-    const offering: any =
-      (res as any).current ??
-      Object.values(((res as any).all ?? {}) as Record<string, any>)[0] ??
-      null;
+      const offering: any =
+        (res as any).current ??
+        Object.values(((res as any).all ?? {}) as Record<string, any>)[0] ??
+        null;
 
-    if (offering) {
-      // 1) Try the standard RC shortcuts first.
-      monthly = offering.monthly ? toRCFromPackage(offering.monthly, "monthly") : null;
-      yearly = offering.annual ? toRCFromPackage(offering.annual, "yearly") : null;
+      if (offering) {
+        // Try the standard RC shortcuts first, then custom package identifiers.
+        if (!monthly && offering.monthly) monthly = packageToPlan(offering.monthly, "monthly");
+        if (!yearly && offering.annual) yearly = packageToPlan(offering.annual, "yearly");
 
-      // 2) Fall back to scanning availablePackages (custom package identifiers).
-      const available: any[] = offering.availablePackages ?? [];
-      for (const pkg of available) {
-        const period = pickPeriod(pkg);
-        if (period === "monthly" && !monthly) monthly = toRCFromPackage(pkg, "monthly");
-        if (period === "yearly" && !yearly) yearly = toRCFromPackage(pkg, "yearly");
-      }
+        const available: any[] = offering.availablePackages ?? [];
+        for (const pkg of available) {
+          const period = pickPeriod(pkg);
+          if (period === "monthly" && !monthly) monthly = packageToPlan(pkg, "monthly");
+          if (period === "yearly" && !yearly) yearly = packageToPlan(pkg, "yearly");
+        }
 
-      if (!monthly || !yearly) {
-        console.warn("[revenuecat] offering incomplete, falling back to direct products", {
+        if (!monthly || !yearly) {
+          console.warn("[revenuecat] offering incomplete", {
           offeringId: offering.identifier,
           packageIds: available.map((p) => ({ id: p?.identifier, product: p?.product?.identifier, type: p?.packageType })),
-        });
+          });
+        }
+      } else {
+        console.warn("[revenuecat] getOfferings: no offering returned", res);
       }
-    } else {
-      console.warn("[revenuecat] getOfferings: no offering returned", res);
+    } catch (e) {
+      console.warn("[revenuecat] getOfferings failed", e);
     }
-  } catch (e) {
-    // Do not block the paywall if the offering is not marked current or is badly
-    // configured in RevenueCat. The StoreKit products can still be loaded and
-    // purchased directly by product identifier below.
-    console.warn("[revenuecat] getOfferings failed, falling back to getProducts", e);
   }
 
-  // 3) Final robust fallback: fetch App Store / RevenueCat products directly
-  // with the exact product IDs configured for H2GO.
+  // Fallback: load the real StoreKit products directly by the exact Apple IDs.
+  // This keeps /premium functional even if the RevenueCat Offering is not marked
+  // as Current or its package mapping is incomplete.
   if (!monthly || !yearly) {
-    const productRes = await Purchases.getProducts({
-      productIdentifiers: [PRODUCT_MONTHLY, PRODUCT_YEARLY],
-      type: PRODUCT_CATEGORY.SUBSCRIPTION,
-    } as any);
-    const products: any[] = (productRes as any).products ?? [];
-    for (const product of products) {
-      const period = pickPeriod(product);
-      if (period === "monthly" && !monthly) monthly = toRCFromProduct(product, "monthly");
-      if (period === "yearly" && !yearly) yearly = toRCFromProduct(product, "yearly");
+    try {
+      const productRes = await withTimeout(
+        Purchases.getProducts({
+          productIdentifiers: [PRODUCT_MONTHLY, PRODUCT_YEARLY],
+          type: PRODUCT_CATEGORY?.SUBSCRIPTION ?? "SUBSCRIPTION",
+        } as any),
+        7000,
+        "getProducts",
+      );
+      const products: any[] = (productRes as any).products ?? [];
+      for (const product of products) {
+        const period = pickPeriod(product);
+        if (period === "monthly" && !monthly) monthly = productToPlan(product, "monthly");
+        if (period === "yearly" && !yearly) yearly = productToPlan(product, "yearly");
+      }
+    } catch (e) {
+      console.warn("[revenuecat] getProducts failed", e);
     }
   }
 
@@ -225,9 +291,9 @@ export async function purchasePackage(pkg: RCPackage): Promise<{ success: boolea
   if (!isNativePayments()) return { success: false, error: "Not on native platform" };
   const Purchases = await loadPurchases();
   try {
-    const result = pkg.source === "product"
-      ? await Purchases.purchaseStoreProduct({ product: pkg.raw as any })
-      : await Purchases.purchasePackage({ aPackage: pkg.raw as any });
+    const result = pkg.source === "offering"
+      ? await Purchases.purchasePackage({ aPackage: pkg.raw as any })
+      : await Purchases.purchaseStoreProduct({ product: pkg.raw as any });
     const entitlements = (result as any).customerInfo?.entitlements?.active ?? {};
     const active = hasPremiumEntitlement((result as any).customerInfo);
     if (!active) {

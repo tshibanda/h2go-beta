@@ -21,7 +21,7 @@ export const Route = createFileRoute("/_authenticated/premium")({
 
 function PremiumPage() {
   const { t, locale } = useT();
-  const { hasAccess } = Route.useRouteContext();
+  const { hasAccess, user } = Route.useRouteContext();
   const navigate = useNavigate();
   const fetchDash = useServerFn(getDashboard);
   const { data } = useQuery({ queryKey: ["dashboard"], queryFn: () => fetchDash() });
@@ -69,7 +69,7 @@ function PremiumPage() {
           </button>
         )}
       </div>
-      <NativePaywall onSuccess={() => navigate({ to: "/home" })} />
+      <NativePaywall userId={user.id} onSuccess={() => navigate({ to: "/home" })} />
     </div>
   ) : (
     <div className="flex flex-col gap-4 pb-6">
