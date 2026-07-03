@@ -28,7 +28,15 @@ async function loadRevenueCat() {
 
 async function loadPurchases() {
   const mod = await loadRevenueCat();
-  return mod.Purchases;
+  // IMPORTANT: never `return mod.Purchases` directly here. Capacitor plugin
+  // objects are Proxies that respond to *any* property access — including
+  // `.then` — which makes JS's Promise resolution algorithm treat them as
+  // "thenable" and try to unwrap them by calling `Purchases.then(...)`.
+  // That call gets routed to the native bridge as a method named "then",
+  // which doesn't exist, throwing "Purchases.then() is not implemented on
+  // ios" and silently breaking every await in this file. Wrapping in a
+  // plain object avoids the false-positive thenable check.
+  return { Purchases: mod.Purchases };
 }
 
 async function apiKeyForPlatform(): Promise<string | null> {
@@ -73,7 +81,7 @@ export async function configureRevenueCat(userId: string, locale?: string): Prom
   if (!apiKey) {
     throw new Error(`Missing RevenueCat public SDK key for ${Capacitor.getPlatform()}`);
   }
-  const Purchases = await loadPurchases();
+  const { Purchases } = await loadPurchases();
 
   const finishUserBinding = async () => {
     if (currentAppUserId !== userId) {
@@ -118,7 +126,7 @@ export async function configureRevenueCat(userId: string, locale?: string): Prom
 async function overrideRevenueCatLocale(locale?: string): Promise<void> {
   if (!locale || !isNativePayments()) return;
   try {
-    const Purchases = await loadPurchases();
+    const { Purchases } = await loadPurchases();
     await (Purchases as any).overridePreferredUILocale?.({ locale });
   } catch (e) {
     console.warn("[revenuecat] locale override failed", e);
@@ -128,7 +136,7 @@ async function overrideRevenueCatLocale(locale?: string): Promise<void> {
 export async function logOutRevenueCat(): Promise<void> {
   if (!isNativePayments() || !configured) return;
   try {
-    const Purchases = await loadPurchases();
+    const { Purchases } = await loadPurchases();
     await Purchases.logOut();
   } catch (e) {
     console.warn("[revenuecat] logOut failed", e);
@@ -303,7 +311,7 @@ function hasPremiumEntitlement(customerInfo: any): boolean {
 
 export async function purchasePackage(pkg: RCPackage): Promise<{ success: boolean; cancelled?: boolean; error?: string }> {
   if (!isNativePayments()) return { success: false, error: "Not on native platform" };
-  const Purchases = await loadPurchases();
+  const { Purchases } = await loadPurchases();
   try {
     const result = pkg.source === "offering"
       ? await Purchases.purchasePackage({ aPackage: pkg.raw as any })
@@ -327,7 +335,7 @@ export async function purchasePackage(pkg: RCPackage): Promise<{ success: boolea
 
 export async function restorePurchases(): Promise<{ active: boolean }> {
   if (!isNativePayments()) return { active: false };
-  const Purchases = await loadPurchases();
+  const { Purchases } = await loadPurchases();
   const res = await Purchases.restorePurchases();
   return { active: hasPremiumEntitlement((res as any).customerInfo) };
 }
@@ -341,7 +349,7 @@ export async function restorePurchases(): Promise<{ active: boolean }> {
  */
 export async function syncPurchases(): Promise<{ active: boolean }> {
   if (!isNativePayments() || !configured) return { active: false };
-  const Purchases = await loadPurchases();
+  const { Purchases } = await loadPurchases();
   try {
     const res = await (Purchases as any).syncPurchases?.();
     const info = (res as any)?.customerInfo ?? (await Purchases.getCustomerInfo()).customerInfo;
@@ -354,7 +362,7 @@ export async function syncPurchases(): Promise<{ active: boolean }> {
 
 export async function hasActiveEntitlement(): Promise<boolean> {
   if (!isNativePayments() || !configured) return false;
-  const Purchases = await loadPurchases();
+  const { Purchases } = await loadPurchases();
   const res = await Purchases.getCustomerInfo();
   return hasPremiumEntitlement((res as any).customerInfo);
 }
@@ -427,7 +435,7 @@ export async function presentCustomerCenter(): Promise<boolean> {
  */
 export async function addCustomerInfoListener(cb: (active: boolean) => void): Promise<() => void> {
   if (!isNativePayments()) return () => {};
-  const Purchases = await loadPurchases();
+  const { Purchases } = await loadPurchases();
   const handle = await (Purchases as any).addCustomerInfoUpdateListener?.((info: any) => {
     cb(hasPremiumEntitlement(info));
   });
