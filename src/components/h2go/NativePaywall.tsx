@@ -7,10 +7,11 @@ import {
   getOfferings,
   purchasePackage,
   restorePurchases,
-  presentPaywall,
-  hasActiveEntitlement,
+  configureRevenueCat,
+  isNativePayments,
   type RCPackage,
 } from "@/lib/revenuecat";
+import { supabase } from "@/integrations/supabase/client";
 import { syncRevenueCatEntitlement } from "@/lib/revenuecat-sync.functions";
 import { useServerFn } from "@tanstack/react-start";
 import { useQueryClient } from "@tanstack/react-query";
@@ -24,22 +25,43 @@ export function NativePaywall({ onSuccess }: { onSuccess?: () => void }) {
   const [yearly, setYearly] = useState<RCPackage | null>(null);
   const [pending, setPending] = useState<string | null>(null);
   const [restoring, setRestoring] = useState(false);
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
   useEffect(() => {
     let cancelled = false;
+    const withTimeout = <T,>(p: Promise<T>, ms: number, label: string): Promise<T> =>
+      new Promise((resolve, reject) => {
+        const t = setTimeout(() => reject(new Error(`${label} timeout`)), ms);
+        p.then((v) => { clearTimeout(t); resolve(v); }, (e) => { clearTimeout(t); reject(e); });
+      });
+
     (async () => {
       try {
-        // Load offerings directly and render the custom UI. We intentionally do NOT
-        // await presentPaywall() here: if no RC-hosted paywall is configured in the
-        // dashboard the promise can stall, leaving the screen stuck on a spinner.
-        const off = await getOfferings();
+        if (!isNativePayments()) {
+          if (!cancelled) setErrorMsg(locale === "fr" ? "Achats natifs disponibles uniquement sur l'app iOS/Android." : "Native purchases only available on iOS/Android app.");
+          return;
+        }
+        // Make sure the SDK is configured before asking for offerings — otherwise
+        // getOfferings() can hang forever inside the native bridge.
+        const { data } = await supabase.auth.getUser();
+        if (data.user?.id) {
+          await withTimeout(configureRevenueCat(data.user.id), 8000, "configure").catch((e) => {
+            console.warn("[paywall] configure failed", e);
+          });
+        }
+        const off = await withTimeout(getOfferings(), 10000, "getOfferings");
         if (cancelled) return;
         setMonthly(off.monthly);
         setYearly(off.yearly);
+        if (!off.monthly && !off.yearly) {
+          setErrorMsg(locale === "fr"
+            ? "Aucune offre disponible. Vérifiez votre connexion ou réessayez plus tard."
+            : "No offers available. Check your connection or try again later.");
+        }
       } catch (e) {
         console.warn("[paywall] init failed", e);
         if (!cancelled) {
-          toast.error(locale === "fr" ? "Impossible de charger les offres" : "Failed to load offers");
+          setErrorMsg(locale === "fr" ? "Impossible de charger les offres. Réessayez." : "Failed to load offers. Please retry.");
         }
       } finally {
         if (!cancelled) setLoading(false);
@@ -120,6 +142,13 @@ export function NativePaywall({ onSuccess }: { onSuccess?: () => void }) {
       {loading ? (
         <div className="mx-4 flex items-center justify-center py-8">
           <Loader2 className="animate-spin text-primary" />
+        </div>
+      ) : errorMsg && !monthly && !yearly ? (
+        <div className="mx-4 rounded-2xl p-4 bg-card border border-border text-center">
+          <p className="text-sm text-muted-foreground mb-3">{errorMsg}</p>
+          <Button onClick={() => window.location.reload()} className="rounded-xl">
+            {locale === "fr" ? "Réessayer" : "Retry"}
+          </Button>
         </div>
       ) : (
         <div className="mx-4 grid grid-cols-2 gap-3">
