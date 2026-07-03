@@ -8,6 +8,8 @@ import {
   purchasePackage,
   restorePurchases,
   configureRevenueCat,
+  presentPaywall,
+  hasActiveEntitlement,
   isNativePayments,
   type RCPackage,
 } from "@/lib/revenuecat";
@@ -27,6 +29,8 @@ export function NativePaywall({ onSuccess, userId }: { onSuccess?: () => void; u
   const [restoring, setRestoring] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [loadAttempt, setLoadAttempt] = useState(0);
+  const [nativePaywallReady, setNativePaywallReady] = useState(false);
+  const [openingNativePaywall, setOpeningNativePaywall] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -46,13 +50,20 @@ export function NativePaywall({ onSuccess, userId }: { onSuccess?: () => void; u
           if (!cancelled) setErrorMsg(locale === "fr" ? "Achats natifs disponibles uniquement sur l'app iOS/Android." : "Native purchases only available on iOS/Android app.");
           return;
         }
-        // Make sure the SDK is configured before asking for offerings — otherwise
-        // getOfferings() can hang forever inside the native bridge.
+        // Make sure the SDK is configured before presenting RevenueCat UI.
         const resolvedUserId = userId ?? (await supabase.auth.getUser()).data.user?.id;
         if (resolvedUserId) {
-          await withTimeout(configureRevenueCat(resolvedUserId), 8000, "configure");
+          await withTimeout(configureRevenueCat(resolvedUserId, locale === "fr" ? "fr-FR" : "en-US"), 12000, "configure");
         }
-        const off = await withTimeout(getOfferings(), 10000, "getOfferings");
+        if (!cancelled) setNativePaywallReady(true);
+
+        // Prefer the RevenueCat-generated native paywall on TestFlight/App Store.
+        // It owns the offer rendering and StoreKit purchase flow, avoiding the
+        // custom web-card loading state that was masking native offer errors.
+        const result = await openRevenueCatPaywall();
+        if (cancelled || result === "opened") return;
+
+        const off = await withTimeout(getOfferings(), 14000, "getOfferings");
         if (cancelled) return;
         setMonthly(off.monthly);
         setYearly(off.yearly);
@@ -82,6 +93,24 @@ export function NativePaywall({ onSuccess, userId }: { onSuccess?: () => void; u
       cancelled = true;
     };
   }, [loadAttempt, locale, userId]);
+
+  async function openRevenueCatPaywall(): Promise<"opened" | "fallback"> {
+    setOpeningNativePaywall(true);
+    try {
+      const result = await presentPaywall();
+      if (result === "ERROR" || result === "NOT_PRESENTED") return "fallback";
+      const active = await hasActiveEntitlement().catch(() => false);
+      if (active || result === "PURCHASED" || result === "RESTORED") {
+        await sync({ data: { active: true, store: "app_store" } }).catch(() => null);
+        toast.success(locale === "fr" ? "Bienvenue dans H2GO Premium !" : "Welcome to H2GO Premium!");
+        qc.invalidateQueries({ queryKey: ["dashboard"] });
+        onSuccess?.();
+      }
+      return "opened";
+    } finally {
+      setOpeningNativePaywall(false);
+    }
+  }
 
   async function buy(pkg: RCPackage | null) {
     if (!pkg) return;
@@ -156,8 +185,24 @@ export function NativePaywall({ onSuccess, userId }: { onSuccess?: () => void; u
       ) : errorMsg && !monthly && !yearly ? (
         <div className="mx-4 rounded-2xl p-4 bg-card border border-border text-center">
           <p className="text-sm text-muted-foreground mb-3">{errorMsg}</p>
-          <Button onClick={() => setLoadAttempt((n) => n + 1)} className="rounded-xl">
-            {locale === "fr" ? "Réessayer" : "Retry"}
+          <Button
+            onClick={async () => {
+              if (nativePaywallReady) {
+                const result = await openRevenueCatPaywall();
+                if (result === "opened") return;
+              }
+              setLoadAttempt((n) => n + 1);
+            }}
+            disabled={openingNativePaywall}
+            className="rounded-xl"
+          >
+            {openingNativePaywall ? (locale === "fr" ? "Ouverture…" : "Opening…") : locale === "fr" ? "Ouvrir les offres" : "Open offers"}
+          </Button>
+        </div>
+      ) : nativePaywallReady && !monthly && !yearly ? (
+        <div className="mx-4 rounded-2xl p-4 bg-card border border-border text-center">
+          <Button onClick={() => openRevenueCatPaywall()} disabled={openingNativePaywall} className="rounded-xl w-full">
+            {openingNativePaywall ? (locale === "fr" ? "Ouverture…" : "Opening…") : locale === "fr" ? "Voir les offres" : "View offers"}
           </Button>
         </div>
       ) : (
