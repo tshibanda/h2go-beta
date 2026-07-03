@@ -7,10 +7,11 @@ import {
   getOfferings,
   purchasePackage,
   restorePurchases,
-  presentPaywall,
-  hasActiveEntitlement,
+  configureRevenueCat,
+  isNativePayments,
   type RCPackage,
 } from "@/lib/revenuecat";
+import { supabase } from "@/integrations/supabase/client";
 import { syncRevenueCatEntitlement } from "@/lib/revenuecat-sync.functions";
 import { useServerFn } from "@tanstack/react-start";
 import { useQueryClient } from "@tanstack/react-query";
