@@ -59,11 +59,14 @@ export async function getRevenueCatConfigStatus(): Promise<{ configured: boolean
   return { configured, missingKey: !apiKey, platform };
 }
 
-export async function configureRevenueCat(userId: string): Promise<void> {
+export async function configureRevenueCat(userId: string, locale?: string): Promise<void> {
   if (!isNativePayments()) return;
   if (configurePromise) {
     await configurePromise;
-    if (currentAppUserId === userId) return;
+    if (currentAppUserId === userId) {
+      await overrideRevenueCatLocale(locale);
+      return;
+    }
   }
 
   const apiKey = await apiKeyForPlatform();
@@ -91,12 +94,12 @@ export async function configureRevenueCat(userId: string): Promise<void> {
       if (import.meta.env.DEV) {
         try { await (Purchases as any).setLogLevel?.({ level: "DEBUG" }); } catch {}
       }
-      const configuration: Record<string, unknown> = { apiKey, appUserID: userId };
-      if (Capacitor.getPlatform() === "ios") {
-        // StoreKit 1 avoids requiring a RevenueCat App Store Connect In-App
-        // Purchase Key just to load/purchase existing App Store products.
-        configuration.storeKitVersion = "STOREKIT_1";
-      }
+      const configuration: Record<string, unknown> = {
+        apiKey,
+        appUserID: userId,
+        diagnosticsEnabled: true,
+        ...(locale ? { preferredUILocaleOverride: locale } : {}),
+      };
       await Purchases.configure(configuration as any);
       configured = true;
       currentAppUserId = userId;
@@ -109,6 +112,17 @@ export async function configureRevenueCat(userId: string): Promise<void> {
     return;
   }
   await finishUserBinding();
+  await overrideRevenueCatLocale(locale);
+}
+
+async function overrideRevenueCatLocale(locale?: string): Promise<void> {
+  if (!locale || !isNativePayments()) return;
+  try {
+    const Purchases = await loadPurchases();
+    await (Purchases as any).overridePreferredUILocale?.({ locale });
+  } catch (e) {
+    console.warn("[revenuecat] locale override failed", e);
+  }
 }
 
 export async function logOutRevenueCat(): Promise<void> {
@@ -135,14 +149,14 @@ export type RCPackage = {
 
 function withTimeout<T>(promise: Promise<T>, ms: number, label: string): Promise<T> {
   return new Promise((resolve, reject) => {
-    const timer = window.setTimeout(() => reject(new Error(`${label} timeout`)), ms);
+    const timer = globalThis.setTimeout(() => reject(new Error(`${label} timeout`)), ms);
     promise.then(
       (value) => {
-        window.clearTimeout(timer);
+        globalThis.clearTimeout(timer);
         resolve(value);
       },
       (error) => {
-        window.clearTimeout(timer);
+        globalThis.clearTimeout(timer);
         reject(error);
       },
     );
@@ -341,8 +355,11 @@ export function manageSubscriptionUrl(): string {
 export async function presentPaywall(): Promise<string> {
   if (!isNativePayments()) return "NOT_PRESENTED";
   try {
-    const { RevenueCatUI, PAYWALL_RESULT } = await import("@revenuecat/purchases-capacitor-ui");
-    const { result } = await RevenueCatUI.presentPaywall();
+    const { RevenueCatUI, PAYWALL_RESULT, PaywallPresentationConfiguration } = await import("@revenuecat/purchases-capacitor-ui");
+    const { result } = await RevenueCatUI.presentPaywall({
+      displayCloseButton: true,
+      presentationConfiguration: PaywallPresentationConfiguration.FULL_SCREEN,
+    });
     return result ?? PAYWALL_RESULT.NOT_PRESENTED;
   } catch (e) {
     console.warn("[revenuecat] presentPaywall failed", e);
@@ -356,9 +373,11 @@ export async function presentPaywall(): Promise<string> {
 export async function presentPaywallIfNeeded(): Promise<string> {
   if (!isNativePayments()) return "NOT_PRESENTED";
   try {
-    const { RevenueCatUI, PAYWALL_RESULT } = await import("@revenuecat/purchases-capacitor-ui");
+    const { RevenueCatUI, PAYWALL_RESULT, PaywallPresentationConfiguration } = await import("@revenuecat/purchases-capacitor-ui");
     const { result } = await RevenueCatUI.presentPaywallIfNeeded({
       requiredEntitlementIdentifier: ENTITLEMENT_ID,
+      displayCloseButton: true,
+      presentationConfiguration: PaywallPresentationConfiguration.FULL_SCREEN,
     });
     return result ?? PAYWALL_RESULT.NOT_PRESENTED;
   } catch (e) {
