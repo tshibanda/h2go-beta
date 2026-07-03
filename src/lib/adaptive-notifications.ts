@@ -1,4 +1,3 @@
-import { Capacitor } from "@capacitor/core";
 import { scheduleHydrationRemindersAtTimes, type ReminderConfig } from "./notifications";
 
 /**
@@ -7,7 +6,7 @@ import { scheduleHydrationRemindersAtTimes, type ReminderConfig } from "./notifi
  * On part d'une fenêtre [startHour, endHour] + intervalHours (config user),
  * puis on ajoute / retire des créneaux selon :
  *  - la météo du jour (chaleur / humidité) via Open-Meteo
- *  - l'activité physique récente (HealthKit, si dispo)
+ *  - l'activité physique récente (signal désactivé, HealthKit retiré de l'app)
  *  - l'heure de la journée (densifier en milieu de journée, alléger le soir)
  *
  * Tout est best-effort : si une source échoue on garde les rappels de base.
@@ -74,42 +73,12 @@ async function fetchWeather(coords: Coords): Promise<WeatherSignals> {
 }
 
 /**
- * Lecture HealthKit (workouts du jour) si le plugin est installé.
- * On charge le plugin dynamiquement pour ne pas casser le bundle web.
+ * HealthKit a été retiré de l'app (aucune lecture de données Santé).
+ * On garde la fonction + le type ActivitySignals pour ne pas casser l'API
+ * des fonctions adaptatives ci-dessous, mais elle ne fait plus rien.
  */
 async function fetchActivity(): Promise<ActivitySignals> {
-  const empty: ActivitySignals = { exerciseMinutesToday: 0 };
-  try {
-    if (!Capacitor.isNativePlatform() || Capacitor.getPlatform() !== "ios") return empty;
-    // Plugin optionnel : @perfood/capacitor-healthkit
-    const mod = (await import(/* @vite-ignore */ "@perfood/capacitor-healthkit").catch(
-      () => null,
-    )) as null | {
-      CapacitorHealthkit: {
-        requestAuthorization: (opts: unknown) => Promise<unknown>;
-        queryHKitSampleType: (opts: unknown) => Promise<{ resultData?: Array<{ duration: number }> }>;
-      };
-    };
-    if (!mod?.CapacitorHealthkit) return empty;
-    const hk = mod.CapacitorHealthkit;
-    await hk.requestAuthorization({
-      all: [""],
-      read: ["workoutType", "activeEnergyBurned"],
-      write: [],
-    });
-    const start = new Date();
-    start.setHours(0, 0, 0, 0);
-    const res = await hk.queryHKitSampleType({
-      sampleName: "workoutType",
-      startDate: start.toISOString(),
-      endDate: new Date().toISOString(),
-      limit: 50,
-    });
-    const minutes = (res.resultData ?? []).reduce((acc, w) => acc + (w.duration || 0) / 60, 0);
-    return { exerciseMinutesToday: Math.round(minutes) };
-  } catch {
-    return empty;
-  }
+  return { exerciseMinutesToday: 0 };
 }
 
 /**
