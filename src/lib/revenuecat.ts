@@ -73,18 +73,67 @@ export async function getOfferings(): Promise<{ monthly: RCPackage | null; yearl
   if (!isNativePayments()) return { monthly: null, yearly: null };
   const Purchases = await loadPurchases();
   const res = await Purchases.getOfferings();
-  const current = res.current;
-  if (!current) return { monthly: null, yearly: null };
+  // Prefer `current`, fall back to the first available offering if the user
+  // hasn't marked one as current in the RC dashboard.
+  const offering: any =
+    (res as any).current ??
+    Object.values(((res as any).all ?? {}) as Record<string, any>)[0] ??
+    null;
+  if (!offering) {
+    console.warn("[revenuecat] getOfferings: no offering returned", res);
+    return { monthly: null, yearly: null };
+  }
+
   const toRC = (pkg: any, period: "monthly" | "yearly"): RCPackage => ({
     identifier: pkg.identifier,
-    productIdentifier: pkg.product.identifier,
-    priceString: pkg.product.priceString,
-    title: pkg.product.title,
+    productIdentifier: pkg.product?.identifier ?? pkg.product?.productIdentifier ?? "",
+    priceString: pkg.product?.priceString ?? pkg.product?.price_string ?? "",
+    title: pkg.product?.title ?? "",
     period,
     raw: pkg,
   });
-  const monthly = current.monthly ? toRC(current.monthly, "monthly") : null;
-  const yearly = current.annual ? toRC(current.annual, "yearly") : null;
+
+  const pickPeriod = (pkg: any): "monthly" | "yearly" | null => {
+    const type = String(pkg?.packageType ?? "").toUpperCase();
+    if (type === "MONTHLY") return "monthly";
+    if (type === "ANNUAL" || type === "YEARLY") return "yearly";
+    const pid = String(pkg?.product?.identifier ?? "").toLowerCase();
+    if (pid.includes("month")) return "monthly";
+    if (pid.includes("year") || pid.includes("annual")) return "yearly";
+    const id = String(pkg?.identifier ?? "").toLowerCase();
+    if (id.includes("month")) return "monthly";
+    if (id.includes("year") || id.includes("annual")) return "yearly";
+    return null;
+  };
+
+  // 1) Try the standard RC shortcuts first.
+  let monthly: RCPackage | null = offering.monthly ? toRC(offering.monthly, "monthly") : null;
+  let yearly: RCPackage | null = offering.annual ? toRC(offering.annual, "yearly") : null;
+
+  // 2) Fall back to scanning availablePackages (custom package identifiers).
+  const available: any[] = offering.availablePackages ?? [];
+  for (const pkg of available) {
+    const period = pickPeriod(pkg);
+    if (period === "monthly" && !monthly) monthly = toRC(pkg, "monthly");
+    if (period === "yearly" && !yearly) yearly = toRC(pkg, "yearly");
+  }
+
+  // 3) Last-resort match by our known product identifiers.
+  if (!monthly || !yearly) {
+    for (const pkg of available) {
+      const pid = String(pkg?.product?.identifier ?? "");
+      if (!monthly && pid === PRODUCT_MONTHLY) monthly = toRC(pkg, "monthly");
+      if (!yearly && pid === PRODUCT_YEARLY) yearly = toRC(pkg, "yearly");
+    }
+  }
+
+  if (!monthly && !yearly) {
+    console.warn("[revenuecat] getOfferings: offering has no monthly/yearly package", {
+      offeringId: offering.identifier,
+      packageIds: available.map((p) => ({ id: p?.identifier, product: p?.product?.identifier, type: p?.packageType })),
+    });
+  }
+
   return { monthly, yearly };
 }
 
