@@ -209,29 +209,8 @@ export async function getOfferings(): Promise<{ monthly: RCPackage | null; yearl
   let monthly: RCPackage | null = null;
   let yearly: RCPackage | null = null;
 
-  // Load the real StoreKit products first. This uses the exact App Store
-  // product identifiers and does not depend on a RevenueCat Offering being
-  // marked as Current, so /premium remains functional even if the dashboard
-  // offering/package setup is incomplete.
-  try {
-    const productRes = await withTimeout(
-      Purchases.getProducts({
-        productIdentifiers: [PRODUCT_MONTHLY, PRODUCT_YEARLY],
-        type: PRODUCT_CATEGORY?.SUBSCRIPTION ?? "SUBSCRIPTION",
-      } as any),
-      7000,
-      "getProducts",
-    );
-    const products: any[] = (productRes as any).products ?? [];
-    for (const product of products) {
-      const period = pickPeriod(product);
-      if (period === "monthly" && !monthly) monthly = productToPlan(product, "monthly");
-      if (period === "yearly" && !yearly) yearly = productToPlan(product, "yearly");
-    }
-  } catch (e) {
-    console.warn("[revenuecat] getProducts failed, falling back to offerings", e);
-  }
-
+  // Prefer the RevenueCat Offering configured in the dashboard; this preserves
+  // RevenueCat paywall/package metadata and still lets us purchase via StoreKit.
   if (!monthly || !yearly) {
     try {
       const res = await withTimeout(Purchases.getOfferings(), 7000, "getOfferings");
@@ -268,6 +247,30 @@ export async function getOfferings(): Promise<{ monthly: RCPackage | null; yearl
     }
   }
 
+  // Fallback: load the real StoreKit products directly by the exact Apple IDs.
+  // This keeps /premium functional even if the RevenueCat Offering is not marked
+  // as Current or its package mapping is incomplete.
+  if (!monthly || !yearly) {
+    try {
+      const productRes = await withTimeout(
+        Purchases.getProducts({
+          productIdentifiers: [PRODUCT_MONTHLY, PRODUCT_YEARLY],
+          type: PRODUCT_CATEGORY?.SUBSCRIPTION ?? "SUBSCRIPTION",
+        } as any),
+        7000,
+        "getProducts",
+      );
+      const products: any[] = (productRes as any).products ?? [];
+      for (const product of products) {
+        const period = pickPeriod(product);
+        if (period === "monthly" && !monthly) monthly = productToPlan(product, "monthly");
+        if (period === "yearly" && !yearly) yearly = productToPlan(product, "yearly");
+      }
+    } catch (e) {
+      console.warn("[revenuecat] getProducts failed", e);
+    }
+  }
+
   if (!monthly && !yearly) {
     console.warn("[revenuecat] no purchasable products found", { expected: [PRODUCT_MONTHLY, PRODUCT_YEARLY] });
   }
@@ -288,8 +291,9 @@ export async function purchasePackage(pkg: RCPackage): Promise<{ success: boolea
   if (!isNativePayments()) return { success: false, error: "Not on native platform" };
   const Purchases = await loadPurchases();
   try {
-    const product = (pkg.raw as any)?.product ?? pkg.raw;
-    const result = await Purchases.purchaseStoreProduct({ product: product as any });
+    const result = pkg.source === "offering"
+      ? await Purchases.purchasePackage({ aPackage: pkg.raw as any })
+      : await Purchases.purchaseStoreProduct({ product: pkg.raw as any });
     const entitlements = (result as any).customerInfo?.entitlements?.active ?? {};
     const active = hasPremiumEntitlement((result as any).customerInfo);
     if (!active) {
