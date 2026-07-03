@@ -143,6 +143,13 @@ export function NativePaywall({ onSuccess }: { onSuccess?: () => void }) {
         <div className="mx-4 flex items-center justify-center py-8">
           <Loader2 className="animate-spin text-primary" />
         </div>
+      ) : errorMsg && !monthly && !yearly ? (
+        <div className="mx-4 rounded-2xl p-4 bg-card border border-border text-center">
+          <p className="text-sm text-muted-foreground mb-3">{errorMsg}</p>
+          <Button onClick={() => window.location.reload()} className="rounded-xl">
+            {locale === "fr" ? "Réessayer" : "Retry"}
+          </Button>
+        </div>
       ) : (
         <div className="mx-4 grid grid-cols-2 gap-3">
           <NativePlanCard
