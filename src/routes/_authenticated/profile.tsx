@@ -2,7 +2,20 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useRef, useState } from "react";
-import { Star, Crown, ChevronRight, LogOut, Languages, Camera, Trash2, Bug, Mail, Activity, CloudSun, ShieldAlert } from "lucide-react";
+import {
+  Star,
+  Crown,
+  ChevronRight,
+  LogOut,
+  Languages,
+  Camera,
+  Trash2,
+  Bug,
+  Mail,
+  Activity,
+  CloudSun,
+  ShieldAlert,
+} from "lucide-react";
 import { deleteAccount } from "@/lib/account.functions";
 import {
   AlertDialog,
@@ -142,11 +155,10 @@ function ProfilePage() {
       }
       window.location.href = url;
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : (locale === "fr" ? "Erreur" : "Error"));
+      toast.error(err instanceof Error ? err.message : locale === "fr" ? "Erreur" : "Error");
       setOpeningPortal(false);
     }
   }
-
 
   useEffect(() => {
     void maybePromptFirstLaunch();
@@ -157,9 +169,7 @@ function ProfilePage() {
   useEffect(() => {
     if (!isNative() || !data?.reminders?.length) return;
     const t = data.reminders.map((r) => (r.reminder_time as string).slice(0, 5));
-    void scheduleAdaptiveFromUserTimes(t, locale).catch(() =>
-      scheduleHydrationRemindersAtTimes(t, locale),
-    );
+    void scheduleAdaptiveFromUserTimes(t, locale).catch(() => scheduleHydrationRemindersAtTimes(t, locale));
   }, [data?.reminders, locale]);
 
   useEffect(() => {
@@ -168,14 +178,11 @@ function ProfilePage() {
 
   // Pre-warm the Stripe billing portal URL so the click feels instant on web.
   // On native, subscription management goes through RevenueCat — no prefetch.
-  const isPremiumEarly = ["active", "trialing"].includes(
-    data?.profile?.subscription_status ?? "free",
-  );
+  const isPremiumEarly = ["active", "trialing"].includes(data?.profile?.subscription_status ?? "free");
   useEffect(() => {
     if (isPremiumEarly && !isNative()) void prefetchPortal();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isPremiumEarly]);
-
 
   if (!data)
     return (
@@ -230,14 +237,18 @@ function ProfilePage() {
     try {
       const res = await callDelete();
       if ("error" in res) throw new Error(res.error);
-      toast.success(
-        locale === "fr" ? "Compte supprimé" : "Account deleted",
-      );
-      try { await supabase.auth.signOut(); } catch { /* noop */ }
+      toast.success(locale === "fr" ? "Compte supprimé" : "Account deleted");
+      try {
+        await supabase.auth.signOut();
+      } catch {
+        /* noop */
+      }
       try {
         const { purgeLocalUserData } = await import("@/lib/session-cleanup");
         await purgeLocalUserData();
-      } catch { /* noop */ }
+      } catch {
+        /* noop */
+      }
       window.location.href = "/";
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "Delete failed");
@@ -247,8 +258,6 @@ function ProfilePage() {
       setConfirmText("");
     }
   }
-
-
 
   async function onPickAvatar(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
@@ -284,11 +293,8 @@ function ProfilePage() {
 
   return (
     <MobileShell>
-      {openingPortal && (
-        <LoadingScreen title={t("billing.opening")} subtitle={t("billing.openingSub")} />
-      )}
+      {openingPortal && <LoadingScreen title={t("billing.opening")} subtitle={t("billing.openingSub")} />}
       <div className="flex flex-col gap-4 pb-6">
-
         <div className="flex items-center justify-between px-5 pt-4">
           <h1 className="font-display text-2xl font-bold">{t("p.title")}</h1>
           <button onClick={signOut} className="w-9 h-9 rounded-full bg-muted flex items-center justify-center">
@@ -470,11 +476,13 @@ function ProfilePage() {
 
         {/* Dynamic goal preferences */}
         {(() => {
-          const p = data.profile as typeof data.profile & {
-            activity_level?: string | null;
-            climate_zone?: string | null;
-            dynamic_goal_enabled?: boolean | null;
-          } | null;
+          const p = data.profile as
+            | (typeof data.profile & {
+                activity_level?: string | null;
+                climate_zone?: string | null;
+                dynamic_goal_enabled?: boolean | null;
+              })
+            | null;
           if (!p) return null;
           const activity = (p.activity_level as "low" | "moderate" | "high") ?? "moderate";
           const climate = (p.climate_zone as "temperate" | "hot" | "tropical" | "dry" | "cold") ?? "temperate";
@@ -504,9 +512,7 @@ function ProfilePage() {
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <CloudSun size={16} className="text-secondary" />
-                  <p className="font-display text-base font-semibold">
-                    {fr ? "Objectif adaptatif" : "Adaptive goal"}
-                  </p>
+                  <p className="font-display text-base font-semibold">{fr ? "Objectif adaptatif" : "Adaptive goal"}</p>
                 </div>
                 <Switch checked={dyn} onCheckedChange={(v) => void updatePref({ dynamic_goal_enabled: v })} />
               </div>
@@ -518,9 +524,7 @@ function ProfilePage() {
               <div>
                 <div className="flex items-center gap-2 mb-2">
                   <Activity size={14} className="text-muted-foreground" />
-                  <p className="text-xs font-medium text-muted-foreground">
-                    {fr ? "Activité" : "Activity"}
-                  </p>
+                  <p className="text-xs font-medium text-muted-foreground">{fr ? "Activité" : "Activity"}</p>
                 </div>
                 <div className="grid grid-cols-3 gap-2">
                   {(["low", "moderate", "high"] as const).map((a) => (
@@ -538,9 +542,7 @@ function ProfilePage() {
                 </div>
               </div>
               <div>
-                <p className="text-xs font-medium text-muted-foreground mb-2">
-                  {fr ? "Climat" : "Climate"}
-                </p>
+                <p className="text-xs font-medium text-muted-foreground mb-2">{fr ? "Climat" : "Climate"}</p>
                 <div className="flex flex-wrap gap-2">
                   {climates.map((c) => (
                     <button
@@ -557,7 +559,6 @@ function ProfilePage() {
             </div>
           );
         })()}
-
 
         {/* Language */}
         <div className="mx-4 rounded-2xl p-4 bg-card shadow-sm">
@@ -582,8 +583,8 @@ function ProfilePage() {
         </div>
 
         {/* Premium */}
-{/*
-        {isPremium ? (
+
+        {/*isPremium ? (
           <button
             type="button"
             onClick={openBilling}
@@ -601,7 +602,7 @@ function ProfilePage() {
             </div>
             <ChevronRight size={18} className="text-white/60" />
           </button>
-*/}
+
 
 
         ) : (
@@ -616,7 +617,7 @@ function ProfilePage() {
             </div>
             <ChevronRight size={18} className="text-white/60" />
           </Link>
-        )}
+        )*/}
 
         {/* Support links */}
         <div className="mx-4 grid grid-cols-2 gap-2">
@@ -653,7 +654,15 @@ function ProfilePage() {
           </Link>
         </div>
       </div>
-      <AlertDialog open={deleteOpen} onOpenChange={(o) => { if (!deleting) { setDeleteOpen(o); if (!o) setConfirmText(""); } }}>
+      <AlertDialog
+        open={deleteOpen}
+        onOpenChange={(o) => {
+          if (!deleting) {
+            setDeleteOpen(o);
+            if (!o) setConfirmText("");
+          }
+        }}
+      >
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle className="font-display">
@@ -678,17 +687,22 @@ function ProfilePage() {
             />
           </div>
           <AlertDialogFooter>
-            <AlertDialogCancel disabled={deleting}>
-              {locale === "fr" ? "Annuler" : "Cancel"}
-            </AlertDialogCancel>
+            <AlertDialogCancel disabled={deleting}>{locale === "fr" ? "Annuler" : "Cancel"}</AlertDialogCancel>
             <AlertDialogAction
-              disabled={deleting || (confirmText.trim().toUpperCase() !== (locale === "fr" ? "SUPPRIMER" : "DELETE"))}
-              onClick={(e) => { e.preventDefault(); void handleDeleteAccount(); }}
+              disabled={deleting || confirmText.trim().toUpperCase() !== (locale === "fr" ? "SUPPRIMER" : "DELETE")}
+              onClick={(e) => {
+                e.preventDefault();
+                void handleDeleteAccount();
+              }}
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
             >
               {deleting
-                ? (locale === "fr" ? "Suppression…" : "Deleting…")
-                : (locale === "fr" ? "Supprimer définitivement" : "Delete forever")}
+                ? locale === "fr"
+                  ? "Suppression…"
+                  : "Deleting…"
+                : locale === "fr"
+                  ? "Supprimer définitivement"
+                  : "Delete forever"}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
