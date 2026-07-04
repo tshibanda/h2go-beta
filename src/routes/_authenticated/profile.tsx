@@ -582,7 +582,7 @@ function ProfilePage() {
         </div>
 
         {/* Premium */}
-
+{/*
         {isPremium ? (
           <button
             type="button"
@@ -601,7 +601,7 @@ function ProfilePage() {
             </div>
             <ChevronRight size={18} className="text-white/60" />
           </button>
-
+*/}
 
 
         ) : (
