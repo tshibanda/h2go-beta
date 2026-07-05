@@ -178,7 +178,7 @@ export const validatePhoto = createServerFn({ method: "POST" })
     const confidence = Math.max(0, Math.min(1, Number(parsed.confidence) || 0));
     const approved =
       !!parsed.approved && confidence >= 0.8 && VALID_OBJECTS.has(detected);
-    const volume = Math.max(50, Math.min(1500, Math.round(Number(parsed.estimated_volume_ml) || 250)));
+    const volume = Math.max(50, Math.min(2000, Math.round(Number(parsed.estimated_volume_ml) || 250)));
 
     // 3. Upload photo to storage (load admin inside handler)
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
