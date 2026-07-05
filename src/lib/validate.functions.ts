@@ -24,7 +24,24 @@ REJECT (set approved=false) for:
 - containers without visible water
 - ambiguous/unclear images (confidence < 0.8)
 
-Estimate volume in milliliters based on the container shown. Be strict — H2GO depends on real hydration accountability. If unsure, reject.
+Estimate the water volume in milliliters with high precision. Follow this rigorous method:
+
+1. IDENTIFY the container type and estimate its TOTAL capacity using visual cues (hand size, standard object references, typical proportions):
+   - Standard drinking glass: 200–300 ml total capacity
+   - Small glass / tumbler: 150–200 ml
+   - Large glass / pint: 350–500 ml
+   - Mug / cup: 240–350 ml
+   - Small water bottle: 330–500 ml
+   - Standard water bottle: 500–750 ml
+   - Large bottle: 1000–1500 ml
+   - Sports flask / canteen: 500–1000 ml
+2. MEASURE the FILL LEVEL as a percentage of total capacity by carefully observing the waterline vs. the container's rim and base. Look at meniscus, reflections, and transparency.
+3. COMPUTE estimated_volume_ml = round(total_capacity * fill_ratio). Do NOT default to 250 ml — always derive from the two measurements above.
+4. If the container is partially hidden or the waterline is ambiguous, lower confidence accordingly (< 0.8 → reject).
+
+In the "reason" field, briefly justify (e.g. "Standard 250 ml glass, ~80% full → 200 ml").
+
+Be strict — H2GO depends on real hydration accountability. If unsure, reject.
 
 Respond ONLY with JSON: {"approved": bool, "confidence": 0-1, "detected_object": string, "estimated_volume_ml": int, "reason": "short user-facing message"}.`;
 
@@ -161,7 +178,7 @@ export const validatePhoto = createServerFn({ method: "POST" })
     const confidence = Math.max(0, Math.min(1, Number(parsed.confidence) || 0));
     const approved =
       !!parsed.approved && confidence >= 0.8 && VALID_OBJECTS.has(detected);
-    const volume = Math.max(50, Math.min(1500, Math.round(Number(parsed.estimated_volume_ml) || 250)));
+    const volume = Math.max(50, Math.min(2000, Math.round(Number(parsed.estimated_volume_ml) || 250)));
 
     // 3. Upload photo to storage (load admin inside handler)
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
