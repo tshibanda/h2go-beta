@@ -11,14 +11,15 @@ import { RecoveryEmail } from '@/lib/email-templates/recovery'
 import { EmailChangeEmail } from '@/lib/email-templates/email-change'
 import { ReauthenticationEmail } from '@/lib/email-templates/reauthentication'
 
-const EMAIL_SUBJECTS: Record<string, string> = {
-  signup: 'Confirm your email',
-  invite: "You've been invited",
-  magiclink: 'Your login link',
-  recovery: 'Reset your password',
-  email_change: 'Confirm your new email',
-  reauthentication: 'Your verification code',
+const EMAIL_SUBJECTS: Record<string, { en: string; fr: string }> = {
+  signup: { en: 'Confirm your email', fr: 'Confirmez votre e-mail' },
+  invite: { en: "You've been invited", fr: 'Vous avez été invité' },
+  magiclink: { en: 'Your login link', fr: 'Votre lien de connexion' },
+  recovery: { en: 'Reset your password', fr: 'Réinitialisez votre mot de passe' },
+  email_change: { en: 'Confirm your new email', fr: 'Confirmez votre nouvelle adresse' },
+  reauthentication: { en: 'Your verification code', fr: 'Votre code de vérification' },
 }
+
 
 // Template mapping
 const EMAIL_TEMPLATES: Record<string, React.ComponentType<any>> = {
