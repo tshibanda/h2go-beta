@@ -55,7 +55,8 @@ function PremiumPage() {
 
   const content = useNative ? (
     <div className="flex flex-col gap-4 pb-6">
-      <div className="px-5 pt-4 flex items-center justify-between">
+      <div className="px-5 pt-[max(1rem,env(safe-area-inset-top))] flex items-center justify-between">
+
         {hasAccess ? (
           <Link to="/profile" className="text-muted-foreground text-sm">{t("common.back")}</Link>
         ) : (
