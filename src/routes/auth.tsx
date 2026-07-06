@@ -41,7 +41,7 @@ function AuthPage() {
           password,
           options: {
             emailRedirectTo: `${window.location.origin}/home`,
-            data: { name },
+            data: { name, locale },
           },
         });
         if (error) throw error;
