@@ -1,58 +1,51 @@
 import * as React from 'react'
-
-import {
-  Body,
-  Container,
-  Head,
-  Heading,
-  Html,
-  Preview,
-  Text,
-} from '@react-email/components'
+import { Text } from '@react-email/components'
+import { BrandLayout, codeStyle, pickLocale, text, type Locale } from './_brand'
 
 interface ReauthenticationEmailProps {
   token: string
+  locale?: Locale
 }
 
-export const ReauthenticationEmail = ({ token }: ReauthenticationEmailProps) => (
-  <Html lang="en" dir="ltr">
-    <Head />
-    <Preview>Your verification code</Preview>
-    <Body style={main}>
-      <Container style={container}>
-        <Heading style={h1}>Confirm reauthentication</Heading>
-        <Text style={text}>Use the code below to confirm your identity:</Text>
-        <Text style={codeStyle}>{token}</Text>
-        <Text style={footer}>
-          This code will expire shortly. If you didn't request this, you can
-          safely ignore this email.
-        </Text>
-      </Container>
-    </Body>
-  </Html>
-)
+const COPY: Record<Locale, {
+  preview: string
+  heading: string
+  intro: string
+  footer: string
+}> = {
+  en: {
+    preview: 'Your verification code',
+    heading: 'Confirm reauthentication 💧',
+    intro: 'Use the code below to confirm your identity:',
+    footer:
+      "This code will expire shortly. If you didn't request this, you can safely ignore this email.",
+  },
+  fr: {
+    preview: 'Votre code de vérification',
+    heading: 'Confirmez votre authentification 💧',
+    intro: 'Utilisez le code ci-dessous pour confirmer votre identité :',
+    footer:
+      "Ce code expire rapidement. Si vous n'êtes pas à l'origine de cette demande, ignorez cet e-mail.",
+  },
+}
+
+export const ReauthenticationEmail = ({ token, locale }: ReauthenticationEmailProps) => {
+  const l = pickLocale(locale)
+  const c = COPY[l]
+  return (
+    <BrandLayout
+      locale={l}
+      preview={c.preview}
+      heading={c.heading}
+      body={
+        <>
+          <Text style={text}>{c.intro}</Text>
+          <Text style={codeStyle}>{token}</Text>
+        </>
+      }
+      footer={c.footer}
+    />
+  )
+}
 
 export default ReauthenticationEmail
-
-const main = { backgroundColor: '#ffffff', fontFamily: 'Arial, sans-serif' }
-const container = { padding: '20px 25px' }
-const h1 = {
-  fontSize: '22px',
-  fontWeight: 'bold' as const,
-  color: '#000000',
-  margin: '0 0 20px',
-}
-const text = {
-  fontSize: '14px',
-  color: '#55575d',
-  lineHeight: '1.5',
-  margin: '0 0 25px',
-}
-const codeStyle = {
-  fontFamily: 'Courier, monospace',
-  fontSize: '22px',
-  fontWeight: 'bold' as const,
-  color: '#000000',
-  margin: '0 0 30px',
-}
-const footer = { fontSize: '12px', color: '#999999', margin: '30px 0 0' }

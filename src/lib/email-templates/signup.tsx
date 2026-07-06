@@ -1,18 +1,6 @@
 import * as React from 'react'
-
-import {
-  Body,
-  Button,
-  Container,
-  Head,
-  Heading,
-  Html,
-  Link,
-  Preview,
-  Text,
-} from '@react-email/components'
-
-type Locale = 'fr' | 'en'
+import { Link } from '@react-email/components'
+import { BrandLayout, link, pickLocale, type Locale } from './_brand'
 
 interface SignupEmailProps {
   siteName: string
@@ -23,59 +11,56 @@ interface SignupEmailProps {
 }
 
 const COPY: Record<Locale, {
-  preview: (site: string) => string
+  preview: (s: string) => string
   heading: string
-  intro: (site: string, url: string) => React.ReactNode
+  intro: (s: string, url: string) => React.ReactNode
   verify: (email: string) => React.ReactNode
   cta: string
+  hint: string
   footer: string
 }> = {
   en: {
-    preview: (site) => `Confirm your email for ${site}`,
-    heading: 'Confirm your email',
-    intro: (site, url) => (
+    preview: (s) => `Confirm your email for ${s}`,
+    heading: 'Confirm your email 💧',
+    intro: (s, url) => (
       <>
         Thanks for signing up for{' '}
-        <Link href={url} style={link}>
-          <strong>{site}</strong>
-        </Link>
-        !
+        <Link href={url} style={{ color: '#E0F2FE', textDecoration: 'underline' }}>
+          <strong>{s}</strong>
+        </Link>. One last step to unlock your hydration journey.
       </>
     ),
     verify: (email) => (
       <>
         Please confirm your email address (
-        <Link href={`mailto:${email}`} style={link}>
-          {email}
-        </Link>
-        ) by clicking the button below:
+        <Link href={`mailto:${email}`} style={link}>{email}</Link>
+        ) by clicking the button below.
       </>
     ),
-    cta: 'Verify Email',
+    cta: 'Verify my email',
+    hint: 'This link stays valid for a short time.',
     footer: "If you didn't create an account, you can safely ignore this email.",
   },
   fr: {
-    preview: (site) => `Confirmez votre e-mail pour ${site}`,
-    heading: 'Confirmez votre e-mail',
-    intro: (site, url) => (
+    preview: (s) => `Confirmez votre e-mail pour ${s}`,
+    heading: 'Confirmez votre e-mail 💧',
+    intro: (s, url) => (
       <>
         Merci de votre inscription à{' '}
-        <Link href={url} style={link}>
-          <strong>{site}</strong>
-        </Link>
-        !
+        <Link href={url} style={{ color: '#E0F2FE', textDecoration: 'underline' }}>
+          <strong>{s}</strong>
+        </Link>. Une dernière étape pour démarrer votre aventure hydratation.
       </>
     ),
     verify: (email) => (
       <>
         Merci de confirmer votre adresse e-mail (
-        <Link href={`mailto:${email}`} style={link}>
-          {email}
-        </Link>
-        ) en cliquant sur le bouton ci-dessous :
+        <Link href={`mailto:${email}`} style={link}>{email}</Link>
+        ) en cliquant sur le bouton ci-dessous.
       </>
     ),
-    cta: "Confirmer l'e-mail",
+    cta: "Confirmer mon e-mail",
+    hint: 'Ce lien reste valable un court instant.',
     footer:
       "Si vous n'êtes pas à l'origine de cette inscription, vous pouvez ignorer cet e-mail.",
   },
@@ -88,50 +73,20 @@ export const SignupEmail = ({
   confirmationUrl,
   locale,
 }: SignupEmailProps) => {
-  const l: Locale = locale === 'fr' ? 'fr' : 'en'
+  const l = pickLocale(locale)
   const c = COPY[l]
   return (
-    <Html lang={l} dir="ltr">
-      <Head />
-      <Preview>{c.preview(siteName)}</Preview>
-      <Body style={main}>
-        <Container style={container}>
-          <Heading style={h1}>{c.heading}</Heading>
-          <Text style={text}>{c.intro(siteName, siteUrl)}</Text>
-          <Text style={text}>{c.verify(recipient)}</Text>
-          <Button style={button} href={confirmationUrl}>
-            {c.cta}
-          </Button>
-          <Text style={footer}>{c.footer}</Text>
-        </Container>
-      </Body>
-    </Html>
+    <BrandLayout
+      locale={l}
+      preview={c.preview(siteName)}
+      heading={c.heading}
+      intro={c.intro(siteName, siteUrl)}
+      body={c.verify(recipient)}
+      cta={{ label: c.cta, href: confirmationUrl }}
+      ctaHint={c.hint}
+      footer={c.footer}
+    />
   )
 }
 
 export default SignupEmail
-
-const main = { backgroundColor: '#ffffff', fontFamily: 'Arial, sans-serif' }
-const container = { padding: '20px 25px' }
-const h1 = {
-  fontSize: '22px',
-  fontWeight: 'bold' as const,
-  color: '#0F172A',
-  margin: '0 0 20px',
-}
-const text = {
-  fontSize: '14px',
-  color: '#55575d',
-  lineHeight: '1.5',
-  margin: '0 0 25px',
-}
-const link = { color: '#3B82F6', textDecoration: 'underline' }
-const button = {
-  backgroundColor: '#3B82F6',
-  color: '#ffffff',
-  fontSize: '14px',
-  borderRadius: '12px',
-  padding: '12px 20px',
-  textDecoration: 'none',
-}
-const footer = { fontSize: '12px', color: '#999999', margin: '30px 0 0' }

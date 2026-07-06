@@ -1,68 +1,57 @@
 import * as React from 'react'
-
-import {
-  Body,
-  Button,
-  Container,
-  Head,
-  Heading,
-  Html,
-  Preview,
-  Text,
-} from '@react-email/components'
+import { BrandLayout, pickLocale, type Locale } from './_brand'
 
 interface MagicLinkEmailProps {
   siteName: string
   confirmationUrl: string
+  locale?: Locale
+}
+
+const COPY: Record<Locale, {
+  preview: (s: string) => string
+  heading: string
+  intro: (s: string) => string
+  cta: string
+  hint: string
+  footer: string
+}> = {
+  en: {
+    preview: (s) => `Your login link for ${s}`,
+    heading: 'Your login link 💧',
+    intro: (s) => `Click the button below to log in to ${s}. This link will expire shortly.`,
+    cta: 'Log in to H2GO',
+    hint: 'Single-use link — expires soon.',
+    footer: "If you didn't request this link, you can safely ignore this email.",
+  },
+  fr: {
+    preview: (s) => `Votre lien de connexion pour ${s}`,
+    heading: 'Votre lien de connexion 💧',
+    intro: (s) => `Cliquez sur le bouton ci-dessous pour vous connecter à ${s}. Ce lien expirera bientôt.`,
+    cta: 'Me connecter à H2GO',
+    hint: 'Lien à usage unique — expire rapidement.',
+    footer: "Si vous n'êtes pas à l'origine de cette demande, ignorez cet e-mail.",
+  },
 }
 
 export const MagicLinkEmail = ({
   siteName,
   confirmationUrl,
-}: MagicLinkEmailProps) => (
-  <Html lang="en" dir="ltr">
-    <Head />
-    <Preview>Your login link for {siteName}</Preview>
-    <Body style={main}>
-      <Container style={container}>
-        <Heading style={h1}>Your login link</Heading>
-        <Text style={text}>
-          Click the button below to log in to {siteName}. This link will expire
-          shortly.
-        </Text>
-        <Button style={button} href={confirmationUrl}>
-          Log In
-        </Button>
-        <Text style={footer}>
-          If you didn't request this link, you can safely ignore this email.
-        </Text>
-      </Container>
-    </Body>
-  </Html>
-)
+  locale,
+}: MagicLinkEmailProps) => {
+  const l = pickLocale(locale)
+  const c = COPY[l]
+  return (
+    <BrandLayout
+      locale={l}
+      preview={c.preview(siteName)}
+      heading={c.heading}
+      intro={c.intro(siteName)}
+      body={null}
+      cta={{ label: c.cta, href: confirmationUrl }}
+      ctaHint={c.hint}
+      footer={c.footer}
+    />
+  )
+}
 
 export default MagicLinkEmail
-
-const main = { backgroundColor: '#ffffff', fontFamily: 'Arial, sans-serif' }
-const container = { padding: '20px 25px' }
-const h1 = {
-  fontSize: '22px',
-  fontWeight: 'bold' as const,
-  color: '#000000',
-  margin: '0 0 20px',
-}
-const text = {
-  fontSize: '14px',
-  color: '#55575d',
-  lineHeight: '1.5',
-  margin: '0 0 25px',
-}
-const button = {
-  backgroundColor: '#000000',
-  color: '#ffffff',
-  fontSize: '14px',
-  borderRadius: '8px',
-  padding: '12px 20px',
-  textDecoration: 'none',
-}
-const footer = { fontSize: '12px', color: '#999999', margin: '30px 0 0' }

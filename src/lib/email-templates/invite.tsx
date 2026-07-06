@@ -1,77 +1,72 @@
 import * as React from 'react'
-
-import {
-  Body,
-  Button,
-  Container,
-  Head,
-  Heading,
-  Html,
-  Link,
-  Preview,
-  Text,
-} from '@react-email/components'
+import { Link } from '@react-email/components'
+import { BrandLayout, pickLocale, type Locale } from './_brand'
 
 interface InviteEmailProps {
   siteName: string
   siteUrl: string
   confirmationUrl: string
+  locale?: Locale
+}
+
+const COPY: Record<Locale, {
+  preview: (s: string) => string
+  heading: string
+  intro: (s: string, url: string) => React.ReactNode
+  cta: string
+  footer: string
+}> = {
+  en: {
+    preview: (s) => `You've been invited to join ${s}`,
+    heading: "You're invited 💧",
+    intro: (s, url) => (
+      <>
+        You've been invited to join{' '}
+        <Link href={url} style={{ color: '#E0F2FE', textDecoration: 'underline' }}>
+          <strong>{s}</strong>
+        </Link>. Accept the invitation to create your account and start tracking your hydration.
+      </>
+    ),
+    cta: 'Accept invitation',
+    footer:
+      "If you weren't expecting this invitation, you can safely ignore this email.",
+  },
+  fr: {
+    preview: (s) => `Vous êtes invité·e à rejoindre ${s}`,
+    heading: 'Vous êtes invité·e 💧',
+    intro: (s, url) => (
+      <>
+        Vous êtes invité·e à rejoindre{' '}
+        <Link href={url} style={{ color: '#E0F2FE', textDecoration: 'underline' }}>
+          <strong>{s}</strong>
+        </Link>. Acceptez l'invitation pour créer votre compte et démarrer votre suivi d'hydratation.
+      </>
+    ),
+    cta: "Accepter l'invitation",
+    footer:
+      "Si vous n'attendiez pas cette invitation, vous pouvez ignorer cet e-mail.",
+  },
 }
 
 export const InviteEmail = ({
   siteName,
   siteUrl,
   confirmationUrl,
-}: InviteEmailProps) => (
-  <Html lang="en" dir="ltr">
-    <Head />
-    <Preview>You've been invited to join {siteName}</Preview>
-    <Body style={main}>
-      <Container style={container}>
-        <Heading style={h1}>You've been invited</Heading>
-        <Text style={text}>
-          You've been invited to join{' '}
-          <Link href={siteUrl} style={link}>
-            <strong>{siteName}</strong>
-          </Link>
-          . Click the button below to accept the invitation and create your
-          account.
-        </Text>
-        <Button style={button} href={confirmationUrl}>
-          Accept Invitation
-        </Button>
-        <Text style={footer}>
-          If you weren't expecting this invitation, you can safely ignore this
-          email.
-        </Text>
-      </Container>
-    </Body>
-  </Html>
-)
+  locale,
+}: InviteEmailProps) => {
+  const l = pickLocale(locale)
+  const c = COPY[l]
+  return (
+    <BrandLayout
+      locale={l}
+      preview={c.preview(siteName)}
+      heading={c.heading}
+      intro={c.intro(siteName, siteUrl)}
+      body={null}
+      cta={{ label: c.cta, href: confirmationUrl }}
+      footer={c.footer}
+    />
+  )
+}
 
 export default InviteEmail
-
-const main = { backgroundColor: '#ffffff', fontFamily: 'Arial, sans-serif' }
-const container = { padding: '20px 25px' }
-const h1 = {
-  fontSize: '22px',
-  fontWeight: 'bold' as const,
-  color: '#000000',
-  margin: '0 0 20px',
-}
-const text = {
-  fontSize: '14px',
-  color: '#55575d',
-  lineHeight: '1.5',
-  margin: '0 0 25px',
-}
-const link = { color: 'inherit', textDecoration: 'underline' }
-const button = {
-  backgroundColor: '#000000',
-  color: '#ffffff',
-  fontSize: '14px',
-  borderRadius: '8px',
-  padding: '12px 20px',
-  textDecoration: 'none',
-}
-const footer = { fontSize: '12px', color: '#999999', margin: '30px 0 0' }
