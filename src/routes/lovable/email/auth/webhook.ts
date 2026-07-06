@@ -132,6 +132,13 @@ export const Route = createFileRoute("/lovable/email/auth/webhook")({
           )
         }
 
+        // Detect user locale (fr/en) from Supabase user_metadata set at signup.
+        const metadataLocale =
+          payload.data.user?.user_metadata?.locale ??
+          payload.data.user_metadata?.locale ??
+          payload.data.metadata?.locale
+        const locale: 'fr' | 'en' = metadataLocale === 'fr' ? 'fr' : 'en'
+
         // Build template props from payload.data (HookData structure)
         const templateProps = {
           siteName: SITE_NAME,
@@ -142,7 +149,9 @@ export const Route = createFileRoute("/lovable/email/auth/webhook")({
           email: payload.data.email,
           oldEmail: payload.data.old_email,
           newEmail: payload.data.new_email,
+          locale,
         }
+
 
         // Render React Email to HTML and plain text
         const element = React.createElement(EmailTemplate, templateProps)
