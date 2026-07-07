@@ -494,6 +494,7 @@ function HomePage() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+      <RateAppPrompt />
     </MobileShell>
   );
 }
