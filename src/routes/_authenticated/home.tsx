@@ -18,6 +18,7 @@ import { resolveAvatarUrl } from "@/lib/avatar";
 import { pushWidgetSnapshot } from "@/lib/ios-widget-bridge";
 import { MobileShell } from "@/components/h2go/MobileShell";
 import { Splash } from "@/components/h2go/Splash";
+import { RateAppPrompt } from "@/components/h2go/RateAppPrompt";
 import { WaterRing } from "@/components/h2go/WaterRing";
 import { levelForXp, treeStageForLogs } from "@/lib/gamification";
 import { useT } from "@/i18n";
