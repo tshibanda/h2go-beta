@@ -126,7 +126,7 @@ function ProfilePage() {
           // Capacitor App.openUrl handles custom schemes like itms-apps://
           // which the in-app WebView otherwise blocks.
           const { App } = await import("@capacitor/app");
-          const res = await App.openUrl({ url });
+          const res = await (App as any).openUrl({ url });
           opened = !!res?.completed;
         } catch {}
         if (!opened) {
