@@ -301,7 +301,6 @@ function ProfilePage() {
             <LogOut size={16} className="text-muted-foreground" />
           </button>
         </div>
-
         <div className="mx-4 rounded-3xl p-5 bg-gradient-to-br from-[#1E3A8A] via-primary to-secondary text-white">
           <div className="flex items-center gap-4">
             <div className="relative">
@@ -362,7 +361,6 @@ function ProfilePage() {
             </div>
           </div>
         </div>
-
         <div className="grid grid-cols-2 gap-3 px-4">
           {[
             { label: t("p.currentStreak"), value: streak.toString(), icon: "🔥", color: "text-amber-600" },
@@ -378,7 +376,6 @@ function ProfilePage() {
             </div>
           ))}
         </div>
-
         <div className="px-4">
           <p className="font-display text-base font-semibold mb-2.5">{t("p.badges")}</p>
           <div className="grid grid-cols-4 gap-2.5">
@@ -420,7 +417,6 @@ function ProfilePage() {
             })}
           </div>
         </div>
-
         {/* Reminders */}
         <div className="mx-4 rounded-2xl p-4 bg-card shadow-sm">
           <div className="flex items-center justify-between mb-2">
@@ -473,7 +469,6 @@ function ProfilePage() {
           )}
           <p className="text-[10px] text-muted-foreground mt-2">{t("p.reminderHint")}</p>
         </div>
-
         {/* Dynamic goal preferences */}
         {(() => {
           const p = data.profile as
@@ -559,7 +554,6 @@ function ProfilePage() {
             </div>
           );
         })()}
-
         {/* Language */}
         <div className="mx-4 rounded-2xl p-4 bg-card shadow-sm">
           <div className="flex items-center gap-2 mb-3">
@@ -581,45 +575,36 @@ function ProfilePage() {
             </button>
           </div>
         </div>
-
         {/* Premium */}
-
-        {/*isPremium ? (
-          <button
-            type="button"
-            onClick={openBilling}
-            onMouseEnter={() => void prefetchPortal()}
-            onTouchStart={() => void prefetchPortal()}
-            disabled={openingPortal}
-            className="mx-4 rounded-2xl p-4 flex items-center gap-3 bg-gradient-to-br from-[#1E3A8A] to-primary shadow-lg text-left w-[calc(100%-2rem)] disabled:opacity-70"
-          >
-            <Crown size={26} color="#FDE68A" />
-            <div className="flex-1">
-              <p className="font-display text-base font-bold text-white">{t("p.premium")}</p>
-              <p className="text-[11px] text-white/80">
-                {openingPortal ? "…" : t("p.premiumActive")}
-              </p>
-            </div>
-            <ChevronRight size={18} className="text-white/60" />
-          </button>
-
-
-
+        isPremium ? (
+        <button
+          type="button"
+          onClick={openBilling}
+          onMouseEnter={() => void prefetchPortal()}
+          onTouchStart={() => void prefetchPortal()}
+          disabled={openingPortal}
+          className="mx-4 rounded-2xl p-4 flex items-center gap-3 bg-gradient-to-br from-[#1E3A8A] to-primary shadow-lg text-left w-[calc(100%-2rem)] disabled:opacity-70"
+        >
+          <Crown size={26} color="#FDE68A" />
+          <div className="flex-1">
+            <p className="font-display text-base font-bold text-white">{t("p.premium")}</p>
+            <p className="text-[11px] text-white/80">{openingPortal ? "…" : t("p.premiumActive")}</p>
+          </div>
+          <ChevronRight size={18} className="text-white/60" />
+        </button>
         ) : (
-          <Link
-            to="/premium"
-            className="mx-4 rounded-2xl p-4 flex items-center gap-3 bg-gradient-to-br from-[#1E3A8A] to-primary shadow-lg"
-          >
-            <Crown size={26} color="#FDE68A" />
-            <div className="flex-1">
-              <p className="font-display text-base font-bold text-white">{t("p.premium")}</p>
-              <p className="text-[11px] text-white/80">{t("p.premiumPitch")}</p>
-            </div>
-            <ChevronRight size={18} className="text-white/60" />
-          </Link>
-        )*/}
-
-        {/* Support links */}
+        <Link
+          to="/premium"
+          className="mx-4 rounded-2xl p-4 flex items-center gap-3 bg-gradient-to-br from-[#1E3A8A] to-primary shadow-lg"
+        >
+          <Crown size={26} color="#FDE68A" />
+          <div className="flex-1">
+            <p className="font-display text-base font-bold text-white">{t("p.premium")}</p>
+            <p className="text-[11px] text-white/80">{t("p.premiumPitch")}</p>
+          </div>
+          <ChevronRight size={18} className="text-white/60" />
+        </Link>
+        ){/* Support links */}
         <div className="mx-4 grid grid-cols-2 gap-2">
           <Link
             to="/report-bug"
@@ -636,7 +621,6 @@ function ProfilePage() {
             {locale === "fr" ? "Nous contacter" : "Contact us"}
           </Link>
         </div>
-
         <div className="px-4 pt-4">
           <button
             type="button"
@@ -647,7 +631,6 @@ function ProfilePage() {
             {locale === "fr" ? "Supprimer mon compte" : "Delete my account"}
           </button>
         </div>
-
         <div className="px-4 pt-2 pb-4 text-center">
           <Link to="/terms" className="text-xs text-muted-foreground hover:text-primary underline">
             {t("p.terms")}
