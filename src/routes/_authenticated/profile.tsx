@@ -121,19 +121,27 @@ function ProfilePage() {
         // iOS/Android: send the user directly to the native OS subscription
         // management screen (App Store / Play Store) as required by Apple.
         const url = manageSubscriptionUrl();
+        let opened = false;
         try {
-          // itms-apps:// on iOS is handled by the OS and opens the native
-          // App Store / Settings subscriptions screen directly.
-          window.location.href = url;
-        } catch {
+          // Capacitor App.openUrl handles custom schemes like itms-apps://
+          // which the in-app WebView otherwise blocks.
+          const { App } = await import("@capacitor/app");
+          const res = await (App as any).openUrl({ url });
+          opened = !!res?.completed;
+        } catch {}
+        if (!opened) {
           try {
             const { Browser } = await import("@capacitor/browser");
-            await Browser.open({ url });
-          } catch {
-            await presentCustomerCenter();
-          }
+            await Browser.open({ url: "https://apps.apple.com/account/subscriptions" });
+            opened = true;
+          } catch {}
         }
-
+        if (!opened) {
+          try { window.open(url, "_blank"); opened = true; } catch {}
+        }
+        if (!opened) {
+          await presentCustomerCenter();
+        }
         setOpeningPortal(false);
         return;
       }
