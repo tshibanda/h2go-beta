@@ -576,35 +576,36 @@ function ProfilePage() {
           </div>
         </div>
         {/* Premium */}
-        isPremium ? (
-        <button
-          type="button"
-          onClick={openBilling}
-          onMouseEnter={() => void prefetchPortal()}
-          onTouchStart={() => void prefetchPortal()}
-          disabled={openingPortal}
-          className="mx-4 rounded-2xl p-4 flex items-center gap-3 bg-gradient-to-br from-[#1E3A8A] to-primary shadow-lg text-left w-[calc(100%-2rem)] disabled:opacity-70"
-        >
-          <Crown size={26} color="#FDE68A" />
-          <div className="flex-1">
-            <p className="font-display text-base font-bold text-white">{t("p.premium")}</p>
-            <p className="text-[11px] text-white/80">{openingPortal ? "…" : t("p.premiumActive")}</p>
-          </div>
-          <ChevronRight size={18} className="text-white/60" />
-        </button>
+        {isPremium ? (
+          <button
+            type="button"
+            onClick={openBilling}
+            onMouseEnter={() => void prefetchPortal()}
+            onTouchStart={() => void prefetchPortal()}
+            disabled={openingPortal}
+            className="mx-4 rounded-2xl p-4 flex items-center gap-3 bg-gradient-to-br from-[#1E3A8A] to-primary shadow-lg text-left w-[calc(100%-2rem)] disabled:opacity-70"
+          >
+            <Crown size={26} color="#FDE68A" />
+            <div className="flex-1">
+              <p className="font-display text-base font-bold text-white">{t("p.premium")}</p>
+              <p className="text-[11px] text-white/80">{openingPortal ? "…" : t("p.premiumActive")}</p>
+            </div>
+            <ChevronRight size={18} className="text-white/60" />
+          </button>
         ) : (
-        <Link
-          to="/premium"
-          className="mx-4 rounded-2xl p-4 flex items-center gap-3 bg-gradient-to-br from-[#1E3A8A] to-primary shadow-lg"
-        >
-          <Crown size={26} color="#FDE68A" />
-          <div className="flex-1">
-            <p className="font-display text-base font-bold text-white">{t("p.premium")}</p>
-            <p className="text-[11px] text-white/80">{t("p.premiumPitch")}</p>
-          </div>
-          <ChevronRight size={18} className="text-white/60" />
-        </Link>
-        ){/* Support links */}
+          <Link
+            to="/premium"
+            className="mx-4 rounded-2xl p-4 flex items-center gap-3 bg-gradient-to-br from-[#1E3A8A] to-primary shadow-lg"
+          >
+            <Crown size={26} color="#FDE68A" />
+            <div className="flex-1">
+              <p className="font-display text-base font-bold text-white">{t("p.premium")}</p>
+              <p className="text-[11px] text-white/80">{t("p.premiumPitch")}</p>
+            </div>
+            <ChevronRight size={18} className="text-white/60" />
+          </Link>
+        )}
+        {/* Support links */}
         <div className="mx-4 grid grid-cols-2 gap-2">
           <Link
             to="/report-bug"
