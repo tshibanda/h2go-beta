@@ -18,12 +18,9 @@ import { supabase } from "@/integrations/supabase/client";
 import { syncRevenueCatEntitlement } from "@/lib/revenuecat-sync.functions";
 import { useServerFn } from "@tanstack/react-start";
 import { useQueryClient } from "@tanstack/react-query";
-import { Capacitor } from "@capacitor/core";
-import { SubscriptionStore } from "@/native/subscription-store";
 
-// Subscription Group ID from App Store Connect → Features → In-App Purchases
-// → Subscription Groups → [your group] (numeric reference ID, not the product ID).
-const SUBSCRIPTION_GROUP_ID = "22204878";
+// Subscription Group ID kept for reference (App Store Connect). No longer used
+// now that the RevenueCat-hosted paywall is the sole iOS paywall surface.
 
 export function NativePaywall({ onSuccess, userId }: { onSuccess?: () => void; userId?: string }) {
   const { t, locale } = useT();
