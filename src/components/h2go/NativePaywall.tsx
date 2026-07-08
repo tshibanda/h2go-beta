@@ -11,7 +11,7 @@ import {
   presentPaywall,
   hasActiveEntitlement,
   isNativePayments,
-  syncPurchases,
+  
   type RCPackage,
 } from "@/lib/revenuecat";
 import { supabase } from "@/integrations/supabase/client";
