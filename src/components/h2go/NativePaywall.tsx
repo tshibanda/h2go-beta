@@ -4,32 +4,22 @@ import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { useT } from "@/i18n";
 import {
-  getOfferings,
-  purchasePackage,
   restorePurchases,
   configureRevenueCat,
   presentPaywall,
   hasActiveEntitlement,
   isNativePayments,
-  
-  type RCPackage,
 } from "@/lib/revenuecat";
 import { supabase } from "@/integrations/supabase/client";
 import { syncRevenueCatEntitlement } from "@/lib/revenuecat-sync.functions";
 import { useServerFn } from "@tanstack/react-start";
 import { useQueryClient } from "@tanstack/react-query";
 
-// Subscription Group ID kept for reference (App Store Connect). No longer used
-// now that the RevenueCat-hosted paywall is the sole iOS paywall surface.
-
 export function NativePaywall({ onSuccess, userId }: { onSuccess?: () => void; userId?: string }) {
   const { t, locale } = useT();
   const qc = useQueryClient();
   const sync = useServerFn(syncRevenueCatEntitlement);
   const [loading, setLoading] = useState(true);
-  const [monthly, setMonthly] = useState<RCPackage | null>(null);
-  const [yearly, setYearly] = useState<RCPackage | null>(null);
-  const [pending, setPending] = useState<string | null>(null);
   const [restoring, setRestoring] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [loadAttempt, setLoadAttempt] = useState(0);

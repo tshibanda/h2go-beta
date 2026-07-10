@@ -9,6 +9,7 @@ export const PRODUCT_MONTHLY = "com.h2go.app.monthly";
 export const PRODUCT_YEARLY = "com.h2go.app.yearly";
 export const ENTITLEMENT_ID = "H2GO Premium";
 const ENTITLEMENT_ALIASES = [ENTITLEMENT_ID, "premium", "h2go_premium", "h2go-premium"];
+const H2GO_REVENUECAT_PAYWALL_ID = "pw3df68e8942844e0d";
 // RevenueCat public SDK keys are safe in the client bundle. Keeping the iOS key
 // here prevents native builds from silently shipping without the Vite env value.
 const H2GO_REVENUECAT_APPLE_PUBLIC_KEY = "appl_flAvSykHSAgPzJytulTjFGzDBeV";
@@ -383,8 +384,28 @@ export function manageSubscriptionUrl(): string {
 export async function presentPaywall(): Promise<string> {
   if (!isNativePayments()) return "NOT_PRESENTED";
   try {
+    const { Purchases } = await loadPurchases();
     const { RevenueCatUI, PAYWALL_RESULT, PaywallPresentationConfiguration } = await import("@revenuecat/purchases-capacitor-ui");
+    let offering: unknown = null;
+
+    try {
+      const offerings = await ((Purchases as any).syncAttributesAndOfferingsIfNeeded?.() ?? Purchases.getOfferings());
+      const allOfferings = Object.values(((offerings as any)?.all ?? {}) as Record<string, unknown>);
+      offering =
+        allOfferings.find((candidate) => JSON.stringify(candidate).includes(H2GO_REVENUECAT_PAYWALL_ID)) ??
+        (offerings as any)?.current ??
+        allOfferings[0] ??
+        null;
+      console.info("[revenuecat] presenting hosted paywall", {
+        paywallId: H2GO_REVENUECAT_PAYWALL_ID,
+        offeringId: (offering as any)?.identifier ?? null,
+      });
+    } catch (e) {
+      console.warn("[revenuecat] could not prefetch offering for hosted paywall", e);
+    }
+
     const { result } = await RevenueCatUI.presentPaywall({
+      ...(offering ? { offering: offering as any } : {}),
       displayCloseButton: true,
       presentationConfiguration: PaywallPresentationConfiguration.FULL_SCREEN,
     });
