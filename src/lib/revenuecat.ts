@@ -342,11 +342,9 @@ export async function restorePurchases(): Promise<{ active: boolean }> {
 }
 
 /**
- * Force RevenueCat to re-sync with the App Store after a purchase made
- * outside of RevenueCat's own purchase methods (e.g. via SubscriptionStoreView,
- * which talks to StoreKit 2 directly). RevenueCat's transaction observer
- * normally picks these up automatically, but this is a safety net for
- * entitlement checks that happen immediately after.
+ * Force RevenueCat to re-sync with the App Store after an external purchase.
+ * RevenueCat's transaction observer normally picks these up automatically,
+ * but this is a safety net for entitlement checks that happen immediately after.
  */
 export async function syncPurchases(): Promise<{ active: boolean }> {
   if (!isNativePayments() || !configured) return { active: false };

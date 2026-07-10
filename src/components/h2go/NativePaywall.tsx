@@ -38,8 +38,6 @@ export function NativePaywall({ onSuccess, userId }: { onSuccess?: () => void; u
       try {
         setLoading(true);
         setErrorMsg(null);
-        setMonthly(null);
-        setYearly(null);
         if (!isNativePayments()) {
           if (!cancelled) setErrorMsg(locale === "fr" ? "Achats natifs disponibles uniquement sur l'app iOS/Android." : "Native purchases only available on iOS/Android app.");
           return;
@@ -53,18 +51,13 @@ export function NativePaywall({ onSuccess, userId }: { onSuccess?: () => void; u
 
         // Prefer the RevenueCat-generated native paywall on TestFlight/App Store.
         // It owns the offer rendering and StoreKit purchase flow, avoiding the
-        // custom web-card loading state that was masking native offer errors.
+        // Apple SubscriptionStoreView copy and any local fallback offer labels.
         const result = await openRevenueCatPaywall();
-        if (cancelled || result === "opened") return;
-
-        const off = await withTimeout(getOfferings(), 22000, "getOfferings");
         if (cancelled) return;
-        setMonthly(off.monthly);
-        setYearly(off.yearly);
-        if (!off.monthly && !off.yearly) {
+        if (result !== "opened") {
           setErrorMsg(locale === "fr"
-            ? "Aucune offre disponible. Vérifiez votre connexion ou réessayez plus tard."
-            : "No offers available. Check your connection or try again later.");
+            ? "Impossible d'ouvrir le paywall RevenueCat. Réessayez."
+            : "Unable to open the RevenueCat paywall. Please retry.");
         }
       } catch (e) {
         console.warn("[paywall] init failed", e);
@@ -109,31 +102,6 @@ export function NativePaywall({ onSuccess, userId }: { onSuccess?: () => void; u
     }
   }
 
-  async function buy(pkg: RCPackage | null) {
-    if (!pkg) return;
-    setPending(pkg.identifier);
-    try {
-      const res = await purchasePackage(pkg);
-      if (res.cancelled) return;
-      if (!res.success) {
-        toast.error(res.error ?? (locale === "fr" ? "Paiement échoué" : "Purchase failed"));
-        return;
-      }
-      await sync({
-        data: {
-          active: true,
-          productIdentifier: pkg.productIdentifier,
-          store: "app_store",
-        },
-      }).catch(() => null);
-      toast.success(locale === "fr" ? "Bienvenue dans H2GO Premium !" : "Welcome to H2GO Premium!");
-      qc.invalidateQueries({ queryKey: ["dashboard"] });
-      onSuccess?.();
-    } finally {
-      setPending(null);
-    }
-  }
-
   async function restore() {
     setRestoring(true);
     try {
@@ -160,7 +128,9 @@ export function NativePaywall({ onSuccess, userId }: { onSuccess?: () => void; u
       <div className="mx-4 rounded-3xl p-6 bg-gradient-to-br from-[#1E3A8A] via-primary to-secondary text-white text-center">
         <Crown size={40} color="#FDE68A" className="mx-auto mb-2" />
         <h1 className="font-display text-3xl font-bold">{t("pay.title")}</h1>
-        <p className="text-sm text-white/85 mt-1">{t("pay.trialNote")}</p>
+        <p className="text-sm text-white/85 mt-1">
+          {locale === "fr" ? "MEILLEURE OFFRE" : "BEST OFFER"}
+        </p>
       </div>
 
       <div className="mx-4 rounded-2xl p-4 bg-card shadow">
@@ -179,7 +149,7 @@ export function NativePaywall({ onSuccess, userId }: { onSuccess?: () => void; u
         <div className="mx-4 flex items-center justify-center py-8">
           <Loader2 className="animate-spin text-primary" />
         </div>
-      ) : errorMsg && !monthly && !yearly ? (
+      ) : errorMsg ? (
         <div className="mx-4 rounded-2xl p-4 bg-card border border-border text-center">
           <p className="text-sm text-muted-foreground mb-3">{errorMsg}</p>
           <Button
@@ -196,33 +166,13 @@ export function NativePaywall({ onSuccess, userId }: { onSuccess?: () => void; u
             {openingNativePaywall ? (locale === "fr" ? "Ouverture…" : "Opening…") : locale === "fr" ? "Ouvrir les offres" : "Open offers"}
           </Button>
         </div>
-      ) : nativePaywallReady && !monthly && !yearly ? (
+      ) : nativePaywallReady ? (
         <div className="mx-4 rounded-2xl p-4 bg-card border border-border text-center">
           <Button onClick={() => openRevenueCatPaywall()} disabled={openingNativePaywall} className="rounded-xl w-full">
             {openingNativePaywall ? (locale === "fr" ? "Ouverture…" : "Opening…") : locale === "fr" ? "Voir les offres" : "View offers"}
           </Button>
         </div>
-      ) : (
-        <div className="mx-4 grid grid-cols-2 gap-3">
-          <NativePlanCard
-            title={t("pay.monthly")}
-            price={monthly?.priceString ?? "—"}
-            subtitle={t("pay.perMonth")}
-            cta={pending === monthly?.identifier ? "…" : t("pay.start")}
-            disabled={!monthly || pending !== null}
-            onStart={() => buy(monthly)}
-          />
-          <NativePlanCard
-            title={t("pay.yearly")}
-            price={yearly?.priceString ?? "—"}
-            subtitle={t("pay.perYear")}
-            cta={pending === yearly?.identifier ? "…" : t("pay.start")}
-            disabled={!yearly || pending !== null}
-            highlight
-            onStart={() => buy(yearly)}
-          />
-        </div>
-      )}
+      ) : null}
 
       <button
         onClick={restore}
@@ -251,43 +201,6 @@ export function NativePaywall({ onSuccess, userId }: { onSuccess?: () => void; u
           {locale === "fr" ? "Confidentialité" : "Privacy"}
         </a>
       </p>
-    </div>
-  );
-}
-
-function NativePlanCard({
-  title,
-  price,
-  subtitle,
-  cta,
-  highlight,
-  disabled,
-  onStart,
-}: {
-  title: string;
-  price: string;
-  subtitle: string;
-  cta: string;
-  highlight?: boolean;
-  disabled?: boolean;
-  onStart: () => void;
-}) {
-  return (
-    <div
-      className={`rounded-2xl p-4 flex flex-col gap-2 ${
-        highlight ? "bg-gradient-to-br from-primary to-secondary text-white" : "bg-card border border-border"
-      }`}
-    >
-      <p className="font-display text-base font-semibold">{title}</p>
-      <p className="font-display text-2xl font-bold">{price}</p>
-      <p className={`text-[11px] ${highlight ? "text-white/80" : "text-muted-foreground"}`}>{subtitle}</p>
-      <Button
-        onClick={onStart}
-        disabled={disabled}
-        className={`mt-2 rounded-xl ${highlight ? "bg-white text-primary hover:bg-white/90" : ""}`}
-      >
-        {cta}
-      </Button>
     </div>
   );
 }
