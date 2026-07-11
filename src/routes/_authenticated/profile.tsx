@@ -118,33 +118,23 @@ function ProfilePage() {
     try {
       const { manageSubscriptionUrl, presentCustomerCenter } = await import("@/lib/revenuecat");
       if (isNative()) {
-        // iOS/Android: send the user directly to the native OS subscription
-        // management screen (App Store / Play Store) as required by Apple.
-        const url = manageSubscriptionUrl();
-        let opened = false;
+        // iOS/Android: open the native OS subscription management screen
+        // (Settings › Apple ID › Subscriptions on iOS) via a deep-link scheme.
+        // We must NOT fall back to Capacitor Browser / in-app WebView — Apple
+        // requires this to land in the native Settings UI, not a web page.
+        const url = manageSubscriptionUrl(); // itms-apps://… on iOS, https play store on Android
         try {
-          // Capacitor App.openUrl handles custom schemes like itms-apps://
-          // which the in-app WebView otherwise blocks.
           const { App } = await import("@capacitor/app");
-          const res = await (App as any).openUrl({ url });
-          opened = !!res?.completed;
-        } catch {}
-        if (!opened) {
-          try {
-            const { Browser } = await import("@capacitor/browser");
-            await Browser.open({ url: "https://apps.apple.com/account/subscriptions" });
-            opened = true;
-          } catch {}
-        }
-        if (!opened) {
-          try { window.open(url, "_blank"); opened = true; } catch {}
-        }
-        if (!opened) {
-          await presentCustomerCenter();
+          await (App as any).openUrl({ url });
+        } catch (e) {
+          // Last-resort: navigate the WebView to the scheme. iOS intercepts
+          // itms-apps:// and hands off to the App Store / Settings natively.
+          try { window.location.href = url; } catch {}
         }
         setOpeningPortal(false);
         return;
       }
+
       // Web (desktop browser): fall back to Stripe billing portal for users
       // who subscribed via h2go-app.com in Safari desktop.
       const provider = (data?.profile as { subscription_provider?: string } | null)?.subscription_provider;
