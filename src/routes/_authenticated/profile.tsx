@@ -116,7 +116,7 @@ function ProfilePage() {
     if (openingPortal) return;
     setOpeningPortal(true);
     try {
-      const { manageSubscriptionUrl, presentCustomerCenter } = await import("@/lib/revenuecat");
+      const { manageSubscriptionUrl } = await import("@/lib/revenuecat");
       if (isNative()) {
         // iOS/Android: open the native OS subscription management screen
         // (Settings › Apple ID › Subscriptions on iOS) via a deep-link scheme.
