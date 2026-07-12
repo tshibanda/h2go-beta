@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		2FAD9763203C412B000D30F8 /* config.xml in Resources */ = {isa = PBXBuildFile; fileRef = 2FAD9762203C412B000D30F8 /* config.xml */; };
 		4755AB5A2FEC8EF00062F513 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 504EC3071FED79650016851F /* AppDelegate.swift */; };
+		C3A000012FF1000000000001 /* SubscriptionManagementPlugin.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3A000002FF1000000000001 /* SubscriptionManagementPlugin.swift */; };
 		4757F7022FF08F91000C340E /* WidgetKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4757F7012FF08F91000C340E /* WidgetKit.framework */; };
 		4757F7042FF08F91000C340E /* SwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4757F7032FF08F91000C340E /* SwiftUI.framework */; };
 		4757F7132FF08F93000C340E /* H2GOWidgetExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 4757F6FF2FF08F91000C340E /* H2GOWidgetExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
@@ -59,6 +60,7 @@
 		50379B222058CBB4000EE86E /* capacitor.config.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = capacitor.config.json; sourceTree = "<group>"; };
 		504EC3041FED79650016851F /* App.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = App.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		504EC3071FED79650016851F /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
+		C3A000002FF1000000000001 /* SubscriptionManagementPlugin.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubscriptionManagementPlugin.swift; sourceTree = "<group>"; };
 		504EC30C1FED79650016851F /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
 		504EC3111FED79650016851F /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		504EC3131FED79650016851F /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -139,6 +141,7 @@
 				47F8284E2FE8005E00F1E2B3 /* H2GO.storekit */,
 				50379B222058CBB4000EE86E /* capacitor.config.json */,
 				504EC3071FED79650016851F /* AppDelegate.swift */,
+				C3A000002FF1000000000001 /* SubscriptionManagementPlugin.swift */,
 				504EC30B1FED79650016851F /* Main.storyboard */,
 				504EC3101FED79650016851F /* LaunchScreen.storyboard */,
 				504EC3131FED79650016851F /* Info.plist */,
@@ -282,6 +285,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				4755AB5A2FEC8EF00062F513 /* AppDelegate.swift in Sources */,
+				C3A000012FF1000000000001 /* SubscriptionManagementPlugin.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
