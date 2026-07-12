@@ -78,8 +78,7 @@ export async function scheduleSecondPhotoReminder(
           importance: 5,
           visibility: 1,
           autoCancel: true,
-          iosInterruptionLevel: "timeSensitive",
-          extra: { interruptionLevel: "timeSensitive" },
+          interruptionLevel: "timeSensitive",
         } as unknown as never,
       ],
     });
@@ -283,8 +282,7 @@ export async function scheduleHydrationReminders(
       visibility: 1,
       ongoing: false,
       autoCancel: true,
-      iosInterruptionLevel: "timeSensitive",
-      extra: { interruptionLevel: "timeSensitive" },
+      interruptionLevel: "timeSensitive",
     };
   });
 
@@ -354,8 +352,7 @@ export async function scheduleHydrationRemindersAtTimes(
     visibility: 1,
     ongoing: false,
     autoCancel: true,
-    iosInterruptionLevel: "timeSensitive",
-    extra: { interruptionLevel: "timeSensitive" },
+    interruptionLevel: "timeSensitive",
   }));
 
   try {
