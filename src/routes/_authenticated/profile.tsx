@@ -118,18 +118,12 @@ function ProfilePage() {
     try {
       const { manageSubscriptionUrl } = await import("@/lib/revenuecat");
       if (isNative()) {
-        // iOS/Android: open the native OS subscription management screen
-        // (Settings › Apple ID › Subscriptions on iOS) via a deep-link scheme.
-        // We must NOT fall back to Capacitor Browser / in-app WebView — Apple
-        // requires this to land in the native Settings UI, not a web page.
-        const url = manageSubscriptionUrl(); // itms-apps://… on iOS, https play store on Android
-        try {
-          const { App } = await import("@capacitor/app");
-          await (App as any).openUrl({ url });
-        } catch (e) {
-          // Last-resort: navigate the WebView to the scheme. iOS intercepts
-          // itms-apps:// and hands off to the App Store / Settings natively.
-          try { window.location.href = url; } catch {}
+        const { Capacitor } = await import("@capacitor/core");
+        if (Capacitor.getPlatform() === "ios") {
+          const { SubscriptionManagement } = await import("@/native/subscription-management");
+          await SubscriptionManagement.openManageSubscriptions();
+        } else {
+          window.location.href = manageSubscriptionUrl();
         }
         setOpeningPortal(false);
         return;
