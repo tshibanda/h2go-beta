@@ -143,6 +143,29 @@ function HomePage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [data?.profile?.id]);
 
+  // Hydrate weather badge from server-stored profile when local cache is empty
+  // (new device, cleared storage, or just navigated back to /home).
+  useEffect(() => {
+    if (!data?.profile) return;
+    const p = data.profile as typeof data.profile & {
+      activity_level?: string | null;
+      climate_zone?: string | null;
+      weather_temp_c?: number | null;
+    };
+    if (weatherTemp != null) return;
+    if (p.weather_temp_c == null) return;
+    const res = computeGoal({
+      weightKg: p.weight_kg ?? null,
+      activity: (p.activity_level as ActivityLevel) ?? "moderate",
+      climate: (p.climate_zone as ClimateZone) ?? "temperate",
+      tempMaxC: p.weather_temp_c,
+      humidity: null,
+    });
+    setWeatherBoost(res.weatherBoostPct);
+    setWeatherTemp(p.weather_temp_c);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [data?.profile?.id]);
+
   // Send welcome email on first arrival to /home (idempotent server-side).
   const sendWelcome = useServerFn(sendWelcomeEmailIfNeeded);
   useEffect(() => {
