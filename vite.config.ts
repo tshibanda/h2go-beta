@@ -31,6 +31,9 @@ export default defineConfig({
             /^\/_serverFn\//,
             /^\/~oauth/,
             /^\/\.well-known\//,
+            /^\/mcp(\/|$)/,
+            /^\/\.mcp(\/|$)/,
+            /^\/\.lovable\//,
           ],
           globPatterns: ["**/*.{js,css,ico,png,svg,webp,woff2}"],
           runtimeCaching: [
