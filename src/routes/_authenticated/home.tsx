@@ -60,8 +60,24 @@ function HomePage() {
 
   const qc = useQueryClient();
   const saveGoalFn = useServerFn(setDailyGoal);
-  const [weatherBoost, setWeatherBoost] = useState<number>(0);
-  const [weatherTemp, setWeatherTemp] = useState<number | null>(null);
+  const [weatherBoost, setWeatherBoost] = useState<number>(() => {
+    if (typeof window === "undefined") return 0;
+    try {
+      const raw = window.localStorage.getItem("h2go.weatherBoost");
+      if (!raw) return 0;
+      const parsed = JSON.parse(raw) as { boost: number; date: string };
+      return parsed.date === new Date().toISOString().slice(0, 10) ? parsed.boost : 0;
+    } catch { return 0; }
+  });
+  const [weatherTemp, setWeatherTemp] = useState<number | null>(() => {
+    if (typeof window === "undefined") return null;
+    try {
+      const raw = window.localStorage.getItem("h2go.weatherTemp");
+      if (!raw) return null;
+      const parsed = JSON.parse(raw) as { temp: number | null; date: string };
+      return parsed.date === new Date().toISOString().slice(0, 10) ? parsed.temp : null;
+    } catch { return null; }
+  });
   const [goalEditOpen, setGoalEditOpen] = useState(false);
   const [goalDraft, setGoalDraft] = useState<string>("");
   const [savingGoal, setSavingGoal] = useState(false);
