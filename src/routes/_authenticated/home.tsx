@@ -60,8 +60,24 @@ function HomePage() {
 
   const qc = useQueryClient();
   const saveGoalFn = useServerFn(setDailyGoal);
-  const [weatherBoost, setWeatherBoost] = useState<number>(0);
-  const [weatherTemp, setWeatherTemp] = useState<number | null>(null);
+  const [weatherBoost, setWeatherBoost] = useState<number>(() => {
+    if (typeof window === "undefined") return 0;
+    try {
+      const raw = window.localStorage.getItem("h2go.weatherBoost");
+      if (!raw) return 0;
+      const parsed = JSON.parse(raw) as { boost: number; date: string };
+      return parsed.date === new Date().toISOString().slice(0, 10) ? parsed.boost : 0;
+    } catch { return 0; }
+  });
+  const [weatherTemp, setWeatherTemp] = useState<number | null>(() => {
+    if (typeof window === "undefined") return null;
+    try {
+      const raw = window.localStorage.getItem("h2go.weatherTemp");
+      if (!raw) return null;
+      const parsed = JSON.parse(raw) as { temp: number | null; date: string };
+      return parsed.date === new Date().toISOString().slice(0, 10) ? parsed.temp : null;
+    } catch { return null; }
+  });
   const [goalEditOpen, setGoalEditOpen] = useState(false);
   const [goalDraft, setGoalDraft] = useState<string>("");
   const [savingGoal, setSavingGoal] = useState(false);
@@ -111,6 +127,11 @@ function HomePage() {
       setWeatherBoost(res.weatherBoostPct);
       setWeatherTemp(weather.tempMaxC);
       try {
+        const today2 = new Date().toISOString().slice(0, 10);
+        window.localStorage.setItem("h2go.weatherBoost", JSON.stringify({ boost: res.weatherBoostPct, date: today2 }));
+        window.localStorage.setItem("h2go.weatherTemp", JSON.stringify({ temp: weather.tempMaxC, date: today2 }));
+      } catch { /* noop */ }
+      try {
         await saveGoalFn({
           data: { daily_goal_ml: res.goalMl, weather_temp_c: weather.tempMaxC },
         });
@@ -119,6 +140,29 @@ function HomePage() {
         // silent — keep current goal
       }
     })();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [data?.profile?.id]);
+
+  // Hydrate weather badge from server-stored profile when local cache is empty
+  // (new device, cleared storage, or just navigated back to /home).
+  useEffect(() => {
+    if (!data?.profile) return;
+    const p = data.profile as typeof data.profile & {
+      activity_level?: string | null;
+      climate_zone?: string | null;
+      weather_temp_c?: number | null;
+    };
+    if (weatherTemp != null) return;
+    if (p.weather_temp_c == null) return;
+    const res = computeGoal({
+      weightKg: p.weight_kg ?? null,
+      activity: (p.activity_level as ActivityLevel) ?? "moderate",
+      climate: (p.climate_zone as ClimateZone) ?? "temperate",
+      tempMaxC: p.weather_temp_c,
+      humidity: null,
+    });
+    setWeatherBoost(res.weatherBoostPct);
+    setWeatherTemp(p.weather_temp_c);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [data?.profile?.id]);
 
