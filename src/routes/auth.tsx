@@ -13,11 +13,24 @@ export const Route = createFileRoute("/auth")({
   head: () => ({
     meta: [{ title: "Sign in — H2GO" }, { name: "description", content: "Sign in to track your hydration with H2GO." }],
   }),
+  validateSearch: (s: Record<string, unknown>) => ({
+    next: typeof s.next === "string" ? s.next : undefined,
+    email: typeof s.email === "string" ? s.email : undefined,
+  }),
   component: AuthPage,
 });
 
+// Only same-origin relative paths are allowed as a post-auth destination.
+function safeNext(next: string | undefined): string | null {
+  if (!next || typeof next !== "string") return null;
+  if (!next.startsWith("/") || next.startsWith("//")) return null;
+  return next;
+}
+
 function AuthPage() {
   const navigate = useNavigate();
+  const search = Route.useSearch();
+  const nextPath = safeNext(search.next);
   const { t, locale, setLocale } = useT();
   const [mode, setMode] = useState<"signin" | "signup">("signin");
   const [email, setEmail] = useState("");
@@ -27,9 +40,20 @@ function AuthPage() {
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => {
-      if (data.session) navigate({ to: "/home" });
+      if (data.session) {
+        if (nextPath) window.location.href = nextPath;
+        else navigate({ to: "/home" });
+      }
     });
-  }, [navigate]);
+  }, [navigate, nextPath]);
+
+  function goAfterAuth(fallback: "/home" | "/onboarding") {
+    if (nextPath) {
+      window.location.href = nextPath;
+    } else {
+      navigate({ to: fallback });
+    }
+  }
 
   async function handleEmail(e: React.FormEvent) {
     e.preventDefault();
@@ -40,7 +64,9 @@ function AuthPage() {
           email,
           password,
           options: {
-            emailRedirectTo: `${window.location.origin}/home`,
+            emailRedirectTo: nextPath
+              ? `${window.location.origin}${nextPath}`
+              : `${window.location.origin}/home`,
             data: { name, locale },
           },
         });
@@ -49,7 +75,7 @@ function AuthPage() {
           navigate({ to: "/pending-validation", search: { email } });
           return;
         }
-        navigate({ to: "/onboarding" });
+        goAfterAuth("/onboarding");
       } else {
         const { error } = await supabase.auth.signInWithPassword({ email, password });
         if (error) {
@@ -66,7 +92,7 @@ function AuthPage() {
           navigate({ to: "/pending-validation", search: { email } });
           return;
         }
-        navigate({ to: "/home" });
+        goAfterAuth("/home");
       }
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Auth failed");
@@ -79,8 +105,12 @@ function AuthPage() {
     setBusy(true);
     // Web + natif (Capacitor): la WebView charge déjà https://h2go-app.com
     // donc le broker Lovable peut rediriger vers l'origine sans deep-link.
+    // For OAuth consent flows, return to the original consent URL after sign-in.
+    const redirectUri = nextPath
+      ? `${window.location.origin}${nextPath}`
+      : window.location.origin;
     const result = await lovable.auth.signInWithOAuth(provider, {
-      redirect_uri: window.location.origin,
+      redirect_uri: redirectUri,
     });
     if (result.error) {
       toast.error(result.error.message ?? `${provider} sign-in failed`);
@@ -88,8 +118,9 @@ function AuthPage() {
       return;
     }
     if (result.redirected) return;
-    navigate({ to: "/home" });
+    goAfterAuth("/home");
   }
+
 
   return (
     <div className="min-h-screen flex items-center justify-center p-4 bg-gradient-to-br from-[#1E3A8A] via-[#3B82F6] to-[#0D9488]">
