@@ -1,0 +1,103 @@
+{
+  "version": 1,
+  "sdk_version": "0.22.0",
+  "path": "/mcp",
+  "auth": {
+    "type": "oauth",
+    "issuer": "https://owsgiaegstdevcjvwnyw.supabase.co/auth/v1",
+    "accepted_audiences": [
+      "authenticated"
+    ]
+  },
+  "mcp": {
+    "server": {
+      "name": "h2go-mcp",
+      "version": "0.1.0",
+      "title": "H2GO"
+    },
+    "tools": [
+      {
+        "name": "get_profile",
+        "title": "Get my H2GO profile",
+        "description": "Return the signed-in user's H2GO profile: display name, daily hydration goal (ml), locale, activity level, climate zone, and subscription status.",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "type": "object",
+          "properties": {}
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "log_water",
+        "title": "Log a water intake",
+        "description": "Record a hydration entry for the signed-in H2GO user. Provide volume in milliliters (1–3000 ml).",
+        "annotations": {
+          "readOnlyHint": false,
+          "destructiveHint": false,
+          "idempotentHint": false,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "type": "object",
+          "properties": {
+            "volume_ml": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 3000,
+              "description": "Amount of water consumed, in milliliters."
+            }
+          },
+          "required": [
+            "volume_ml"
+          ]
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "get_today_hydration",
+        "title": "Get today's hydration",
+        "description": "Return today's total water intake (ml), the user's daily goal, remaining volume, and the list of entries logged today.",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "type": "object",
+          "properties": {}
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "get_hydration_history",
+        "title": "Get hydration history",
+        "description": "Return daily hydration totals (ml) for the signed-in user over the last N days (1–90, default 7), plus current and best streak.",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "type": "object",
+          "properties": {
+            "days": {
+              "description": "Number of past days to return (default 7).",
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 90
+            }
+          }
+        },
+        "outputSchema": null
+      }
+    ]
+  }
+}
