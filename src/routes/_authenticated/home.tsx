@@ -127,6 +127,11 @@ function HomePage() {
       setWeatherBoost(res.weatherBoostPct);
       setWeatherTemp(weather.tempMaxC);
       try {
+        const today2 = new Date().toISOString().slice(0, 10);
+        window.localStorage.setItem("h2go.weatherBoost", JSON.stringify({ boost: res.weatherBoostPct, date: today2 }));
+        window.localStorage.setItem("h2go.weatherTemp", JSON.stringify({ temp: weather.tempMaxC, date: today2 }));
+      } catch { /* noop */ }
+      try {
         await saveGoalFn({
           data: { daily_goal_ml: res.goalMl, weather_temp_c: weather.tempMaxC },
         });
